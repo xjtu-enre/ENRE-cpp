@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" output="target/classes" path="src/main/java">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
+		<attributes>
+			<attribute name="test" value="true"/>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="module" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="jars/org.eclipse.core.runtime-3.14.0.v20180417-0825.jar"/>
+	<classpathentry kind="lib" path="jars/org.eclipse.cdt.core_6.9.0.201909091953.jar"/>
+	<classpathentry kind="lib" path="jars/org.eclipse.core.jobs_3.10.500.v20190620-1426.jar"/>
+	<classpathentry kind="lib" path="jars/org.eclipse.core.resources_3.13.500.v20190819-0800.jar"/>
+	<classpathentry kind="lib" path="jars/org.eclipse.equinox.common_3.10.500.v20190815-1535.jar"/>
+	<classpathentry kind="lib" path="jars/org.eclipse.equinox.preferences_3.7.500.v20190815-1535.jar"/>
+	<classpathentry kind="lib" path="jars/org.eclipse.equinox.registry_3.8.500.v20190714-1850.jar"/>
+	<classpathentry kind="lib" path="jars/org.eclipse.osgi_3.15.0.v20190830-1434.jar"/>
+	<classpathentry kind="lib" path="jars/org.eclipse.cdt.core.lrparser_5.2.200.201910281707.jar"/>
+	<classpathentry kind="lib" path="jars/org.osgi.core-6.0.0.jar"/>
+	<classpathentry kind="lib" path="jars/com.ibm.icu-3.6.1-v20070906-birt-custom.jar"/>
+	<classpathentry kind="lib" path="jars/symtab-1.0.9-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="jars/opencsv-4.4.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

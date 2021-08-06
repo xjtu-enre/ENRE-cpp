@@ -1,0 +1,88 @@
+package demo;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
+import demo.cdt.CDTParser;
+import demo.entity.ClassEntity;
+import demo.entity.Entity;
+import demo.entity.EntityRepo;
+import demo.entity.EnumEntity;
+import demo.entity.EnumeratorEntity;
+import demo.entity.FunctionEntity;
+import demo.entity.FunctionEntityDefine;
+import demo.entity.MacroEntity;
+import demo.entity.NamespaceEntity;
+import demo.entity.StructEntity;
+import demo.entity.UnionEntity;
+import demo.relation.RelationContext;
+import demo.util.Configure;
+import demo.util.FileTraversal;
+import demo.util.FileUtil;
+import demo.util.JSONString;
+import demo.util.JsonWriter;
+
+
+public class Processor {
+	static CDTParser cdtparser;
+	private static final Logger LOGGER = LogManager.getLogger(Main.class);
+	final static String[] SUFFIX = new String[] { ".cpp", ".cc", ".c", ".c++", ".h", ".hpp", ".hh", ".cxx", ".hxx" };
+	static HashMap<String,Integer> fileList;
+	protected static Configure configure = Configure.getConfigureInstance();
+	public Processor() {
+		Processor.cdtparser = new CDTParser();
+	}
+	public static void printentity() {
+		cdtparser.testprintentityrepo();
+	}
+
+	public static void parseAllFlie(String inputSrcPath) throws Exception {
+		FileTraversal fileTrasversal = new FileTraversal(new FileTraversal.IFileVisitor() {
+			@Override
+			public void visit(File file) throws Exception {
+				String fileFullPath = file.getAbsolutePath();
+				fileFullPath = FileUtil.uniqFilePath(fileFullPath);
+				LOGGER.info("parse"+fileFullPath);
+				if (!fileFullPath.startsWith(inputSrcPath)) {
+					return;
+				}			
+				parseFlie(fileFullPath);
+			}
+
+		});
+		fileTrasversal.getFileList(inputSrcPath);
+		fileList = fileTrasversal.getfile();
+		fileTrasversal.extensionFilter(SUFFIX);
+		fileTrasversal.travers(inputSrcPath);
+		
+	}
+	public static void parseFlie(String inputSrcPath) throws Exception {
+		cdtparser.setFileList(fileList);
+		cdtparser.parseFile(inputSrcPath);
+	}
+	
+	public static void dependencyBuild() throws Exception {
+		LOGGER.info("start dependency");
+		EntityRepo entityrepo = cdtparser.getEntityRepo();
+		RelationContext relationcontext = new RelationContext(entityrepo);
+		
+		relationcontext.includeDeal();
+		relationcontext.ClassDeal();
+		relationcontext.FunctionDeal();
+		relationcontext.stastics();
+		JSONString str = new JSONString();
+		JsonWriter writer = new JsonWriter();
+		writer.toJson(str.JSONWriteRelation(relationcontext.getRelationRepo().getrelationrepo(),entityrepo),configure.getAnalyzedProjectName() + "_edge.json");
+		
+		JSONString node_str = new JSONString();
+		JsonWriter edge_writer = new JsonWriter();
+		edge_writer.toJson(node_str.JSONWriteEntity(entityrepo.getEntities()),configure.getAnalyzedProjectName() + "_node.json");
+	}
+
+}
