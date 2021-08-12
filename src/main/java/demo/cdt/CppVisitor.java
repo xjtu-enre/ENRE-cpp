@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.eclipse.cdt.core.dom.ast.ASTVisitor;
+import org.eclipse.cdt.core.dom.ast.IASTComment;
 import org.eclipse.cdt.core.dom.ast.IASTCompositeTypeSpecifier;
 import org.eclipse.cdt.core.dom.ast.IASTDeclSpecifier;
 import org.eclipse.cdt.core.dom.ast.IASTDeclaration;
@@ -12,6 +13,7 @@ import org.eclipse.cdt.core.dom.ast.IASTDeclarator;
 import org.eclipse.cdt.core.dom.ast.IASTElaboratedTypeSpecifier;
 import org.eclipse.cdt.core.dom.ast.IASTEnumerationSpecifier;
 import org.eclipse.cdt.core.dom.ast.IASTExpression;
+import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
 import org.eclipse.cdt.core.dom.ast.IASTForStatement;
 import org.eclipse.cdt.core.dom.ast.IASTFunctionDeclarator;
 import org.eclipse.cdt.core.dom.ast.IASTFunctionDefinition;
@@ -21,6 +23,7 @@ import org.eclipse.cdt.core.dom.ast.IASTName;
 import org.eclipse.cdt.core.dom.ast.IASTNamedTypeSpecifier;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTParameterDeclaration;
+import org.eclipse.cdt.core.dom.ast.IASTPreprocessorStatement;
 import org.eclipse.cdt.core.dom.ast.IASTProblem;
 import org.eclipse.cdt.core.dom.ast.IASTProblemStatement;
 import org.eclipse.cdt.core.dom.ast.IASTReturnStatement;
@@ -29,6 +32,7 @@ import org.eclipse.cdt.core.dom.ast.IASTSimpleDeclaration;
 import org.eclipse.cdt.core.dom.ast.IASTStatement;
 import org.eclipse.cdt.core.dom.ast.IASTSwitchStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
+import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit.IDependencyTree.IASTInclusionNode;
 import org.eclipse.cdt.core.dom.ast.IASTWhileStatement;
 import org.eclipse.cdt.core.dom.ast.IASTEnumerationSpecifier.IASTEnumerator;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTAliasDeclaration;
@@ -110,7 +114,25 @@ public class CppVisitor extends ASTVisitor{
 	}
 	@Override
 	public int visit(IASTTranslationUnit tu) {
-		//showASTNode(tu,0);
+		String[] lines = tu.getRawSignature().split("\\r?\\n");
+		System.out.println("---------------------");
+		for(String line:lines) {
+			System.out.println(line);
+		}
+		System.out.println("---------------------");
+		removeLeafNode(tu, lines);
+		
+		showASTNode(tu,0);
+		//System.out.println(tu.getRawSignature());
+//		for(IASTPreprocessorStatement comment:tu.getAllPreprocessorStatements()) {
+//			System.out.println(comment.getRawSignature());
+//			
+//		}
+		System.out.println("---------------------");
+		for(String line:lines) {
+			System.out.println(line);
+		}
+		System.out.println("---------------------");
 		return super.visit(tu);
 	}
 	
@@ -540,10 +562,30 @@ public class CppVisitor extends ASTVisitor{
 			System.out.println("layerNo"+ i + "  "+node.getClass() + "    " + node.getRawSignature());
 			for(IASTNode child:node.getChildren()) {
 				System.out.println(child.getClass() + "    " + child.getRawSignature());
+				System.out.println(child.getFileLocation().getStartingLineNumber());
+				System.out.println(child.getFileLocation().getEndingLineNumber());
 			}
 			for(IASTNode child:node.getChildren()) {
 				showASTNode(child,i+1);
 			}
 		}
 		
+		public void removeLeafNode(IASTNode node, String[] text) {
+			if(node.getChildren().length == 0) {
+				System.out.println(node.getClass() + "    " + node.getRawSignature());
+				System.out.println(node.getFileLocation().getStartingLineNumber());
+				System.out.println(node.getFileLocation().getEndingLineNumber());
+				System.out.println(node.getFileLocation().getNodeOffset());
+				System.out.println(node.getFileLocation().getNodeLength());
+				IASTFileLocation location = node.getFileLocation();
+				text[location.getStartingLineNumber()-1] = text[location.getStartingLineNumber()-1].replace(node.getRawSignature(), " ");
+				
+			}
+			else {
+				for(IASTNode child:node.getChildren()) {
+					removeLeafNode(child, text);
+				}
+			}
+			
+		}
 }

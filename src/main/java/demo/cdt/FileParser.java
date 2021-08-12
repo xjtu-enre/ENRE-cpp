@@ -127,6 +127,8 @@ public class FileParser {
 	}
 	public void getallstatements(IASTPreprocessorStatement[] statements) {
 		for(IASTPreprocessorStatement statement:statements) {
+//			System.out.println(statement.getRawSignature());
+//			System.out.println(statement.getClass());
 			if(statement instanceof IASTPreprocessorIncludeStatement) {
 				fileEntity.addinclude(((IASTPreprocessorIncludeStatement) statement).getPath());
 				
