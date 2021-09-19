@@ -23,8 +23,11 @@ import org.eclipse.cdt.core.dom.ast.IASTNamedTypeSpecifier;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTSimpleDeclSpecifier;
 import org.eclipse.cdt.core.dom.ast.IASTStatement;
+import org.eclipse.cdt.core.dom.ast.IBinding;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTCastExpression;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTIdExpression;
+import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPVariable;
+
 import demo.entity.AliasEntity;
 import demo.entity.ClassEntity;
 import demo.entity.Entity;
@@ -36,13 +39,12 @@ import demo.entity.FileEntity;
 import demo.entity.FunctionEntity;
 import demo.entity.FunctionEntityDecl;
 import demo.entity.FunctionEntityDefine;
-import demo.entity.FunctionPointer;
 import demo.entity.NamespaceEntity;
-import demo.entity.Pointer;
 import demo.entity.StructEntity;
 import demo.entity.TemplateEntity;
 import demo.entity.UnionEntity;
 import demo.entity.VarEntity;
+import demo.entityType.Type;
 import demo.symtab.EnumScope;
 import demo.symtab.TemplateScope;
 import demo.symtab.UnionScope;
@@ -276,57 +278,62 @@ public class HandlerContext {
 		return enumertorEntity;
 	}
 	
+	public void getEntity(CPPASTIdExpression idExpression) {
+		if(idExpression.getName().getBinding() == null) {
+			return;
+		}
+		IBinding node = idExpression.getName().getBinding();
+		System.out.println(node.getClass().toString());
+		switch(node.getClass().toString()) {
+			case "CPPVariable":
+				CPPVariable cppVar = (CPPVariable)node;
+				IASTNode var = cppVar.getDefinition();
+				if(entityRepo.getEntity(var.getFileLocation().getFileName(),
+						var.getFileLocation().getStartingLineNumber(), 
+						var.getFileLocation().getNodeOffset())!=null) {
+					System.out.println("yes!");
+				}
+				break;
+		}
+			
+			
+	}
 	
-	public VarEntity foundVarDefinition(String varName, String varType) {
+	
+//	public Pointer foundPointerDefinition(String varName, String varType) {
+//		Pointer pointer = new Pointer(varName, 
+//				this.latestValidContainer().getQualifiedName()+"."+varName,new Type(varType), this.latestValidContainer(), entityRepo.generateId());
+//		entityRepo.add(pointer);
+//		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
+//			if(!(this.currentScope instanceof DataAggregateSymbol)) {
+//				if(this.currentScope.getSymbol(varName)==null) {
+//					VariableSymbol v = new VariableSymbol(varName);
+//					this.currentScope.define(v);
+//				}
+//			}
+//		}
+//		return pointer;
+//	}
+	
+	
+//	public FunctionPointer foundFunctionPointerDefinition(String varName, String varType) {
+//		FunctionPointer pointer = new FunctionPointer(varName, 
+//				this.latestValidContainer().getQualifiedName()+"."+varName,new Type(varType), this.latestValidContainer(), entityRepo.generateId());
+//		entityRepo.add(pointer);
+//		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
+//			if(!(this.currentScope instanceof DataAggregateSymbol)) {
+//				if(this.currentScope.getSymbol(varName)==null) {
+//					VariableSymbol v = new VariableSymbol(varName);
+//					this.currentScope.define(v);
+//				}
+//			}
+//		}
+//		return pointer;
+//	}
+	
+	public VarEntity foundVarDefinition(String varName) {
 		VarEntity varEntity = new VarEntity(varName, 
-				this.latestValidContainer().getQualifiedName()+"."+varName,varType, this.latestValidContainer(), entityRepo.generateId());
-		entityRepo.add(varEntity);
-		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
-			if(!(this.currentScope instanceof DataAggregateSymbol)) {
-				if(this.currentScope.getSymbol(varName)==null) {
-					VariableSymbol v = new VariableSymbol(varName);
-					this.currentScope.define(v);
-				}
-			}
-		}
-		return varEntity;
-	}
-	
-	public Pointer foundPointerDefinition(String varName, String varType) {
-		Pointer pointer = new Pointer(varName, 
-				this.latestValidContainer().getQualifiedName()+"."+varName,varType, this.latestValidContainer(), entityRepo.generateId());
-		entityRepo.add(pointer);
-		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
-			if(!(this.currentScope instanceof DataAggregateSymbol)) {
-				if(this.currentScope.getSymbol(varName)==null) {
-					VariableSymbol v = new VariableSymbol(varName);
-					this.currentScope.define(v);
-				}
-			}
-		}
-		return pointer;
-	}
-	
-	
-	public FunctionPointer foundFunctionPointerDefinition(String varName, String varType) {
-		FunctionPointer pointer = new FunctionPointer(varName, 
-				this.latestValidContainer().getQualifiedName()+"."+varName,varType, this.latestValidContainer(), entityRepo.generateId());
-		entityRepo.add(pointer);
-		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
-			if(!(this.currentScope instanceof DataAggregateSymbol)) {
-				if(this.currentScope.getSymbol(varName)==null) {
-					VariableSymbol v = new VariableSymbol(varName);
-					this.currentScope.define(v);
-				}
-			}
-		}
-		return pointer;
-	}
-	
-	public VarEntity foundVarDefinition(String varName, Entity varType) {
-		VarEntity varEntity = new VarEntity(varName, 
-				this.latestValidContainer().getQualifiedName()+"."+varName, varType.getName(), this.latestValidContainer(), entityRepo.generateId());
-		varEntity.setTypeEntity(varType);
+				this.latestValidContainer().getQualifiedName()+"."+varName,  this.latestValidContainer(), entityRepo.generateId());
 		entityRepo.add(varEntity);
 		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
 			if(!(this.currentScope instanceof DataAggregateSymbol)) {

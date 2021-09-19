@@ -23,7 +23,6 @@ import demo.entity.FileEntity;
 import demo.entity.FunctionEntity;
 import demo.entity.FunctionEntityDecl;
 import demo.entity.FunctionEntityDefine;
-import demo.entity.FunctionPointer;
 import demo.entity.StructEntity;
 
 

@@ -33,8 +33,10 @@ public class EntityRepo {
 		
 	}
 	
+	
 	private Map<String, Entity> allEntieisByName;
 	private Map<Integer, Entity> allEntitiesById;
+	private Map<String, Entity> allEntitiesByLocation;
 	private List<FileEntity> fileEntities;
 	private int nextAvaliableIndex;
 	
@@ -50,6 +52,7 @@ public class EntityRepo {
 	public EntityRepo() {
 		allEntieisByName = new TreeMap<>();
 		allEntitiesById = new TreeMap<>();
+		allEntitiesByLocation = new TreeMap<>();
 		fileEntities = new ArrayList<FileEntity>();
 	}
 
@@ -60,9 +63,17 @@ public class EntityRepo {
 	public Entity getEntity(Integer entityId) {
 		return allEntitiesById.get(entityId);
 	}
+	
+	public Entity getEntity(String fileName, Integer startLine, Integer startRow) {
+		return allEntitiesByLocation.get(fileName+startLine+startRow);
+	}
+	
 
 	public void add(Entity entity) {
 		allEntitiesById.put(entity.getId(), entity);
+		allEntitiesByLocation.put(entity.getAncestor().getName()+entity.getLocation().getStartLine()+
+				entity.getLocation().getStartColumn(), entity);
+		
 		String Qualifiedname = entity.getQualifiedName();
 		if (entity.getQualifiedName() != null && !(entity.getQualifiedName().isEmpty())) {
 			Qualifiedname = entity.getQualifiedName();

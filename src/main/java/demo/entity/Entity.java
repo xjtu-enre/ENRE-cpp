@@ -25,24 +25,22 @@ public abstract class Entity {
 	ArrayList<Relation> relations;
 	Scope scope = null;
 	int visibilityLabel = 1;
-	
+	public Entity() {};
+	public Entity(String name, String qualifiedName, Entity parent, Integer id) {//GenericName rawName,
+		this.name = name;
+		this.qualifiedName = qualifiedName;
+		this.parent = parent;
+		this.id = id;
+		if (parent!=null)
+			parent.addChild(this);
+		visibleNames.put(qualifiedName, this);
+	}
 
-	 public Entity() {};
-	 public Entity(String name, String qualifiedName, Entity parent, Integer id) {//GenericName rawName,
-		 this.name = name;
-		 this.qualifiedName = qualifiedName;
-		 this.parent = parent;
-		 this.id = id;
-		 if (parent!=null)
-			 parent.addChild(this);
-		 visibleNames.put(qualifiedName, this);
-		}
-
-	    private Set<Entity> children() {
-	    	if (children==null)
-	    		children = new HashSet<>();
-			return children;
-		}
+	 private Set<Entity> children() {
+		 if (children==null)
+			 children = new HashSet<>();
+		 return children;
+	}
 	    
 	    public Scope getScope() {
 	    	return scope;
