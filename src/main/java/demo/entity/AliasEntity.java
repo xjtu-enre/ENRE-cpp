@@ -10,8 +10,8 @@ public class AliasEntity extends Entity{
 	public AliasEntity() {
 		
 	}
-	public AliasEntity(String simpleName, String qualifiedName,  Entity parent, Integer id, String originTypeName) {
-		super(simpleName, qualifiedName, parent, id);
+	public AliasEntity(String simpleName, String qualifiedName,  Entity parent, Integer id, String originTypeName, Location location) {
+		super(simpleName, qualifiedName, parent, id, location);
 		this.originName = originTypeName;
 	}
 	public void setReferToEntity(Entity referToEntity) {

@@ -43,6 +43,7 @@ import org.eclipse.cdt.internal.core.parser.scanner.ScannerUtility;
 import org.eclipse.core.runtime.CoreException;
 import demo.entity.EntityRepo;
 import demo.entity.FileEntity;
+import demo.entity.Location;
 import demo.entity.MacroEntity;
 
 
@@ -138,9 +139,13 @@ public class FileParser {
 				String macroname = macroDefinition.getName().toString();
 				String expansion = macroDefinition.getExpansion();
 				fileEntity.getMacroRepo().put(((IMacroBinding)macroDefinition.getName().resolveBinding()).toString(), expansion);
-
+				Location location = new Location(statement.getFileLocation().getNodeLength(),
+						statement.getFileLocation().getStartingLineNumber(), 
+						statement.getFileLocation().getEndingLineNumber(),
+						statement.getFileLocation().getNodeOffset(),
+						statement.getFileLocation().getFileName().toString());
 				MacroEntity macroEntity = new MacroEntity(statement.getRawSignature(),
-						filepath+"."+"macro"+"."+macroname, fileEntity, entityrepo.generateId());
+						filepath+"."+"macro"+"."+macroname, fileEntity, entityrepo.generateId(), location);
 				entityrepo.add(macroEntity);
 			}
 		}

@@ -4,14 +4,23 @@ import java.io.Serializable;
 
 public class Location implements Serializable{
 	
-	Integer startOfSet;
+	Integer length;
 	Integer startLine;
 	Integer endLine;
 	Integer startColumn;
-	Integer endColumn;
+
 	
 	String filePath;
-	
+	public Location(String filePath) {
+		this.filePath = filePath;
+	}
+	public Location(int length, int startLine, int endLine, int startColumn, String filePath) {
+		this.length = length;
+		this.startLine = startLine;
+		this.endLine = endLine;
+		this.startColumn = startColumn;
+		this.filePath = filePath;
+	}
 	public Integer getStartLine(){
         return startLine;
     }
@@ -27,13 +36,9 @@ public class Location implements Serializable{
     public Integer getStartColumn(){
         return startColumn;
     }
-    public void setStartColumn(int endColumn){
-        this.endColumn = endColumn;
-    }
+
     public Integer getEndColumn(){
         return startColumn;
     }
-    public void setEndColumn(int endColumn){
-        this.endColumn = endColumn;
-    }
+
 }

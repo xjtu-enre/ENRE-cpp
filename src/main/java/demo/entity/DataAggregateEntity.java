@@ -8,8 +8,8 @@ public class DataAggregateEntity extends Entity{
 	
 	boolean isScopeTrue = true;
 	
-	public DataAggregateEntity(String name, String qualifiedName, Entity parent, Integer id,BaseScope scope) {
-		super(name,qualifiedName, parent,id);
+	public DataAggregateEntity(String name, String qualifiedName, Entity parent, Integer id,BaseScope scope, Location location) {
+		super(name,qualifiedName, parent,id, location);
 		this.scope = scope;
 		if(name.contains("::")) {
 			isScopeTrue = false;

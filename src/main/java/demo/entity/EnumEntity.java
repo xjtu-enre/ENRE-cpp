@@ -6,8 +6,8 @@ import org.antlr.symtab.BaseScope;
 
 public class EnumEntity extends DataAggregateEntity {
 	List<EnumeratorEntity> enumeratorList;
-	public EnumEntity(String name, String qualifiedName, Entity parent, Integer id, BaseScope scope) {
-		super(name, qualifiedName, parent, id, scope);
+	public EnumEntity(String name, String qualifiedName, Entity parent, Integer id, BaseScope scope, Location location) {
+		super(name, qualifiedName, parent, id, scope, location);
 	}
 	
 	public void addEnumerator(EnumeratorEntity enumerator) {

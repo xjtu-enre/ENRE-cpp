@@ -1,0 +1,13 @@
+2021-09-19 21:40:20  [ main:0 ] - [ INFO ]  parseC:\Users\ding7\Desktop\newtest\callback\callback.cpp
+  2021-09-19 21:40:20  [ main:415 ] - [ INFO ]  parseC:\Users\ding7\Desktop\newtest\callback\function_parameter.cpp
+  2021-09-19 21:40:20  [ main:429 ] - [ INFO ]  parseC:\Users\ding7\Desktop\newtest\callback\function_parameter_typedef.cpp
+  2021-09-19 21:40:20  [ main:440 ] - [ INFO ]  start dependency
+  2021-09-19 21:40:20  [ main:443 ] - [ INFO ]  includenum:0
+  2021-09-19 21:40:20  [ main:443 ] - [ INFO ]  definenum:0
+  2021-09-19 21:40:20  [ main:443 ] - [ INFO ]  callnum:3
+  2021-09-19 21:40:20  [ main:443 ] - [ INFO ]  returnnum:2
+  2021-09-19 21:40:20  [ main:443 ] - [ INFO ]  parameternum:13
+  2021-09-19 21:40:20  [ main:443 ] - [ INFO ]  extendnum:0
+  2021-09-19 21:40:20  [ main:451 ] - [ INFO ]  overridenum:0
+  2021-09-19 21:40:20  [ main:514 ] - [ INFO ]  Process finish!
+  

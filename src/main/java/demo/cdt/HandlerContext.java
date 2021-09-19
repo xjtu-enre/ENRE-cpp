@@ -39,6 +39,7 @@ import demo.entity.FileEntity;
 import demo.entity.FunctionEntity;
 import demo.entity.FunctionEntityDecl;
 import demo.entity.FunctionEntityDefine;
+import demo.entity.Location;
 import demo.entity.NamespaceEntity;
 import demo.entity.StructEntity;
 import demo.entity.TemplateEntity;
@@ -64,7 +65,7 @@ public class HandlerContext {
 		String[] name = filefullpath.split("\\\\");
 		GlobalScope scope = new GlobalScope(null);
 		currentFileEntity = new FileEntity(name[name.length-1], filefullpath, 
-				null, entityRepo.generateId(),filefullpath,scope);
+				null, entityRepo.generateId(),filefullpath,scope, new Location(filefullpath));
 		
 		entityRepo.add(currentFileEntity);
 		pushScope(scope);
@@ -72,10 +73,10 @@ public class HandlerContext {
 		return currentFileEntity;
 	}
 
-	public Entity foundNamespace(String nampespaceName, int startingLineNumber) {
+	public Entity foundNamespace(String nampespaceName, int startingLineNumber, Location location) {
 		NamespaceEntity nsEntity = new NamespaceEntity(nampespaceName,
 				this.latestValidContainer().getQualifiedName()+"."+ nampespaceName, 
-				currentFileEntity,entityRepo.generateId());
+				currentFileEntity,entityRepo.generateId(), location);
 		nsEntity.setLine(startingLineNumber);
 		entityRepo.add(nsEntity);
 		entityStack.push(nsEntity);
@@ -83,8 +84,7 @@ public class HandlerContext {
 	}
 	
 
-	public FunctionEntity foundMethodDeclaratorDeclaration(String methodName, int startingLineNumber,
-			String returnType){
+	public FunctionEntity foundMethodDeclaratorDeclaration(String methodName, String returnType, Location location){
 		methodName = methodName.replace("::", ".");
 		int id = entityRepo.generateId();
 		// 分析构造作用域
@@ -98,8 +98,7 @@ public class HandlerContext {
 		// 创建函数实体
 		FunctionEntity functionEntity = new FunctionEntityDecl(methodName,
 				this.latestValidContainer().getQualifiedName()+"."+methodName,  
-				this.latestValidContainer(),id, symbol);
-		functionEntity.setLine(startingLineNumber);
+				this.latestValidContainer(),id, symbol, location);
 		functionEntity.setReturn(returnType);
 		entityRepo.add(functionEntity);
 		
@@ -110,14 +109,14 @@ public class HandlerContext {
 		return functionEntity;
 	}
 	
-	public FunctionEntity foundMethodDeclaratorDefine(IASTFunctionDefinition functionDefinition) {
+	public FunctionEntity foundMethodDeclaratorDefine(IASTFunctionDefinition functionDefinition,Location location) {
 		int id = entityRepo.generateId();
 		
 		String methodName = functionDefinition.getDeclarator().getName().toString();
 		MethodSymbol symbol = new MethodSymbol(methodName);
 		FunctionEntity functionEntity = new FunctionEntityDefine(methodName,
 				this.latestValidContainer().getQualifiedName()+"."+methodName, 
-				this.latestValidContainer(),id,symbol);
+				this.latestValidContainer(),id,symbol, location);
 		functionEntity.setLine(functionDefinition.getFileLocation().getStartingLineNumber());
 		functionEntity.setReturn(getFunctionReturn(functionDefinition.getDeclSpecifier()));
 		entityRepo.add(functionEntity);
@@ -150,7 +149,7 @@ public class HandlerContext {
 	}
 	
 	// 实现了
-	public FunctionEntity foundMethodDeclaratorDefine(String methodName, int startingLineNumber, String returnType){
+	public FunctionEntity foundMethodDeclaratorDefine(String methodName,  String returnType, Location location){
 		
 		methodName = methodName.replace("::", ".");
 		int id = entityRepo.generateId();
@@ -168,15 +167,14 @@ public class HandlerContext {
 		}
 		FunctionEntity functionEntity = new FunctionEntityDefine(methodName,
 				this.latestValidContainer().getQualifiedName()+"."+methodName, 
-				this.latestValidContainer(),id,symbol);
-		functionEntity.setLine(startingLineNumber);
+				this.latestValidContainer(),id,symbol, location);
 		functionEntity.setReturn(returnType);
 		entityRepo.add(functionEntity);
 		pushScope(symbol);
 		entityStack.push(functionEntity);
 		return functionEntity;
 	}
-	public EnumEntity foundEnumDefinition(String enumName, int startingLineNumber) {
+	public EnumEntity foundEnumDefinition(String enumName, Location location) {
 		int id = entityRepo.generateId();
 		EnumScope symbol = new EnumScope(enumName);
 		if(this.currentScope.getSymbol(enumName)==null) {
@@ -194,13 +192,13 @@ public class HandlerContext {
 		
 		EnumEntity enumeration = new EnumEntity(enumName,
 				this.latestValidContainer().getQualifiedName()+"."+enumName,
-				this.latestValidContainer(),id,symbol);
+				this.latestValidContainer(),id,symbol, location);
 		entityRepo.add(enumeration);
 		pushScope(symbol);
 		entityStack.push(enumeration);
 		return enumeration;
 	}
-	public ClassEntity foundClassDefinition(String ClassName, int startingLineNumber,List<String> baseClass){
+	public ClassEntity foundClassDefinition(String ClassName,List<String> baseClass, Location location){
 		int id = entityRepo.generateId();
 		ClassSymbol symbol = new ClassSymbol(ClassName);
 		if(this.currentScope.getSymbol(ClassName)==null) {
@@ -213,8 +211,7 @@ public class HandlerContext {
 		
 		ClassEntity classEntity = new ClassEntity(ClassName, 
 				this.latestValidContainer().getQualifiedName()+"."+ClassName,
-				this.latestValidContainer(),id,symbol);
-		classEntity.setLine(startingLineNumber);
+				this.latestValidContainer(),id,symbol, location);
 		if(baseClass!= null) {
 			classEntity.addBaseClass(baseClass);
 		}
@@ -223,7 +220,7 @@ public class HandlerContext {
 		entityStack.push(classEntity);
 		return classEntity;
 	}
-	public StructEntity foundStructDefinition(String StructName, int startingLineNumber, List<String> baseStruct) {
+	public StructEntity foundStructDefinition(String StructName, List<String> baseStruct, Location location) {
 		int id = entityRepo.generateId();
 		if(StructName.equals("")) {
 			StructName = "Default";
@@ -233,8 +230,7 @@ public class HandlerContext {
 		
 		StructEntity structEntity = new StructEntity(StructName,
 				this.latestValidContainer().getQualifiedName()+"."+StructName,
-				this.latestValidContainer(), id, symbol);
-		structEntity.setLine(startingLineNumber);
+				this.latestValidContainer(), id, symbol, location);
 		if(baseStruct!= null) {
 			structEntity.addBaseStruct(baseStruct);
 		}
@@ -243,7 +239,7 @@ public class HandlerContext {
 		entityStack.push(structEntity);
 		return structEntity;
 	}
-	public UnionEntity foundUnionDefinition(String UnionName, int startingLineNumber) {
+	public UnionEntity foundUnionDefinition(String UnionName, Location location) {
 		int id = entityRepo.generateId();
 		
 		UnionScope symbol = new UnionScope(UnionName);
@@ -257,8 +253,7 @@ public class HandlerContext {
 
 		UnionEntity unionEntity = new UnionEntity(UnionName,
 				this.latestValidContainer().getQualifiedName()+"."+UnionName,
-				this.latestValidContainer(), id, symbol);
-		unionEntity.setLine(startingLineNumber);
+				this.latestValidContainer(), id, symbol, location);
 		
 		entityRepo.add(unionEntity);
 		pushScope(symbol);
@@ -266,11 +261,11 @@ public class HandlerContext {
 		return unionEntity;
 	}
 	
-	public EnumeratorEntity foundEnumeratorDefinition(String enumeratorName,int startline) {
+	public EnumeratorEntity foundEnumeratorDefinition(String enumeratorName, Location location) {
 		int id = entityRepo.generateId();
 		EnumeratorEntity enumertorEntity = new EnumeratorEntity(enumeratorName,
 				this.latestValidContainer().getQualifiedName()+"."+enumeratorName,
-				this.latestValidContainer(),id);
+				this.latestValidContainer(),id, location);
 		entityRepo.add(enumertorEntity);
 		if(this.latestValidContainer() instanceof EnumEntity) {
 			((EnumEntity)this.latestValidContainer()).addEnumerator(enumertorEntity);
@@ -331,9 +326,9 @@ public class HandlerContext {
 //		return pointer;
 //	}
 	
-	public VarEntity foundVarDefinition(String varName) {
+	public VarEntity foundVarDefinition(String varName, Location location) {
 		VarEntity varEntity = new VarEntity(varName, 
-				this.latestValidContainer().getQualifiedName()+"."+varName,  this.latestValidContainer(), entityRepo.generateId());
+				this.latestValidContainer().getQualifiedName()+"."+varName,  this.latestValidContainer(), entityRepo.generateId(), location);
 		entityRepo.add(varEntity);
 		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
 			if(!(this.currentScope instanceof DataAggregateSymbol)) {
@@ -347,18 +342,18 @@ public class HandlerContext {
 		}
 		return varEntity;
 	}
-	public AliasEntity foundNewAlias(String aliasName, String originalName) {
+	public AliasEntity foundNewAlias(String aliasName, String originalName, Location location) {
 		if (aliasName.equals(originalName)) return null; 
 		AliasEntity currentTypeEntity = new AliasEntity(aliasName, 
 				this.latestValidContainer().getQualifiedName()+"."+aliasName,this.latestValidContainer(),
-				entityRepo.generateId(), originalName );
+				entityRepo.generateId(), originalName, location );
 		entityRepo.add(currentTypeEntity);
 		return currentTypeEntity;		
 	}
-	public AliasEntity foundNewAlias(String aliasName, Entity referToEntity) {
+	public AliasEntity foundNewAlias(String aliasName, Entity referToEntity, Location location) {
 		AliasEntity currentTypeEntity = new AliasEntity(aliasName, 
 				this.latestValidContainer().getQualifiedName()+"."+aliasName,this.latestValidContainer(),
-				entityRepo.generateId(),aliasName);
+				entityRepo.generateId(),aliasName, location);
 		currentTypeEntity.setReferToEntity(referToEntity);
 		entityRepo.add(currentTypeEntity);
 		return currentTypeEntity;		
@@ -394,12 +389,12 @@ public class HandlerContext {
 	
 		
 	}
-	public TemplateEntity foundTemplate() {
+	public TemplateEntity foundTemplate(Location location) {
 		
 		TemplateScope scope = new TemplateScope("template");
 		TemplateEntity template = new TemplateEntity("template",
 				this.latestValidContainer().getQualifiedName()+".template",
-				this.latestValidContainer(),entityRepo.generateId(),scope);
+				this.latestValidContainer(),entityRepo.generateId(),scope, location);
 		
 		return template;
 	}

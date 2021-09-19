@@ -15,8 +15,8 @@ public class FunctionEntity extends DataAggregateEntity{
 	boolean isCallbackCall = false;
 	
 	
-	public FunctionEntity(String name, String qualifiedName, Entity parent, Integer id, BaseScope scope) {
-		super(name, qualifiedName, parent, id, scope);
+	public FunctionEntity(String name, String qualifiedName, Entity parent, Integer id, BaseScope scope, Location location) {
+		super(name, qualifiedName, parent, id, scope, location);
 		parameter =  new ArrayList();
 
 	}

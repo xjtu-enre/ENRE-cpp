@@ -19,20 +19,21 @@ public abstract class Entity {
 	Entity parent;
 	Set<Entity> children;
 	
-	private Location location = new Location();
+	private Location location;
 	private ArrayList<Expression> expressionList;
 	protected HashMap<String, Entity> visibleNames = new HashMap<>();
 	ArrayList<Relation> relations;
 	Scope scope = null;
 	int visibilityLabel = 1;
 	public Entity() {};
-	public Entity(String name, String qualifiedName, Entity parent, Integer id) {//GenericName rawName,
+	public Entity(String name, String qualifiedName, Entity parent, Integer id, Location location) {//GenericName rawName,
 		this.name = name;
 		this.qualifiedName = qualifiedName;
 		this.parent = parent;
 		this.id = id;
 		if (parent!=null)
 			parent.addChild(this);
+		this.location = location;
 		visibleNames.put(qualifiedName, this);
 	}
 

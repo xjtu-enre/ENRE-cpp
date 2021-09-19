@@ -8,8 +8,8 @@ import org.antlr.symtab.BaseScope;
 
 public class StructEntity extends DataAggregateEntity{
 	List<String> baseStruct;
-	public StructEntity(String name, String qualifiedName, Entity parent, Integer id, BaseScope scope) {
-		super(name, qualifiedName, parent, id, scope);
+	public StructEntity(String name, String qualifiedName, Entity parent, Integer id, BaseScope scope, Location location) {
+		super(name, qualifiedName, parent, id, scope, location);
 		this.baseStruct = new ArrayList<String>();	
 	}
 	
