@@ -24,8 +24,14 @@ import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTSimpleDeclSpecifier;
 import org.eclipse.cdt.core.dom.ast.IASTStatement;
 import org.eclipse.cdt.core.dom.ast.IBinding;
+import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTBinaryExpression;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTCastExpression;
+import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTDeleteExpression;
+import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTExpressionList;
+import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTFunctionCallExpression;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTIdExpression;
+import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTUnaryExpression;
+import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPFunction;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPParameter;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPVariable;
 
@@ -311,6 +317,79 @@ public class HandlerContext {
 		return null;
 	}
 	
+	public void setUse(Entity entity) {
+		this.latestValidContainer().setUse(entity);
+	}
+	
+	public void setCall(Entity entity) {
+		this.latestValidContainer().setCall(entity);
+	}
+	
+
+	/*
+	 * Abstraction handles all expressions.
+	 * such as: CPPASTBinaryExpression, CPPASTCastExpression, CPPASTDeleteExpression,
+	 * CPPASTUnaryExpression, CPPASTFunctionCallExpression, CPPASTExpressionList
+	 */
+	public void dealExpression(IASTExpression expression) {
+		if(expression instanceof CPPASTBinaryExpression) {
+			CPPASTBinaryExpression binaryExp = (CPPASTBinaryExpression)expression;
+			this.dealExpressionNode(binaryExp.getOperand1());
+			this.dealExpressionNode(binaryExp.getOperand2());
+			return;
+		}
+		if(expression instanceof CPPASTCastExpression) {
+			CPPASTCastExpression castExp = (CPPASTCastExpression)expression;
+			this.dealExpressionNode(castExp.getOperand());
+			return;
+		}
+		
+		if(expression instanceof CPPASTDeleteExpression) {
+			CPPASTDeleteExpression deleteExp = (CPPASTDeleteExpression)expression;
+			this.dealExpressionNode(deleteExp.getOperand());
+			return;
+		}
+		
+		if(expression instanceof CPPASTUnaryExpression) {
+			CPPASTUnaryExpression unaryExp = (CPPASTUnaryExpression)expression;
+			this.dealExpressionNode(unaryExp.getOperand());
+			return;
+		}
+		if(expression instanceof CPPASTFunctionCallExpression) {
+			CPPASTFunctionCallExpression functioncallExp = (CPPASTFunctionCallExpression)expression;
+			this.dealExpressionNode(functioncallExp.getFunctionNameExpression());		
+		}
+		if(expression instanceof CPPASTExpressionList) {
+			CPPASTExpressionList expressionList = (CPPASTExpressionList)expression;
+			for(IASTExpression exp:expressionList.getExpressions()) {
+				this.dealExpressionNode(exp);
+			}
+			return;
+		}
+	}
+	/*
+	 * Intermediate process for processing expressions
+	 */
+	public void dealExpressionNode(IASTExpression expression) {
+		if(expression instanceof CPPASTIdExpression) {
+			Entity entity = getEntity((CPPASTIdExpression)expression);
+			if(entity != null) {
+				if(entity instanceof DataAggregateEntity) {
+					if(entity instanceof FunctionEntity) {
+						setCall(entity);
+					}
+				}
+				else {
+					setUse(entity);
+				}
+			}
+		}
+		else {
+			dealExpression(expression);
+		}
+	}
+
+	
 	
 //	public Pointer foundPointerDefinition(String varName, String varType) {
 //		Pointer pointer = new Pointer(varName, 
@@ -359,6 +438,7 @@ public class HandlerContext {
 		}
 		return varEntity;
 	}
+		
 	public AliasEntity foundNewAlias(String aliasName, String originalName, Location location) {
 		if (aliasName.equals(originalName)) return null; 
 		AliasEntity currentTypeEntity = new AliasEntity(aliasName, 
@@ -440,19 +520,19 @@ public class HandlerContext {
 	}
 
 
-	public Entity latestValidContainer() {
+	public DataAggregateEntity latestValidContainer() {
 		for (int i = entityStack.size() - 1; i >= 0; i--) {
 			Entity t = entityStack.get(i);
 			if (t instanceof FunctionEntity) 
-				return t;
+				return (FunctionEntity)t;
 			if (t instanceof FileEntity)	
-				return t;
+				return (FileEntity)t;
 			if (t instanceof StructEntity)
-				return t;
+				return (StructEntity)t;
 			if (t instanceof UnionEntity)
-				return t;
+				return (UnionEntity)t;
 			if (t instanceof ClassEntity)
-				return t;
+				return (ClassEntity)t;
 		}
 		return null;
 	}

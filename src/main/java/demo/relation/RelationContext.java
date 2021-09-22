@@ -16,6 +16,7 @@ import org.eclipse.cdt.core.dom.ast.IASTInitializerClause;
 
 import demo.Main;
 import demo.entity.ClassEntity;
+import demo.entity.DataAggregateEntity;
 import demo.entity.Entity;
 import demo.entity.EntityRepo;
 import demo.entity.Expression;
@@ -50,7 +51,7 @@ public class RelationContext {
 	/*
 	 * deal include dependency
 	 */
-	public void includeDeal() {
+	public void FileDeal() {
 		for(FileEntity File:FileList) {
 			//getIncludeRelation(File);
 			for(FileEntity includefile:File.getIncludeEntity()) {
@@ -60,6 +61,9 @@ public class RelationContext {
 			}
 		}
 	}
+	
+	
+	
 	public void getIncludeRelation(FileEntity fromEntity) {
 		
 		List<String> includeFile = fromEntity.getInclude();
@@ -87,6 +91,31 @@ public class RelationContext {
 		}
 		return null;
 	}
+	
+	
+	public void AggregateDeal() {
+		Iterator<Entity> iterator = entityrepo.entityIterator();
+		while(iterator.hasNext()) {
+			Entity entity = iterator.next();
+			if(entity instanceof DataAggregateEntity) {
+				List<Entity> useList = ((DataAggregateEntity) entity).getUse();
+				if(useList.size()!= 0) {
+					for(Entity toEntity:useList) {
+						Relation re = new Relation(entity, toEntity,"Use");
+						relationrepo.addRelation(re);
+					}
+				}
+				List<Entity> callList = ((DataAggregateEntity) entity).getCall();
+				if(callList.size()!= 0) {
+					for(Entity toEntity:callList) {
+						Relation re = new Relation(entity, toEntity,"Call");
+						relationrepo.addRelation(re);
+					}
+				}
+			}
+		}
+	}
+
 	/*
 	 * deal extend dependency
 	 */
@@ -120,6 +149,8 @@ public class RelationContext {
 			}
 		}
 	}
+	
+	
 	public void foundOverride(Entity baseEntity, Entity entity) {
 		for(Entity child:baseEntity.getChild()) {
 			if(child instanceof FunctionEntityDefine) {

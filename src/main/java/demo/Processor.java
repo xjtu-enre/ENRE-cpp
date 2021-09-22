@@ -73,7 +73,8 @@ public class Processor {
 		//entityrepo.printAllEntities();
 		RelationContext relationcontext = new RelationContext(entityrepo);
 		
-		relationcontext.includeDeal();
+		relationcontext.AggregateDeal();
+		relationcontext.FileDeal();
 		relationcontext.ClassDeal();
 		relationcontext.FunctionDeal();
 		relationcontext.stastics();

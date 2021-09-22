@@ -1,5 +1,8 @@
 package demo.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.antlr.symtab.BaseScope;
 import org.antlr.symtab.Scope;
 
@@ -7,6 +10,8 @@ import org.antlr.symtab.Scope;
 public class DataAggregateEntity extends Entity{
 	
 	boolean isScopeTrue = true;
+	List<Entity> useList = new ArrayList<Entity>();
+	List<Entity> callList = new ArrayList<Entity>();
 	
 	public DataAggregateEntity(String name, String qualifiedName, Entity parent, Integer id,BaseScope scope, Location location) {
 		super(name,qualifiedName, parent,id, location);
@@ -15,6 +20,27 @@ public class DataAggregateEntity extends Entity{
 			isScopeTrue = false;
 		}
 	}
+	
+	/*
+	 * set and gets the list of variables to use
+	 */
+	public void setUse(Entity entity) {
+		this.useList.add(entity);
+	}
+	
+	public List<Entity> getUse() {
+		return this.useList;
+	}
+	
+	public void setCall(Entity entity) {
+		this.callList.add(entity);
+	}
+	
+	public List<Entity> getCall() {
+		return this.callList;
+	}
+	
+	
 	public Scope foundTrueScope(Scope scope, String name) {
 		if(isScopeTrue) return scope;
 		String scopeName = name.split("::")[0];
