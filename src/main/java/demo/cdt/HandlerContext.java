@@ -26,6 +26,7 @@ import org.eclipse.cdt.core.dom.ast.IASTStatement;
 import org.eclipse.cdt.core.dom.ast.IBinding;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTCastExpression;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTIdExpression;
+import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPParameter;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPVariable;
 
 import demo.entity.AliasEntity;
@@ -273,30 +274,41 @@ public class HandlerContext {
 		return enumertorEntity;
 	}
 	
-	public void getEntity(CPPASTIdExpression idExpression) {
+	public Entity getEntity(CPPASTIdExpression idExpression) {
 		if(idExpression.getName().getBinding() == null) {
-			return;
+			return null;
 		}
 		IBinding node = idExpression.getName().getBinding();
 		System.out.println(node.getClass().toString());
 		
 		switch(node.getClass().toString()) {
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPVariable":
-				System.out.println("come in");
 				CPPVariable cppVar = (CPPVariable)node;
 				IASTNode var = cppVar.getDefinition();
-				System.out.println(var.getFileLocation().getFileName()+
-						var.getFileLocation().getStartingLineNumber()+
-						var.getFileLocation().getNodeOffset());
 				if(entityRepo.getEntity(var.getFileLocation().getFileName(),
 						var.getFileLocation().getStartingLineNumber(), 
 						var.getFileLocation().getNodeOffset())!=null) {
-					System.out.println("yes!");
+					return entityRepo.getEntity(var.getFileLocation().getFileName(),
+							var.getFileLocation().getStartingLineNumber(), 
+							var.getFileLocation().getNodeOffset());
 				}
 				break;
+			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPParameter":
+				CPPParameter cppParameter = (CPPParameter)node;
+				IASTNode parameter = cppParameter.getPhysicalNode();
+				if(parameter == null) break;
+				if(entityRepo.getEntity(parameter.getFileLocation().getFileName(),
+						parameter.getFileLocation().getStartingLineNumber(), 
+						parameter.getFileLocation().getNodeOffset())!=null) {
+					return entityRepo.getEntity(parameter.getFileLocation().getFileName(),
+							parameter.getFileLocation().getStartingLineNumber(), 
+							parameter.getFileLocation().getNodeOffset());
+				}
+				break;
+			case "":
+				break;
 		}
-			
-			
+		return null;
 	}
 	
 	

@@ -65,14 +65,12 @@ public class Processor {
 	public static void parseFile(String inputSrcPath) throws Exception {
 		cdtparser.setFileList(fileList);
 		cdtparser.parseFile(inputSrcPath);
-		
-		
 	}
 	
 	public static void dependencyBuild() throws Exception {
 		LOGGER.info("start dependency");
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
-		entityrepo.printAllEntities();
+		//entityrepo.printAllEntities();
 		RelationContext relationcontext = new RelationContext(entityrepo);
 		
 		relationcontext.includeDeal();

@@ -58,9 +58,6 @@ import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTStaticAssertionDeclara
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTTemplateDeclaration;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTTemplateSpecialization;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTVisibilityLabel;
-import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPFunction;
-import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPVariable;
-
 import demo.entity.Entity;
 import demo.entity.EntityRepo;
 import demo.entity.EnumEntity;
@@ -176,7 +173,8 @@ public class CppVisitor extends ASTVisitor{
 						for (IASTDeclarator declarator:((CPPASTSimpleDeclaration)declSpec.getParent()).getDeclarators()) {
 							String varName = declarator.getRawSignature().toString();
 							EnumEntity enumentity = context.foundEnumDefinition(varName, getLocation(enumeration));
-							context.foundVarDefinition(varName, getLocation(declarator));
+							context.foundVarDefinition(varName, getLocation(declarator.getName()));
+							
 							//context.foundVarDefinition(varName,enumentity);
 							isNoObject = false;
 						}
@@ -317,21 +315,10 @@ public class CppVisitor extends ASTVisitor{
 //				}
 				if(expressionStatement.getExpression() instanceof CPPASTBinaryExpression) {
 					CPPASTBinaryExpression binaryExp = (CPPASTBinaryExpression)expressionStatement.getExpression();
-					System.out.println("************************");
-					System.out.println(binaryExp.getRawSignature());
-					System.out.println(binaryExp.getValueCategory().name());
-					System.out.println(binaryExp.getOperator());
 					if(binaryExp.getOperand1() instanceof CPPASTIdExpression) {
-						
 						CPPASTIdExpression idexp = (CPPASTIdExpression)binaryExp.getOperand1();
 						context.getEntity(idexp);
-						System.out.println(idexp.getValueCategory().name());
 					}
-					System.out.println(binaryExp.getOperand1().getClass());
-					System.out.println(binaryExp.getOperand2().getClass());
-					
-					System.out.println(binaryExp.getOperand1().getRawSignature());
-					System.out.println(binaryExp.getOperand2().getRawSignature());
 				}
 //				if(expressionStatement.getExpression() instanceof CPPASTFunctionCallExpression) {
 //					CPPASTFunctionCallExpression functioncallExp = (CPPASTFunctionCallExpression)expressionStatement.getExpression();
@@ -448,7 +435,8 @@ public class CppVisitor extends ASTVisitor{
 						String varType = declSpecifier.getRawSignature().toString(); 
 						String varName = declarator.getName().toString();
 						if(!(declSpecifier instanceof CPPASTCompositeTypeSpecifier)) {
-							VarEntity entity = context.foundVarDefinition(varName, getLocation(declarator));
+							VarEntity entity = context.foundVarDefinition(varName, getLocation(declarator.getName()));
+							
 							for(IASTNode node:declarator.getChildren()) {
 								if(node instanceof CPPASTPointer) {
 									
@@ -559,7 +547,7 @@ public class CppVisitor extends ASTVisitor{
 			VarEntity var = null;
 			if(parameterDeclaration.getDeclarator() instanceof CPPASTFunctionDeclarator) {
 				CPPASTFunctionDeclarator functionDeclarator = (CPPASTFunctionDeclarator)parameterDeclaration.getDeclarator();
-				var =  context.foundVarDefinition(functionDeclarator.getName().toString().replace("::", "."),getLocation(parameterDeclaration));
+				var =  context.foundVarDefinition(functionDeclarator.getName().toString().replace("::", "."),getLocation(functionDeclarator.getName()));
 				//var =  context.foundFunctionPointerDefinition(functionDeclarator.getName().toString().replace("::", "."),"functionPointer");
 				context.currentFunction().setCallbackCall(true);
 			}
@@ -568,18 +556,18 @@ public class CppVisitor extends ASTVisitor{
 				String parameterType = parameterDeclaration.getDeclSpecifier().getRawSignature().toString().replace("::", ".");
 				IASTNode[] declaratorChild = parameterDeclaration.getDeclarator().getChildren();
 				if(declaratorChild.length == 1 ) {
-					var = context.foundVarDefinition(parameterName,getLocation(parameterDeclaration));
+					var = context.foundVarDefinition(parameterName,getLocation(parameterDeclaration.getDeclarator().getName()));
 					//var = context.foundVarDefinition(parameterName,parameterType);
 				}
 				if(declaratorChild.length <= 3) {
 					for(IASTNode node:declaratorChild) {
 						if(node instanceof CPPASTPointer) {
 							//var = context.foundPointerDefinition(parameterName, parameterType);
-							var = context.foundVarDefinition(parameterName,getLocation(parameterDeclaration));
+							var = context.foundVarDefinition(parameterName,getLocation(parameterDeclaration.getDeclarator().getName()));
 							break;
 						}
 						if(node instanceof CPPASTReferenceOperator) {
-							var = context.foundVarDefinition(parameterName,getLocation(parameterDeclaration));
+							var = context.foundVarDefinition(parameterName,getLocation(parameterDeclaration.getDeclarator().getName()));
 							//var.setReference(true);
 //							var = context.foundVarDefinition(parameterName, parameterType);
 //							var.setReference(true);
