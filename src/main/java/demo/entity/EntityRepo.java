@@ -71,7 +71,7 @@ public class EntityRepo {
 
 	public void add(Entity entity) {
 		allEntitiesById.put(entity.getId(), entity);
-		allEntitiesByLocation.put(entity.getAncestor().getName()+entity.getLocation().getStartLine()+
+		allEntitiesByLocation.put(entity.getLocation().getFileName()+entity.getLocation().getStartLine()+
 				entity.getLocation().getStartColumn(), entity);
 		
 		String Qualifiedname = entity.getQualifiedName();
@@ -105,7 +105,15 @@ public class EntityRepo {
 	public Map<Integer, Entity> getEntities() {
 		return allEntitiesById;
 	}
-
+	
+	public void printAllEntities() {
+		for(Integer entityId:allEntitiesById.keySet()) {
+			Entity entity = allEntitiesById.get(entityId);
+			System.out.println(entity.getName()+entity.getLocation().getFileName()+entity.getLocation().getStartLine()+
+					entity.getLocation().getStartColumn());
+		}
+		
+	}
 
 
 }

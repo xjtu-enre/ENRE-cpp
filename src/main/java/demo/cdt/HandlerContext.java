@@ -279,10 +279,15 @@ public class HandlerContext {
 		}
 		IBinding node = idExpression.getName().getBinding();
 		System.out.println(node.getClass().toString());
+		
 		switch(node.getClass().toString()) {
-			case "CPPVariable":
+			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPVariable":
+				System.out.println("come in");
 				CPPVariable cppVar = (CPPVariable)node;
 				IASTNode var = cppVar.getDefinition();
+				System.out.println(var.getFileLocation().getFileName()+
+						var.getFileLocation().getStartingLineNumber()+
+						var.getFileLocation().getNodeOffset());
 				if(entityRepo.getEntity(var.getFileLocation().getFileName(),
 						var.getFileLocation().getStartingLineNumber(), 
 						var.getFileLocation().getNodeOffset())!=null) {

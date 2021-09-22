@@ -318,11 +318,13 @@ public class CppVisitor extends ASTVisitor{
 				if(expressionStatement.getExpression() instanceof CPPASTBinaryExpression) {
 					CPPASTBinaryExpression binaryExp = (CPPASTBinaryExpression)expressionStatement.getExpression();
 					System.out.println("************************");
+					System.out.println(binaryExp.getRawSignature());
 					System.out.println(binaryExp.getValueCategory().name());
 					System.out.println(binaryExp.getOperator());
 					if(binaryExp.getOperand1() instanceof CPPASTIdExpression) {
-						context.getEntity((CPPASTIdExpression)binaryExp.getOperand1());
+						
 						CPPASTIdExpression idexp = (CPPASTIdExpression)binaryExp.getOperand1();
+						context.getEntity(idexp);
 						System.out.println(idexp.getValueCategory().name());
 					}
 					System.out.println(binaryExp.getOperand1().getClass());
@@ -330,7 +332,6 @@ public class CppVisitor extends ASTVisitor{
 					
 					System.out.println(binaryExp.getOperand1().getRawSignature());
 					System.out.println(binaryExp.getOperand2().getRawSignature());
-					System.out.println(binaryExp.getOperator());
 				}
 //				if(expressionStatement.getExpression() instanceof CPPASTFunctionCallExpression) {
 //					CPPASTFunctionCallExpression functioncallExp = (CPPASTFunctionCallExpression)expressionStatement.getExpression();

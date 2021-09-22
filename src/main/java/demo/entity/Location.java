@@ -36,7 +36,9 @@ public class Location implements Serializable{
     public Integer getStartColumn(){
         return startColumn;
     }
-
+    public String getFileName() {
+    	return this.filePath;
+    }
     public Integer getEndColumn(){
         return startColumn;
     }

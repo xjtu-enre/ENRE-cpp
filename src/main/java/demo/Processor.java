@@ -52,7 +52,7 @@ public class Processor {
 				if (!fileFullPath.startsWith(inputSrcPath)) {
 					return;
 				}			
-				parseFlie(fileFullPath);
+				parseFile(fileFullPath);
 			}
 
 		});
@@ -62,14 +62,17 @@ public class Processor {
 		fileTrasversal.travers(inputSrcPath);
 		
 	}
-	public static void parseFlie(String inputSrcPath) throws Exception {
+	public static void parseFile(String inputSrcPath) throws Exception {
 		cdtparser.setFileList(fileList);
 		cdtparser.parseFile(inputSrcPath);
+		
+		
 	}
 	
 	public static void dependencyBuild() throws Exception {
 		LOGGER.info("start dependency");
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
+		entityrepo.printAllEntities();
 		RelationContext relationcontext = new RelationContext(entityrepo);
 		
 		relationcontext.includeDeal();
