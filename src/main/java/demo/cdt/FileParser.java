@@ -75,6 +75,8 @@ public class FileParser {
 		final FileContent content = FileContent.createForExternalFileLocation(filepath); 
 		boolean isIncludePath = false;
 		definedMacros.put("__cplusplus", "1");
+		definedMacros.put("ABSL_LOCKS_EXCLUDED(...)",
+				"__attribute__((locks_excluded(__VA_ARGS__))");
 		
 		String[] includePaths = new String[0];
 

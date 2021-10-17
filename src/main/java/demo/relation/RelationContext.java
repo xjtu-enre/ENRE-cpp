@@ -1,20 +1,15 @@
 package demo.relation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.antlr.symtab.BaseScope;
 import org.antlr.symtab.Scope;
-import org.antlr.symtab.Symbol;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.eclipse.cdt.core.dom.ast.IASTFunctionCallExpression;
 import org.eclipse.cdt.core.dom.ast.IASTInitializerClause;
 
-import demo.Main;
 import demo.entity.ClassEntity;
 import demo.entity.DataAggregateEntity;
 import demo.entity.Entity;

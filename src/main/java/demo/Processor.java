@@ -1,6 +1,7 @@
 package demo;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,7 +27,6 @@ import demo.util.Configure;
 import demo.util.FileTraversal;
 import demo.util.FileUtil;
 import demo.util.JSONString;
-import demo.util.JsonWriter;
 
 
 public class Processor {
@@ -68,8 +68,17 @@ public class Processor {
 	}
 	
 	public static void dependencyBuild() throws Exception {
-		LOGGER.info("start dependency");
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
+		JSONString node_str = new JSONString();
+		FileOutputStream outputStream = new FileOutputStream(configure.getAnalyzedProjectName() + "_node.json");
+		node_str.writeJsonStream(outputStream, entityrepo.getEntities());
+
+		//JsonWriter node_writer = new JsonWriter();
+		//node_writer.toJson(node_str.JSONWriteEntity(entityrepo.getEntities()),
+		//		configure.getAnalyzedProjectName() + "_node.json");
+		
+		LOGGER.info("start dependency");
+		
 		//entityrepo.printAllEntities();
 		RelationContext relationcontext = new RelationContext(entityrepo);
 		
@@ -78,13 +87,11 @@ public class Processor {
 		relationcontext.ClassDeal();
 		relationcontext.FunctionDeal();
 		relationcontext.stastics();
-		JSONString str = new JSONString();
-		JsonWriter writer = new JsonWriter();
-		writer.toJson(str.JSONWriteRelation(relationcontext.getRelationRepo().getrelationrepo(),entityrepo),configure.getAnalyzedProjectName() + "_edge.json");
+		JSONString edge_str = new JSONString();
+		//JsonWriter edge_writer = new JsonWriter();
+		//edge_writer.toJson(edge_str.JSONWriteRelation(relationcontext.getRelationRepo().getrelationrepo(),entityrepo),configure.getAnalyzedProjectName() + "_edge.json");
 		
-		JSONString node_str = new JSONString();
-		JsonWriter edge_writer = new JsonWriter();
-		edge_writer.toJson(node_str.JSONWriteEntity(entityrepo.getEntities()),configure.getAnalyzedProjectName() + "_node.json");
+		
 	}
 
 }

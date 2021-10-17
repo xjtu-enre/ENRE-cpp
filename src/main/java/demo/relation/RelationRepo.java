@@ -5,11 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import demo.util.Tuple;
+
 
 public class RelationRepo {
 	
-	Map<Integer, Map<Integer, Map<String, Integer>>> relationMap = new HashMap<Integer, Map<Integer, Map<String, Integer>>>();
-	
+	Map<String, List<Tuple<Integer, Integer>>> dep = new HashMap<String, List<Tuple<Integer, Integer>>>();
 	public RelationRepo() {
 		
 	}
@@ -18,25 +19,18 @@ public class RelationRepo {
 		String type = re.getType();
 		Integer from = re.getFromEntity().getId();
 		Integer to = re.getToEntity().getId();
-		Map<String, Integer> reType = new HashMap<String, Integer>();
-		reType.put(re.getType(), 1);
-		Map<Integer,Map<String, Integer>> relation = new HashMap<Integer, Map<String, Integer>>();
-		relation.put(re.getToEntity().getId(),reType);
-		
-		if(!relationMap.containsKey(from)) {
-			relationMap.put(from, relation);
-		}else {
-			if(!relationMap.get(from).containsKey(to)) {
-				relationMap.get(from).put(to, reType);
-			}
-			else {
-				relationMap.get(from).get(to).put(type, 1);
-			}
+		if(!dep.containsKey(re.getType())) {
+			List<Tuple<Integer,Integer>> listNew = new ArrayList<Tuple<Integer,Integer>>();
+			listNew.add(new Tuple(from,to));
+			this.dep.put(re.getType(), listNew);
+		}
+		else {
+			this.dep.get(type).add(new Tuple(from,to));
 		}
 	}
 
-	public Map<Integer, Map<Integer, Map<String, Integer>>> getrelationrepo(){
-		return relationMap;
+	public Map<String, List<Tuple<Integer, Integer>>> getrelationrepo(){
+		return dep;
 	}
 
 }
