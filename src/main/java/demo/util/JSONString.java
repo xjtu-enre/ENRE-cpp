@@ -56,10 +56,10 @@ public class JSONString {
 		   public void setName(String name) { 
 		      this.name = name; 
 		   } 
-		   public Integer getAge() { 
+		   public Integer getKey() { 
 		      return _key; 
 		   } 
-		   public void setAge(Integer _key) { 
+		   public void setKey(Integer _key) { 
 		      this._key = _key; 
 		   } 
 		   public String toString() { 
@@ -67,21 +67,15 @@ public class JSONString {
 		   }  
 		}
 
-	public void writeJsonStream(OutputStream out, Map<Integer, Entity> entityList) throws IOException {
+	public void writeEntityJsonStream(OutputStream out, Map<Integer, Entity> entityList) throws IOException {
         JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
         writer.setIndent("  ");
         writer.beginArray();
-        int k = 0;
         for (Integer en:entityList.keySet()) {
-        	if(k>500) {
-        		break;
-        	}
-        	k++;
         	String entityName = entityList.get(en).getQualifiedName();
         	entityName = entityName.replace("\\", "/");
         	entityName = entityName.replace("\"", "");
         	String jsonString = "{\"name\":\""+entityName+"\", \"_key\":"+en+"}"; 
-            System.out.println(jsonString);
         	GsonBuilder builder = new GsonBuilder(); 
             builder.setPrettyPrinting(); 
             Gson gson = builder.create(); 
@@ -92,58 +86,40 @@ public class JSONString {
         writer.close();
     }
 	
-	public static String JSONWriteEntity(Map<Integer, Entity> entityList) throws Exception {
-		
-		String jsonString = "[";
-        JSONObject obj=new JSONObject();//创建JSONObject对象
-        List<JSONObject> subObjVariable=new ArrayList<JSONObject>();//创建对象数组里的子对象
-        System.out.println(entityList.keySet().size());
-        int k = 0;
-		for(Integer en:entityList.keySet()) {
-			k++;
-			JSONObject subObj=new JSONObject();//创建对象数组里的子对象
-			subObj.put("_key",en+"");
-			subObj.put("name",entityList.get(en).getQualifiedName());
-			subObjVariable.add(subObj);
-			if(k>=10000) {
-				jsonString += subObjVariable.toString().substring(1, subObjVariable.toString().length()-1) +",";
-				k = 0;
-				subObjVariable = new ArrayList<JSONObject>();
-			}
-		}
-		if(k!=0) {
-			jsonString += subObjVariable.toString().substring(1, subObjVariable.toString().length()-1) +",";
-		}
+	class RelationTemp { 
+		private String type; 
+		private Integer _fromid; 
+		private Integer _toid; 
+		public RelationTemp(){} 
 
-        return "{\"variables\":"+jsonString.substring(0,jsonString.length()-1)+"]}";
+		public String getType() {
+			return type; 
+		} 
+		public void setType(String type) { 
+		    this.type = type; 
+		} 
+		public String toString() { 
+			return "RelationTemp [ type: "+type+", _fromid: "+ _fromid+", _toid: "+ _toid+ " ]"; 
+		}  
 	}
-	
-	
-	
-//	public static String JSONWriteEntity(Map<Integer, Entity> entityList) throws Exception {
-//
-//	       
-////        JSONObject obj=new JSONObject();//创建JSONObject对象
-////        
-////        JSONArray jsonArray = new JSONArray();
-////        List<JSONObject> subObjVariable=new ArrayList<JSONObject>();//创建对象数组里的子对象
-////		for(Integer en:entityList.keySet()) {
-////			
-////			JSONObject subObj=new JSONObject();//创建对象数组里的子对象
-////			subObj.put("_key",en+"");
-////			subObj.put("name",entityList.get(en).getQualifiedName());
-////			subObjVariable.add(subObj);
-////			jsonArray.put(subObj);
-////		}
-////        obj.put("variables",subObjVariable);
-////        return obj.toString();
-//        List menu = new ArrayList<>();
-//        menu.add(new JSONObject().putOpt("name","宫保鸡丁").putOpt("price","28"));
-//        menu.add(new JSONObject().putOpt("name","鱼香肉丝").putOpt("price","30"));
-//        menu.add(new JSONObject().putOpt("name","肉夹馍").putOpt("price","6"));
-//        menu.add(new JSONObject().putOpt("name","煎饼").putOpt("price","6"));
-//        menu.stream().filter(jsonObject -> ((JSONObject) jsonObject).getInt("price")<10);
-//        return menu.toString();
-//	}
+	public void writeRelationJsonStream(OutputStream out, 
+			Map<String, List<Tuple<Integer, Integer>>> relationList) throws IOException {
+		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
+        writer.setIndent("  ");
+        writer.beginArray();
+        for (String Type: relationList.keySet()) {
+        	List<Tuple<Integer, Integer>> relationListByType = relationList.get(Type);
+        	for(Tuple<Integer, Integer> relation:relationListByType) {
+        		String jsonString = "{\"type\":\""+Type+"\", \"_fromid\":"+relation.first+", \"_toid\":"+relation.second+"}"; 
+            	GsonBuilder builder = new GsonBuilder(); 
+                builder.setPrettyPrinting(); 
+                Gson gson = builder.create(); 
+                RelationTemp relationtemp = gson.fromJson(jsonString, RelationTemp.class); 
+                gson.toJson(relationtemp, RelationTemp.class, writer);
+        	}	
+        }
+        writer.endArray();
+        writer.close();
+	}
 	
 }

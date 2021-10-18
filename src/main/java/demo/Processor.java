@@ -70,13 +70,8 @@ public class Processor {
 	public static void dependencyBuild() throws Exception {
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
 		JSONString node_str = new JSONString();
-		FileOutputStream outputStream = new FileOutputStream(configure.getAnalyzedProjectName() + "_node.json");
-		node_str.writeJsonStream(outputStream, entityrepo.getEntities());
-
-		//JsonWriter node_writer = new JsonWriter();
-		//node_writer.toJson(node_str.JSONWriteEntity(entityrepo.getEntities()),
-		//		configure.getAnalyzedProjectName() + "_node.json");
-		
+		FileOutputStream outputEntityStream = new FileOutputStream(configure.getAnalyzedProjectName() + "_node.json");
+		node_str.writeEntityJsonStream(outputEntityStream, entityrepo.getEntities());
 		LOGGER.info("start dependency");
 		
 		//entityrepo.printAllEntities();
@@ -88,10 +83,8 @@ public class Processor {
 		relationcontext.FunctionDeal();
 		relationcontext.stastics();
 		JSONString edge_str = new JSONString();
-		//JsonWriter edge_writer = new JsonWriter();
-		//edge_writer.toJson(edge_str.JSONWriteRelation(relationcontext.getRelationRepo().getrelationrepo(),entityrepo),configure.getAnalyzedProjectName() + "_edge.json");
-		
-		
+		FileOutputStream outputRelationStream = new FileOutputStream(configure.getAnalyzedProjectName() + "_edge.json");
+		node_str.writeRelationJsonStream(outputRelationStream, relationcontext.getRelationRepo().getrelationrepo());		
 	}
 
 }

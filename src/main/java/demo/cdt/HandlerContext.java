@@ -57,6 +57,7 @@ import demo.entity.UnionEntity;
 import demo.entity.VarEntity;
 import demo.entityType.Type;
 import demo.symtab.EnumScope;
+import demo.symtab.NamespaceScope;
 import demo.symtab.TemplateScope;
 import demo.symtab.UnionScope;
 import demo.entity.DataAggregateEntity;
@@ -83,13 +84,23 @@ public class HandlerContext {
 		return currentFileEntity;
 	}
 
-	public Entity foundNamespace(String nampespaceName, int startingLineNumber, Location location) {
-		NamespaceEntity nsEntity = new NamespaceEntity(nampespaceName,
-				this.latestValidContainer().getQualifiedName()+"."+ nampespaceName, 
+	public Entity foundNamespace(String namespaceName, int startingLineNumber, Location location) {
+		NamespaceEntity nsEntity = new NamespaceEntity(namespaceName,
+				this.latestValidContainer().getQualifiedName()+"."+ namespaceName, 
 				currentFileEntity,entityRepo.generateId(), location);
 		nsEntity.setLine(startingLineNumber);
 		entityRepo.add(nsEntity);
 		entityStack.push(nsEntity);
+		
+		NamespaceScope symbol = new NamespaceScope(namespaceName+"_namespace");
+		if(this.currentScope.getSymbol(namespaceName+"_namespace")==null) {
+			this.currentScope.define(symbol);
+		}
+		else {
+			symbol = (NamespaceScope) this.currentScope.getSymbol(namespaceName+"_namespace");
+		}
+		this.pushScope(symbol);
+		
 		return nsEntity;
 	}
 	
@@ -98,12 +109,12 @@ public class HandlerContext {
 		methodName = methodName.replace("::", ".");
 		int id = entityRepo.generateId();
 		// 分析构造作用域
-		MethodSymbol symbol = new MethodSymbol(methodName);
-		if(this.currentScope.getSymbol(methodName)==null) {
+		MethodSymbol symbol = new MethodSymbol(methodName+"_method");
+		if(this.currentScope.getSymbol(methodName+"_method")==null) {
 			this.currentScope.define(symbol);
 		}
 		else {
-			symbol = (MethodSymbol) this.currentScope.getSymbol(methodName);
+			symbol = (MethodSymbol) this.currentScope.getSymbol(methodName+"_method");
 		}
 		// 创建函数实体
 		FunctionEntity functionEntity = new FunctionEntityDecl(methodName,
@@ -149,6 +160,7 @@ public class HandlerContext {
 		methodName = methodName.replace("::", ".");
 		int id = entityRepo.generateId();
 		MethodSymbol symbol = new MethodSymbol(methodName+"_method");
+		
 		if(this.currentScope.getSymbol(methodName+"_method")==null) {
 			this.currentScope.define(symbol);
 		}
@@ -157,9 +169,9 @@ public class HandlerContext {
 			symbol = (MethodSymbol) this.currentScope.getSymbol(methodName+"_method");
 		}
 		else {
-			System.out.println(symbol.getName());
 			this.currentScope.define(symbol);
 		}
+		
 		FunctionEntity functionEntity = new FunctionEntityDefine(methodName,
 				this.latestValidContainer().getQualifiedName()+"."+methodName, 
 				this.latestValidContainer(),id,symbol, location);
@@ -218,8 +230,15 @@ public class HandlerContext {
 		if(StructName.equals("")) {
 			StructName = "Default";
 		}
-		StructSymbol symbol = new StructSymbol(StructName);
-		this.currentScope.define(symbol);
+		StructSymbol symbol = new StructSymbol(StructName+"_struct");
+		if(this.currentScope.getSymbol(StructName+"_struct")==null) {
+			this.currentScope.define(symbol);
+		}
+		else {
+			symbol =  (StructSymbol)this.currentScope.getSymbol(StructName+"_struct");
+		}
+		
+		
 		
 		StructEntity structEntity = new StructEntity(StructName,
 				this.latestValidContainer().getQualifiedName()+"."+StructName,
@@ -377,7 +396,7 @@ public class HandlerContext {
 			default:
 				System.out.println(node.getClass().toString());
 		}
-		if(definitionNode!=null) {
+		if(definitionNode!=null&&definitionNode.getFileLocation()!=null) {
 			Entity entity = entityRepo.getEntity(definitionNode.getFileLocation().getFileName(),
 					definitionNode.getFileLocation().getStartingLineNumber(), 
 					definitionNode.getFileLocation().getNodeOffset());
@@ -400,6 +419,7 @@ public class HandlerContext {
 
 	
 	public VarEntity foundVarDefinition(String varName, Location location) {
+		if(location == null) return null;
 		VarEntity varEntity = new VarEntity(varName, 
 				this.latestValidContainer().getQualifiedName()+"."+varName,  this.latestValidContainer(), entityRepo.generateId(), location);
 		entityRepo.add(varEntity);
@@ -451,6 +471,7 @@ public class HandlerContext {
 		
 	}
 	public void foundCodeScope(IASTStatement statement) {
+
 		BaseScope scope = new LocalScope(this.currentScope);
 		pushScope(scope);
 	}

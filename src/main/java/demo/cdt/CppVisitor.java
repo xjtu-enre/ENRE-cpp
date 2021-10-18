@@ -28,6 +28,7 @@ import org.eclipse.cdt.core.dom.ast.IASTProblemStatement;
 import org.eclipse.cdt.core.dom.ast.IASTReturnStatement;
 import org.eclipse.cdt.core.dom.ast.IASTSimpleDeclSpecifier;
 import org.eclipse.cdt.core.dom.ast.IASTSimpleDeclaration;
+import org.eclipse.cdt.core.dom.ast.IASTStandardFunctionDeclarator;
 import org.eclipse.cdt.core.dom.ast.IASTStatement;
 import org.eclipse.cdt.core.dom.ast.IASTSwitchStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
@@ -162,6 +163,7 @@ public class CppVisitor extends ASTVisitor{
 		@Override
 		public int leave(ICPPASTNamespaceDefinition namespaceDefinition) {
 			context.exitLastedEntity();
+			context.popScope();
 			return super.leave(namespaceDefinition);
 		}
 		
@@ -510,7 +512,10 @@ public class CppVisitor extends ASTVisitor{
 				CPPASTFunctionDeclarator functionDeclarator = (CPPASTFunctionDeclarator)parameterDeclaration.getDeclarator();
 				if(this.getLocation(functionDeclarator.getName()) != null) 
 					var =  context.foundVarDefinition(functionDeclarator.getName().toString().replace("::", "."),getLocation(functionDeclarator.getName()));
-				context.currentFunction().setCallbackCall(true);
+				if(parameterDeclaration.getParent() instanceof IASTStandardFunctionDeclarator) {
+					context.currentFunction().setCallbackCall(true);
+				}
+				
 			}
 			else if(parameterDeclaration.getDeclSpecifier() instanceof CPPASTSimpleDeclSpecifier){
 				String parameterName = parameterDeclaration.getDeclarator().getName().toString().replace("::", ".");
