@@ -20,6 +20,22 @@ public class CDTParser {
 	public CDTParser() {
 		this.entityrepo = new EntityRepo();
 	}
+	
+	
+	public EntityRepo getEntityRepo() {
+		return entityrepo;
+	}
+
+	
+	/**
+	* @methodsName: setFileList
+	* @description: 
+	* 	Gets a collection of file paths
+	* 	Get a path containing keywords such as 'lib' or 'src' as the default program environment variable
+	* @param:  HashMap<String,Integer> fileList
+	* @return: void
+	* @throws: 
+	*/
 	public void setFileList(HashMap<String,Integer> fileList) {
 		this.fileList = fileList;
 		List<String> wordList = new ArrayList<String>();
@@ -28,38 +44,38 @@ public class CDTParser {
 		for(String path:fileList.keySet()) {
 			for(String word:wordList) {
 				if(path.contains(word)) {
-					int i = path.indexOf(word);//首先获取字符的位置
-					String newPath = path.substring(0,i);//再对字符串进行截取，获得想要得到的字符串
+					// The regularization method gets the path
+					int i = path.indexOf(word);
+					String newPath = path.substring(0,i);
 					include_path.add(newPath + word);
 				}
 			}
+			//include_path.add("D:\\gitrepo\\cpp\\leveldb\\include");
 		}
 	}
 	
+	
+	/**
+	* @methodsName: parseFile
+	* @description: 
+	* 	This function is used to analyze the contents of a single file
+	* 	build fileparser to analyze a single C++ file and generate analysis unit tu
+	* @param:  String filefullpath
+	* @return: void
+	* @throws: 
+	*/
 	public void parseFile(String filefullpath) throws Exception {
-		/*
-		 * 该函数用于针对单个文件进行分析，获取得到内容
-		 * 构建fileparser用于对单个C++文件进行分析，生成分析单元tu
-		 */
-//		
-//		include_path.add("C:\\Users\\ding7\\Downloads\\phantomjs-master\\phantomjs-master\\src");
-
 		FileParser cdt = new FileParser(filefullpath,entityrepo,fileList,include_path);
 		cdt.parse();
 		
 	}
 	
 	public void testprintentityrepo() {
-		
 		Iterator<Entity> print = entityrepo.entityIterator();
 		while(print.hasNext()) {
 			System.out.println(print.next().toString());
 		}
 	}
-	public EntityRepo getEntityRepo() {
-		return entityrepo;
-	}
-
 
 }
 

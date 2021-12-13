@@ -11,7 +11,6 @@ public class DataAggregateEntity extends Entity{
 	
 	boolean isScopeTrue = true;
 	List<Entity> useList = new ArrayList<Entity>();
-	List<Entity> callList = new ArrayList<Entity>();
 	
 	public DataAggregateEntity(String name, String qualifiedName, Entity parent, Integer id,BaseScope scope, Location location) {
 		super(name,qualifiedName, parent,id, location);
@@ -32,13 +31,6 @@ public class DataAggregateEntity extends Entity{
 		return this.useList;
 	}
 	
-	public void setCall(Entity entity) {
-		this.callList.add(entity);
-	}
-	
-	public List<Entity> getCall() {
-		return this.callList;
-	}
 	
 	
 	public Scope foundTrueScope(Scope scope, String name) {
@@ -62,4 +54,6 @@ public class DataAggregateEntity extends Entity{
 //		}
 		return null;
 	}
+
+
 }

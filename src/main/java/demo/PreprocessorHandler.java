@@ -24,6 +24,9 @@ public class PreprocessorHandler {
 		this.includePaths = includePaths;
 		buildAllFiles();
 	}
+	public List<String> getIncludePaths() {
+		return includePaths;
+	}
 	
 	class AllFileVisitor implements IFileVisitor{
 		@Override
@@ -34,6 +37,14 @@ public class PreprocessorHandler {
 			}
 		}
 	}
+	
+	/**
+	* @methodsName: buildAllFiles
+	* @description: Build file traversers for the whole project
+	* @param:  null
+	* @return: void
+	* @throws: 
+	*/
 	private void buildAllFiles() throws Exception {
 		allFiles = new HashSet<>();
 		AllFileVisitor v = new AllFileVisitor();
@@ -46,12 +57,26 @@ public class PreprocessorHandler {
 			ft.travers(includePath);
 		}
 	}
-
+	
+	/**
+	* @methodsName: existFile
+	* @description: Check whether the file exists based on the path
+	* @param:  String checkPath
+	* @return: boolean
+	* @throws: 
+	*/
 	private boolean existFile(String checkPath) {
 		checkPath = FileUtil.uniformPath(checkPath);
 		return allFiles.contains(checkPath);
 	}
 	
+	/**
+	* @methodsName: getDirectIncludedFiles
+	* @description: Get the include file of the file according to the preprocessing information
+	* @param:  IASTPreprocessorStatement[] statements, String fileLocation
+	* @return: List<String>
+	* @throws: 
+	*/
 	public List<String> getDirectIncludedFiles(IASTPreprocessorStatement[] statements, String fileLocation) {
 		ArrayList<String> includedFullPathNames = new ArrayList<>();
 		for (int statementIndex=0;statementIndex<statements.length;statementIndex++) {
@@ -60,7 +85,7 @@ public class PreprocessorHandler {
 				IASTPreprocessorIncludeStatement incl = (IASTPreprocessorIncludeStatement)(statements[statementIndex]);
 				if (!incl.getFileLocation().getFileName().equals(fileLocation))
 					continue;
-				String path = resolveInclude(incl);
+				String path = resolvePath(incl);
 				if (!existFile(path)) {
 					continue;
 				}
@@ -72,7 +97,15 @@ public class PreprocessorHandler {
 		}
 		return includedFullPathNames;
 	}
-	private String resolveInclude(IASTPreprocessorIncludeStatement incl) {
+	
+	/**
+	* @methodsName: resolvePath
+	* @description: Process file paths according to Include Statement(IASTPreprocessorIncludeStatement)
+	* @param:  IASTPreprocessorIncludeStatement incl
+	* @return: String
+	* @throws: 
+	*/
+	private String resolvePath(IASTPreprocessorIncludeStatement incl) {
 		String path = incl.toString();
 		int pos = path.indexOf(' ');
 		path = path.substring(pos+1).trim();
@@ -96,7 +129,5 @@ public class PreprocessorHandler {
 	}
 	
 
-	public List<String> getIncludePaths() {
-		return includePaths;
-	}
+
 }

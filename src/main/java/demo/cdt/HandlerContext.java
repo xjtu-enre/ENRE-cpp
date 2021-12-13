@@ -36,6 +36,7 @@ import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPField;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPFunction;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPMethod;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPParameter;
+import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPTypedef;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPVariable;
 
 import demo.entity.AliasEntity;
@@ -60,6 +61,7 @@ import demo.symtab.EnumScope;
 import demo.symtab.NamespaceScope;
 import demo.symtab.TemplateScope;
 import demo.symtab.UnionScope;
+import demo.util.Tuple;
 import demo.entity.DataAggregateEntity;
 
 public class HandlerContext {
@@ -72,6 +74,14 @@ public class HandlerContext {
 		this.entityRepo = entityrepo;
 		entityStack = new Stack<Entity>();	
 	}
+	
+	/**
+	* @methodsName: makeFile
+	* @description: Build file entity
+	* @param:  String filefullpath
+	* @return: FileEntity
+	* @throws: 
+	*/
 	public FileEntity makeFile(String filefullpath) {
 		String[] name = filefullpath.split("\\\\");
 		GlobalScope scope = new GlobalScope(null);
@@ -83,7 +93,14 @@ public class HandlerContext {
 		entityStack.push(currentFileEntity);
 		return currentFileEntity;
 	}
-
+	
+	/**
+	* @methodsName: foundNamespace
+	* @description: Build Namespace entity
+	* @param:  String namespaceName, int startingLineNumber, Location location
+	* @return: Entity
+	* @throws: 
+	*/
 	public Entity foundNamespace(String namespaceName, int startingLineNumber, Location location) {
 		NamespaceEntity nsEntity = new NamespaceEntity(namespaceName,
 				this.latestValidContainer().getQualifiedName()+"."+ namespaceName, 
@@ -104,11 +121,16 @@ public class HandlerContext {
 		return nsEntity;
 	}
 	
-
+	/**
+	* @methodsName: foundMethodDeclaratorDeclaration
+	* @description: Build MethodDeclarator entity
+	* @param:  String methodName, String returnType, Location location
+	* @return: FunctionEntity
+	* @throws: 
+	*/
 	public FunctionEntity foundMethodDeclaratorDeclaration(String methodName, String returnType, Location location){
 		methodName = methodName.replace("::", ".");
 		int id = entityRepo.generateId();
-		// 分析构造作用域
 		MethodSymbol symbol = new MethodSymbol(methodName+"_method");
 		if(this.currentScope.getSymbol(methodName+"_method")==null) {
 			this.currentScope.define(symbol);
@@ -116,21 +138,25 @@ public class HandlerContext {
 		else {
 			symbol = (MethodSymbol) this.currentScope.getSymbol(methodName+"_method");
 		}
-		// 创建函数实体
 		FunctionEntity functionEntity = new FunctionEntityDecl(methodName,
 				this.latestValidContainer().getQualifiedName()+"."+methodName,  
 				this.latestValidContainer(),id, symbol, location);
 		functionEntity.setReturn(returnType);
 		entityRepo.add(functionEntity);
 		
-		// 作用域维护和数据聚合实体栈更新
 		pushScope(symbol);
 		entityStack.push(functionEntity);
 		
 		return functionEntity;
 	}
 	
-
+	/**
+	* @methodsName: getFunctionReturn
+	* @description: get the function return
+	* @param:  IASTDeclSpecifier declSpeci
+	* @return: String
+	* @throws: 
+	*/
 	public String getFunctionReturn(IASTDeclSpecifier declSpeci) {
 		String type = null;
 		if (declSpeci instanceof IASTCompositeTypeSpecifier) {
@@ -143,7 +169,6 @@ public class HandlerContext {
 			final IASTEnumerationSpecifier enumerationSpec = (IASTEnumerationSpecifier) declSpeci;
 
 		} else if (declSpeci instanceof IASTSimpleDeclSpecifier) {
-			//无返回值或者返回值非常的显而易见类似：int，float
 			final IASTSimpleDeclSpecifier simple = (IASTSimpleDeclSpecifier) declSpeci;
 			type = simple.getRawSignature();
 			
@@ -154,7 +179,13 @@ public class HandlerContext {
 		return type;
 	}
 	
-	// 实现了
+	/**
+	* @methodsName: foundMethodDeclaratorDefine
+	* @description: build function entity
+	* @param:  String methodName,  String returnType, Location location
+	* @return: FunctionEntity
+	* @throws: 
+	*/
 	public FunctionEntity foundMethodDeclaratorDefine(String methodName,  String returnType, Location location){
 		
 		methodName = methodName.replace("::", ".");
@@ -177,10 +208,21 @@ public class HandlerContext {
 				this.latestValidContainer(),id,symbol, location);
 		functionEntity.setReturn(returnType);
 		entityRepo.add(functionEntity);
+//		System.out.println(functionEntity.getName()+functionEntity.getLocation().getFileName() + functionEntity.getLocation().getStartLine()
+//				+ " "+functionEntity.getLocation().getStartColumn());
 		pushScope(symbol);
 		entityStack.push(functionEntity);
 		return functionEntity;
 	}
+	
+	
+	/**
+	* @methodsName: foundEnumDefinition
+	* @description: build Enum entity
+	* @param:  String enumName, Location location
+	* @return: EnumEntity
+	* @throws: 
+	*/
 	public EnumEntity foundEnumDefinition(String enumName, Location location) {
 		int id = entityRepo.generateId();
 		EnumScope symbol = new EnumScope(enumName);
@@ -205,6 +247,14 @@ public class HandlerContext {
 		entityStack.push(enumeration);
 		return enumeration;
 	}
+	
+	/**
+	* @methodsName: foundClassDefinition
+	* @description: build Class entity
+	* @param:  String ClassName,List<String> baseClass, Location location
+	* @return: ClassEntity
+	* @throws: 
+	*/
 	public ClassEntity foundClassDefinition(String ClassName,List<String> baseClass, Location location){
 		int id = entityRepo.generateId();
 		ClassSymbol symbol = new ClassSymbol(ClassName);
@@ -225,6 +275,15 @@ public class HandlerContext {
 		entityStack.push(classEntity);
 		return classEntity;
 	}
+	
+	
+	/**
+	* @methodsName: foundStructDefinition
+	* @description: build Struct entity
+	* @param:  String StructName, List<String> baseStruct, Location location
+	* @return: StructEntity
+	* @throws: 
+	*/
 	public StructEntity foundStructDefinition(String StructName, List<String> baseStruct, Location location) {
 		int id = entityRepo.generateId();
 		if(StructName.equals("")) {
@@ -237,9 +296,7 @@ public class HandlerContext {
 		else {
 			symbol =  (StructSymbol)this.currentScope.getSymbol(StructName+"_struct");
 		}
-		
-		
-		
+
 		StructEntity structEntity = new StructEntity(StructName,
 				this.latestValidContainer().getQualifiedName()+"."+StructName,
 				this.latestValidContainer(), id, symbol, location);
@@ -251,6 +308,15 @@ public class HandlerContext {
 		entityStack.push(structEntity);
 		return structEntity;
 	}
+	
+	
+	/**
+	* @methodsName: foundUnionDefinition
+	* @description: build Union entity
+	* @param:  String UnionName, Location location
+	* @return: UnionEntity
+	* @throws: 
+	*/
 	public UnionEntity foundUnionDefinition(String UnionName, Location location) {
 		int id = entityRepo.generateId();
 		
@@ -273,6 +339,14 @@ public class HandlerContext {
 		return unionEntity;
 	}
 	
+	
+	/**
+	* @methodsName: foundEnumeratorDefinition
+	* @description: build Enumerator entity
+	* @param:  String enumeratorName, Location location
+	* @return: EnumeratorEntity
+	* @throws: 
+	*/
 	public EnumeratorEntity foundEnumeratorDefinition(String enumeratorName, Location location) {
 		int id = entityRepo.generateId();
 		EnumeratorEntity enumertorEntity = new EnumeratorEntity(enumeratorName,
@@ -285,72 +359,82 @@ public class HandlerContext {
 		return enumertorEntity;
 	}
 	
-	/*
-	 * Abstraction handles all expressions.
-	 * such as: CPPASTBinaryExpression, CPPASTCastExpression, CPPASTDeleteExpression,
-	 * CPPASTUnaryExpression, CPPASTFunctionCallExpression, CPPASTExpressionList
-	 */
+	
+	/**
+	* @methodsName: dealExpression
+	* @description: Abstraction handles all expressions.
+	*  such as: CPPASTBinaryExpression, CPPASTCastExpression, CPPASTDeleteExpression,
+	*   CPPASTUnaryExpression, CPPASTFunctionCallExpression, CPPASTExpressionList
+	* @param:  IASTExpression expression
+	* @return: void
+	* @throws: 
+	*/
 	public void dealExpression(IASTExpression expression) {
 		if(expression instanceof CPPASTBinaryExpression) {
 			CPPASTBinaryExpression binaryExp = (CPPASTBinaryExpression)expression;
-			this.dealExpressionNode(binaryExp.getOperand1());
-			this.dealExpressionNode(binaryExp.getOperand2());
-			return;
+			this.dealExpressionNode(binaryExp.getOperand1(), "set");
+			this.dealExpressionNode(binaryExp.getOperand2(), "use");
 		}
 		if(expression instanceof CPPASTCastExpression) {
 			CPPASTCastExpression castExp = (CPPASTCastExpression)expression;
-			this.dealExpressionNode(castExp.getOperand());
-			return;
+			this.dealExpressionNode(castExp.getOperand(), "cast");
 		}
 		
 		if(expression instanceof CPPASTDeleteExpression) {
 			CPPASTDeleteExpression deleteExp = (CPPASTDeleteExpression)expression;
-			this.dealExpressionNode(deleteExp.getOperand());
-			return;
+			this.dealExpressionNode(deleteExp.getOperand(), "delete");
 		}
 		
 		if(expression instanceof CPPASTUnaryExpression) {
 			CPPASTUnaryExpression unaryExp = (CPPASTUnaryExpression)expression;
-			this.dealExpressionNode(unaryExp.getOperand());
-			return;
+			this.dealExpressionNode(unaryExp.getOperand(), "modify");
 		}
 		if(expression instanceof CPPASTFunctionCallExpression) {
 			CPPASTFunctionCallExpression functioncallExp = (CPPASTFunctionCallExpression)expression;
-			this.dealExpressionNode(functioncallExp.getFunctionNameExpression());		
+			//System.out.println(((CPPASTFunctionCallExpression)expression).getRawSignature());
+			this.dealExpressionNode(functioncallExp.getFunctionNameExpression(), "call");
 		}
 		if(expression instanceof CPPASTExpressionList) {
 			CPPASTExpressionList expressionList = (CPPASTExpressionList)expression;
 			for(IASTExpression exp:expressionList.getExpressions()) {
-				this.dealExpressionNode(exp);
+				this.dealExpression(exp);
 			}
-			return;
 		}
 	}
-	/*
-	 * Intermediate process for processing expressions
-	 */
-	public void dealExpressionNode(IASTExpression expression) {
+	
+	
+	/**
+	* @methodsName: dealExpressionNode
+	* @description: Intermediate process for processing expressions
+	* @param: IASTExpression expression, String expressionType
+	* @return: void
+	* @throws: 
+	*/
+	public void dealExpressionNode(IASTExpression expression, String expressionType) {
 		if(expression instanceof CPPASTIdExpression) {
-			
-			Entity entity = getEntity((CPPASTIdExpression)expression);
-			
-			if(entity != null) {
-				if(entity instanceof DataAggregateEntity) {
-					if(entity instanceof FunctionEntity) {
-						setCall(entity);
-					}
-				}
-				else {
-					setUse(entity);
-				}
+			Tuple entityInformation = this.getEntityInforbyBinding((CPPASTIdExpression)expression);
+			if(entityInformation == null) {
+				this.latestValidContainer().addScopeRelation(expressionType, expression.getRawSignature());
+			}
+			else {
+				this.latestValidContainer().addBindingRelation(expressionType, 
+						(String)entityInformation.getSecond(), (String)entityInformation.getFirst());
 			}
 		}
 		else {
 			dealExpression(expression);
 		}
 	}
-
-	public Entity getEntity(CPPASTIdExpression idExpression) {
+	
+	
+	/**
+	* @methodsName: getEntityInforbyBinding
+	* @description: get binding information to obtaine Entity information
+	* @param: CPPASTIdExpression idExpression
+	* @return: Tuple
+	* @throws: 
+	*/
+	public Tuple getEntityInforbyBinding(CPPASTIdExpression idExpression) {
 		idExpression.getName().resolveBinding();
 		if(idExpression.getName().getBinding() == null) {
 			return null;
@@ -358,66 +442,66 @@ public class HandlerContext {
 		
 		IBinding node = idExpression.getName().getBinding();	
 		IASTNode definitionNode = null;
+		String type = "unknown";
 		switch(node.getClass().toString()) {
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPVariable":
 				definitionNode = ((CPPVariable)node).getDefinition();
+				type = "var";
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPParameter":
 				definitionNode = ((CPPParameter)node).getPhysicalNode();
+				type = "parameter";
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPField":
 				definitionNode = ((CPPField)node).getDefinition();
+				type = "field";
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPFunction":
 				definitionNode = ((CPPFunction)node).getDefinition();
+				// class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTFunctionDeclarator
+				type = "function";
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPMethod":
 				definitionNode = ((CPPMethod)node).getDefinition();
+				type = "method";
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPEnumerator":
 				definitionNode = ((CPPEnumerator)node).getDefinition();
+				type = "enumerator";
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPScope$CPPScopeProblem":
 				break;
-			
-
-			
+			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPTypedef":
+				definitionNode = ((CPPTypedef)node).getDefinition();
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPDeferredFunction":
 				break;
-				
-			
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPFunctionInstance":
-				
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPClassType":
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.ProblemBinding":
 				break;
+			
+				
 			default:
 				System.out.println(node.getClass().toString());
 		}
 		if(definitionNode!=null&&definitionNode.getFileLocation()!=null) {
-			Entity entity = entityRepo.getEntity(definitionNode.getFileLocation().getFileName(),
-					definitionNode.getFileLocation().getStartingLineNumber(), 
-					definitionNode.getFileLocation().getNodeOffset());
-			if(entity !=null) 	return entity;
+			return new Tuple(definitionNode.getFileLocation().getFileName()+
+					definitionNode.getFileLocation().getStartingLineNumber()+
+					definitionNode.getFileLocation().getNodeOffset(), type);
 		}
 		
 		return null;
 	}
-	
-	public void setUse(Entity entity) {
-		this.latestValidContainer().setUse(entity);
-	}
-	
-	public void setCall(Entity entity) {
-		this.latestValidContainer().setCall(entity);
-	}
-	
 
-	
-
-	
+	/**
+	* @methodsName: foundVarDefinition
+	* @description: build var entity
+	* @param: String varName, Location location
+	* @return: VarEntity
+	* @throws: 
+	*/
 	public VarEntity foundVarDefinition(String varName, Location location) {
 		if(location == null) return null;
 		VarEntity varEntity = new VarEntity(varName, 
@@ -435,7 +519,15 @@ public class HandlerContext {
 		}
 		return varEntity;
 	}
-		
+	
+	
+	/**
+	* @methodsName: foundNewAlias
+	* @description: build alias entity
+	* @param: String aliasName, String originalName, Location location
+	* @return: AliasEntity
+	* @throws: 
+	*/
 	public AliasEntity foundNewAlias(String aliasName, String originalName, Location location) {
 		if (aliasName.equals(originalName)) return null; 
 		AliasEntity currentTypeEntity = new AliasEntity(aliasName, 
@@ -444,6 +536,14 @@ public class HandlerContext {
 		entityRepo.add(currentTypeEntity);
 		return currentTypeEntity;		
 	}
+	
+	/**
+	* @methodsName: foundNewAlias
+	* @description: build alias entity
+	* @param:String aliasName, Entity referToEntity, Location location
+	* @return: AliasEntity
+	* @throws: 
+	*/
 	public AliasEntity foundNewAlias(String aliasName, Entity referToEntity, Location location) {
 		AliasEntity currentTypeEntity = new AliasEntity(aliasName, 
 				this.latestValidContainer().getQualifiedName()+"."+aliasName,this.latestValidContainer(),
@@ -453,7 +553,13 @@ public class HandlerContext {
 		return currentTypeEntity;		
 	}
 	
-	
+	/**
+	* @methodsName: foundTemplate
+	* @description: build Template entity
+	* @param: Location location
+	* @return: TemplateEntity
+	* @throws: 
+	*/
 	public TemplateEntity foundTemplate(Location location) {
 		
 		TemplateScope scope = new TemplateScope("template");
@@ -470,15 +576,31 @@ public class HandlerContext {
 	public void addFriendFunction(String functionName) {
 		
 	}
+	
+	/**
+	* @methodsName: foundCodeScope
+	* @description: push scope into stack
+	* @param: IASTStatement statement
+	* @return: void
+	* @throws: 
+	*/
 	public void foundCodeScope(IASTStatement statement) {
-
 		BaseScope scope = new LocalScope(this.currentScope);
 		pushScope(scope);
 	}
+	
+	
 	public void foundUsingImport(String usingname) {
 		this.currentFileEntity.setUsing(usingname);
 	}
 	
+	/**
+	* @methodsName: currentFunction()
+	* @description: Maintains an up-to-date function entity
+	* @param: null
+	* @return: FunctionEntity
+	* @throws: 
+	*/
 	public FunctionEntity currentFunction() {
 		for (int i = entityStack.size() - 1; i >= 0; i--) {
 			Entity t = entityStack.get(i);
@@ -488,7 +610,13 @@ public class HandlerContext {
 		return null;
 	}
 
-
+	/**
+	* @methodsName: latestValidContainer()
+	* @description: Maintains an up-to-date DataAggregateEntity
+	* @param: null
+	* @return: DataAggregateEntity
+	* @throws: 
+	*/
 	public DataAggregateEntity latestValidContainer() {
 		for (int i = entityStack.size() - 1; i >= 0; i--) {
 			Entity t = entityStack.get(i);
@@ -505,22 +633,42 @@ public class HandlerContext {
 		}
 		return null;
 	}
+	
+	
+	/**
+	* @methodsName: exitLastedEntity()
+	* @description: Maintains an up-to-date Entity
+	* @param: null
+	* @return: void
+	* @throws: 
+	*/
 	public void exitLastedEntity() {
 		//we never pop up the lastest one (FileEntity)
 		if (entityStack.size()>1) {
 			entityStack.pop();
-		}
-			
+		}	
 	}
 	
-	
+	/**
+	* @methodsName: pushScope
+	* @description: push scope into stack
+	* @param: Scope s
+	* @return: void
+	* @throws: 
+	*/
 	private void pushScope(Scope s) {
 		this.currentScope = s;
-		//System.out.println("entering: "+this.currentScope.getName()+":"+s +",     " +this.currentScope.getClass().toString());
 	}
-
+	
+	
+	/**
+	* @methodsName: popScope
+	* @description: pop scope from stack
+	* @param: null
+	* @return: void
+	* @throws: 
+	*/
 	public void popScope() {
-		//System.out.println("leaving: "+this.currentScope.getName()+":"+this.currentScope);
 		this.currentScope = this.currentScope.getEnclosingScope();
 	}
 	

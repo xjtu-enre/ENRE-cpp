@@ -2,21 +2,23 @@ package demo;
 import static java.lang.System.exit;
 import demo.util.Configure;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 public class Main {
 
-	private static final Logger LOGGER = LogManager.getLogger(Main.class);
+	//private static final Logger LOGGER = LogManager.getLogger(Main.class);
 	
-	
+	/**
+	* @methodsName: main
+	* @description: main function
+	* @param:  String[] args
+	* @return: void
+	* @throws: 
+	*/
 	public static void main(String[] args) throws Exception {
 		
-		BasicConfigurator.configure();
+		//BasicConfigurator.configure();
 		String log4jConfPath = "lib/log4j.properties";
-		PropertyConfigurator.configure(log4jConfPath);
+		//PropertyConfigurator.configure(log4jConfPath);
 		
 		checkInput(args);
 		String lang = args[0];
@@ -28,18 +30,21 @@ public class Main {
 	    }
 	    config(lang, inputDir, usageDir, projectName);
 		if(!lang.equals(Configure.EXTERNAL_DATA_SOURCE)) {
-			
 			Processor processor = new Processor();
 			processor.parseAllFlie(inputDir);
-			System.out.println("entity found over");
+			System.out.println("Entity found finish!");
 			processor.dependencyBuild();
-
-			LOGGER.info("Process finish!");
-
-
+			System.out.println("Process finish!");
 		}
 	}
-
+	
+	/**
+	* @methodsName: checkInput
+	* @description: Check the accuracy of input
+	* @param:  String[] args
+	* @return: void
+	* @throws: 
+	*/
 	private static void checkInput(String[] args) {
         
         if(args.length < 2) {
@@ -51,6 +56,14 @@ public class Main {
             exit(1);
         }
     }
+	
+	/**
+	* @methodsName: config
+	* @description: Configuration information
+	* @param:  String lang, String inputDir, String usageDir, String projectName
+	* @return: void
+	* @throws: 
+	*/
 	private static void config(String lang, String inputDir, String usageDir, String projectName) {
         Configure configure = Configure.getConfigureInstance();
 

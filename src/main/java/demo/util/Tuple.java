@@ -10,8 +10,12 @@ public class Tuple<A, B> {
         first = a;
         second = b;
     }
-    
-
+    public A getFirst() {
+    	return this.first;
+    }
+    public B getSecond() {
+    	return this.second;
+    }
     public String toString(){
         return "(" + first + ", " + second + ")";
     }

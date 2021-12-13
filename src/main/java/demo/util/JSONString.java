@@ -48,6 +48,7 @@ public class JSONString {
 	class EntityTemp { 
 		   private String name; 
 		   private Integer _key; 
+		   private String entity_type; 
 		   public EntityTemp(){} 
 
 		   public String getName() { 
@@ -75,7 +76,7 @@ public class JSONString {
         	String entityName = entityList.get(en).getQualifiedName();
         	entityName = entityName.replace("\\", "/");
         	entityName = entityName.replace("\"", "");
-        	String jsonString = "{\"name\":\""+entityName+"\", \"_key\":"+en+"}"; 
+        	String jsonString = "{\"name\":\""+entityName+"\", \"_key\":"+en+", \"entity_type\":\""+ entityList.get(en).getClass() +"\"}"; 
         	GsonBuilder builder = new GsonBuilder(); 
             builder.setPrettyPrinting(); 
             Gson gson = builder.create(); 

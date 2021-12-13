@@ -5,10 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -22,7 +20,6 @@ import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.dom.ast.IMacroBinding;
 import org.eclipse.cdt.core.dom.ast.gnu.c.GCCLanguage;
 import org.eclipse.cdt.core.dom.ast.gnu.cpp.GPPLanguage;
-import org.eclipse.cdt.core.dom.parser.cpp.GPPParserExtensionConfiguration;
 import org.eclipse.cdt.core.dom.parser.cpp.GPPScannerExtensionConfiguration;
 import org.eclipse.cdt.core.model.ILanguage;
 import org.eclipse.cdt.core.parser.CodeReader;
@@ -63,7 +60,13 @@ public class FileParser {
 		this.Program_environment = environment;
 	}
 	
-	
+	/**
+	* @methodsName: parse
+	* @description: parse one file
+	* @param:  null
+	* @return: void
+	* @throws: 
+	*/
 	public void parse( ) throws CoreException {
 		if(exitFile(filepath)) {
 			//if(entityrepo.getEntity(filepath)!=null && entityrepo.getEntity(filepath) instanceof FileEntity) {
@@ -75,8 +78,7 @@ public class FileParser {
 		final FileContent content = FileContent.createForExternalFileLocation(filepath); 
 		boolean isIncludePath = false;
 		definedMacros.put("__cplusplus", "1");
-		definedMacros.put("ABSL_LOCKS_EXCLUDED(...)",
-				"__attribute__((locks_excluded(__VA_ARGS__))");
+
 		
 		String[] includePaths = new String[0];
 
@@ -96,8 +98,8 @@ public class FileParser {
 				FileParser fileparse = new FileParser(includePath,entityrepo,fileList,Program_environment);
 				fileparse.parse();
 			}
-			if(entityrepo.getEntity(includePath)!=null && entityrepo.getEntity(includePath) instanceof FileEntity) {
-				FileEntity includeFileEntity = (FileEntity)entityrepo.getEntity(includePath);
+			if(entityrepo.getEntityByName(includePath)!=null && entityrepo.getEntityByName(includePath) instanceof FileEntity) {
+				FileEntity includeFileEntity = (FileEntity)entityrepo.getEntityByName(includePath);
 				fileEntity.addincludeEntity(includeFileEntity);
 				definedMacros.putAll(includeFileEntity.getMacroRepo());
 				fileEntity.getMacroRepo().putAll(includeFileEntity.getMacroRepo());
@@ -113,11 +115,25 @@ public class FileParser {
         tu.accept(visitor);	
 	}
 	
+	
+	/**
+	* @methodsName: exitFile
+	* @description: Check whether the file exists based on the path
+	* @param:  String path
+	* @return: boolean
+	* @throws: 
+	*/
 	public boolean exitFile(String path) {
 		if(fileList.containsKey(path)) return true;
 		return false;
 	}
-	
+	/**
+	* @methodsName: isFileParse
+	* @description: Check whether the file has been parsed
+	* @param:  String path
+	* @return: boolean
+	* @throws: 
+	*/
 	public boolean isFileParse(String path) {
 		if(fileList.containsKey(path)) {
 			if(fileList.get(path)==0) {
@@ -128,10 +144,16 @@ public class FileParser {
 		}
 		return true;
 	}
+	
+	/**
+	* @methodsName: getallstatements
+	* @description: Get all preprocessed statements
+	* @param:  IASTPreprocessorStatement[] statements
+	* @return: void
+	* @throws: 
+	*/
 	public void getallstatements(IASTPreprocessorStatement[] statements) {
 		for(IASTPreprocessorStatement statement:statements) {
-//			System.out.println(statement.getRawSignature());
-//			System.out.println(statement.getClass());
 			if(statement instanceof IASTPreprocessorIncludeStatement) {
 				fileEntity.addinclude(((IASTPreprocessorIncludeStatement) statement).getPath());
 				
@@ -153,7 +175,13 @@ public class FileParser {
 		}
 	}
 	
-	
+	/**
+	* @methodsName: getchild
+	* @description: 
+	* @param:  IASTNode parent
+	* @return: IASTNode
+	* @throws: 
+	*/
 	public IASTNode getchild(IASTNode parent) {
 		if(parent.getChildren() == null) {			
 			return null;
@@ -166,13 +194,25 @@ public class FileParser {
 		return null;
 	}
 
-	
+	/**
+	* @methodsName: getTranslationUnit
+	* @description: Get IASTTranslationUnit through FileContent
+	* @param:  File source
+	* @return: IASTTranslationUnit
+	* @throws: 
+	*/
 	public IASTTranslationUnit getTranslationUnit(File source) throws Exception{
         FileContent reader = FileContent.create(source.getAbsolutePath(), getContentFile(source).toCharArray());
         return GCCLanguage.getDefault().getASTTranslationUnit( reader, new ScannerInfo(), IncludeFileContentProvider.getSavedFilesProvider(), null,  ILanguage.OPTION_IS_SOURCE_UNIT, new DefaultLogService());
     }
 	
-
+	/**
+	* @methodsName: getContentFile
+	* @description: Read file content
+	* @param:  File file
+	* @return: String
+	* @throws: 
+	*/
 	public String getContentFile(File file) throws IOException {
 	        StringBuilder content = new StringBuilder();
 	        String line;
@@ -185,7 +225,13 @@ public class FileParser {
 	        return content.toString();
 	}
 	
-	
+	/**
+	* @methodsName: getdirectedinclude
+	* @description: Obtain the include information of the file
+	* @param:  IASTTranslationUnit tu
+	* @return: HashSet<String>
+	* @throws: 
+	*/
 	public HashSet<String> getdirectedinclude(IASTTranslationUnit tu) {
 		IASTPreprocessorStatement[] statements = tu.getAllPreprocessorStatements();
 		HashSet<String> includeFile = new HashSet<String>();
@@ -200,9 +246,9 @@ public class FileParser {
 				}
 				File file = new File(includefile.getContainingFilename());
 				String filePath = file.getParent();
-				
 				String checkPath = ScannerUtility.createReconciledPath(filePath, path);
 				checkPath =  uniformPath(checkPath);
+				System.out.println(checkPath);
 				if(exitFile(checkPath)) {
 					includeFile.add(checkPath);
 					if(checkPath.endsWith(".h")) {
@@ -240,7 +286,14 @@ public class FileParser {
 		
 		return includeFile;
 	}
-
+	
+	/**
+	* @methodsName: concat
+	* @description: String comparison
+	* @param:  String s1, String s2
+	* @return: String
+	* @throws: 
+	*/
 	public String concat(String s1, String s2) {
 	    if (s1 == null)
 	        return s2;
@@ -287,6 +340,15 @@ public class FileParser {
 		}
 		return sb.toString();
 	}
+	
+	
+	/**
+	* @methodsName: getMacro
+	* @description: Get the macro definition information for the file
+	* @param:  String file
+	* @return: void
+	* @throws: 
+	*/
 	public void getMacro(String file) {
 		String content = "";
 		try {
@@ -299,10 +361,6 @@ public class FileParser {
 				IncludeFileContentProvider.getEmptyFilesProvider());
 		scanner.setProcessInactiveCode(true);
 		if (scanner==null) return;
-//		AbstractGNUSourceCodeParser sourceCodeParser = new GNUCPPSourceParser(scanner,
-//					ParserMode.COMPLETE_PARSE, new NullLogService(), new GPPParserExtensionConfiguration(),
-//					null);
-//		sourceCodeParser.parse();
 		Map<String, IMacroBinding> macros = scanner.getMacroDefinitions();
 		for (String key : macros.keySet()) {
 			IMacroBinding imb = macros.get(key);

@@ -15,6 +15,14 @@ public class RelationRepo {
 		
 	}
 	
+	
+	/**
+	* @methodsName: addRelation
+	* @description: add a relation into repo
+	* @param: Relation re
+	* @return: void
+	* @throws: 
+	*/
 	public void addRelation(Relation re) {
 		String type = re.getType();
 		Integer from = re.getFromEntity().getId();

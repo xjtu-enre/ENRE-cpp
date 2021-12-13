@@ -42,6 +42,7 @@ public class FileTraversal {
 		File[] files = path.listFiles();
 		if (files == null)
 			return;
+			
 		for (int i = 0; i < files.length; i++) {
 			if (files[i].isDirectory()) {
 				getFileList(files[i]);
