@@ -209,8 +209,8 @@ public class CppVisitor extends ASTVisitor {
 				break;
 			case 2:
 				if (methodName.equals("")) {
+					boolean isNoObject = true;
 					if (declSpec.getParent() instanceof CPPASTSimpleDeclaration) {
-						boolean isNoObject = true;
 						for (IASTDeclarator declarator : ((CPPASTSimpleDeclaration) declSpec.getParent())
 								.getDeclarators()) {
 							String varName = declarator.getRawSignature().toString();
@@ -218,12 +218,15 @@ public class CppVisitor extends ASTVisitor {
 							context.foundVarDefinition(varName, getLocation(typeSpecifier));
 							isNoObject = false;
 						}
-						if (isNoObject) {
-							context.foundUnionDefinition("defaultName", getLocation(typeSpecifier));
-						}
+
 					}
-				} else
+					if (isNoObject) {
+						context.foundUnionDefinition("defaultName", getLocation(typeSpecifier));
+					}
+				} else {
 					context.foundUnionDefinition(methodName, getLocation(typeSpecifier));
+				}
+					
 				break;
 			case 3:
 

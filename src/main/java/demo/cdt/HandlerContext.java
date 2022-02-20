@@ -514,8 +514,6 @@ public class HandlerContext {
 					this.currentScope.define(v);
 				}
 			}
-			
-			
 		}
 		return varEntity;
 	}

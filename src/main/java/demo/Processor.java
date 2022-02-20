@@ -53,7 +53,7 @@ public class Processor {
 			public void visit(File file) throws Exception {
 				String fileFullPath = file.getAbsolutePath();
 				fileFullPath = FileUtil.uniqFilePath(fileFullPath);
-				//LOGGER.info("parse"+fileFullPath);
+				System.out.println("parse "+fileFullPath);
 				if (!fileFullPath.startsWith(inputSrcPath)) {
 					return;
 				}			
@@ -105,6 +105,7 @@ public class Processor {
 		relationcontext.stastics();
 		JSONString edge_str = new JSONString();
 		FileOutputStream outputRelationStream = new FileOutputStream(configure.getAnalyzedProjectName() + "_edge.json");
+		//System.out.println(configure.getAnalyzedProjectName());
 		node_str.writeRelationJsonStream(outputRelationStream, relationcontext.getRelationRepo().getrelationrepo());		
 	}
 

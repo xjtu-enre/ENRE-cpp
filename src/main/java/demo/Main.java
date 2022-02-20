@@ -19,7 +19,7 @@ public class Main {
 		//BasicConfigurator.configure();
 		String log4jConfPath = "lib/log4j.properties";
 		//PropertyConfigurator.configure(log4jConfPath);
-		
+		 
 		checkInput(args);
 		String lang = args[0];
 		String inputDir = args[1];
