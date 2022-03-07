@@ -2,15 +2,17 @@ package entity;
 
 import java.util.HashMap;
 
-public class NamespaceEntity extends Entity{
+import org.antlr.symtab.BaseScope;
+
+public class NamespaceEntity extends DataAggregateEntity{
 	
 	HashMap<String,Entity> entities	 = new HashMap<>();
-	public NamespaceEntity(String rawName,String qualifiedName, Integer id, Location location) {
-		super(rawName, qualifiedName, null,id, location);
-		setQualifiedName(rawName); 
+	public NamespaceEntity(String rawName, String qualifiedName, Entity parent,Integer id, BaseScope scope) {
+		super(rawName,qualifiedName, parent,id, scope, null );
+		//setQualifiedName(rawName); 
 	}
 
-	public NamespaceEntity(String rawName,String qualifiedName, Entity currentFile, Integer id, Location location) {
-		super(rawName, qualifiedName, currentFile,id, location);
-	}
+//	public NamespaceEntity(String rawName,String qualifiedName, Entity currentFile, Integer id) {
+//		//super(rawName, qualifiedName, currentFile,id, location);
+//	}
 }

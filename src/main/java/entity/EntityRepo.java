@@ -62,8 +62,14 @@ public class EntityRepo {
 
 	public void add(Entity entity) {
 		allEntitiesById.put(entity.getId(), entity);
-		allEntitiesByLocation.put(entity.getLocation().getFileName() + entity.getLocation().getStartLine()
-				+ entity.getLocation().getStartColumn(), entity);
+		if(entity.getLocation() == null) {
+			allEntitiesByLocation.put(entity.getQualifiedName(), entity);
+		}
+		else{
+			allEntitiesByLocation.put(entity.getLocation().getFileName() + entity.getLocation().getStartLine()
+					+ entity.getLocation().getStartColumn(), entity);
+		}
+				
 
 		String Qualifiedname = entity.getQualifiedName();
 		if (entity.getQualifiedName() != null && !(entity.getQualifiedName().isEmpty())) {

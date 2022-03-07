@@ -30,16 +30,64 @@ public class JSONString {
 			this.entityType = type;
 		}
 	}
-
+	
+	public String resolveTypeName(String name) {
+		String resolvedName = "";
+		switch(name) {
+		case "class entity.VarEntity":
+			resolvedName = "Var";
+			break;
+		case "class entity.FunctionEntityDefine":
+			resolvedName = "FunctionDefine";
+			break;
+		case "class entity.ClassEntity":
+			resolvedName = "Class";
+			break;
+		case "class entity.FileEntity":
+			resolvedName = "File";
+			break;
+		case "class entity.StructEntity":
+			resolvedName = "Struct";
+			break;
+		case "class entity.EnumEntity":
+			resolvedName = "Enum";
+			break;
+		case "class entity.EnumeratorEntity":
+			resolvedName = "Enumerator";
+			break;
+		case "class entity.MacroEntity":
+			resolvedName = "Macro";
+			break;
+		case "class entity.FunctionEntityDecl":
+			resolvedName = "FunctionDecl";
+			break;
+		case "class entity.NamespaceEntity":
+			resolvedName = "Namespace";
+			break;
+		case "class entity.AliasEntity":
+			resolvedName = "Alias";
+			break;
+		case "class entity.UnionEntity":
+			resolvedName = "Union";
+			break;
+		default:
+			System.out.println(name);
+		}
+		return resolvedName;
+	}
+	
+	
 	public void writeEntityJsonStream(OutputStream out, Map<Integer, Entity> entityList) throws IOException {
         JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
         writer.setIndent("  ");
         writer.beginArray();
         for (Integer en:entityList.keySet()) {
-        	String entityName = entityList.get(en).getQualifiedName();
+        	Entity entity = entityList.get(en);
+        	String entityName = entity.getQualifiedName();
         	entityName = entityName.replace("\\", "/");
         	entityName = entityName.replace("\"", "");
-        	String jsonString = "{\"qualifiedName\":\""+entityName+"\", \"id\":"+en+", \"entityType\":\""+ entityList.get(en).getClass() +"\"}";
+        	
+        	String jsonString = "{\"qualifiedName\":\""+entityName+"\", \"id\":"+en+", \"entityType\":\""+ resolveTypeName(entityList.get(en).getClass().toString()) +"\"}";
         	GsonBuilder builder = new GsonBuilder(); 
             builder.setPrettyPrinting(); 
             Gson gson = builder.create(); 

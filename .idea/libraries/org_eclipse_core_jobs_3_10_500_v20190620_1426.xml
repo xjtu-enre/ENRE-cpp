@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="org.eclipse.core.jobs_3.10.500.v20190620-1426">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jars/org.eclipse.core.jobs_3.10.500.v20190620-1426.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

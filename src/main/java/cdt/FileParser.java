@@ -14,7 +14,6 @@ import org.eclipse.cdt.core.parser.*;
 import org.eclipse.cdt.internal.core.index.EmptyCIndex;
 import org.eclipse.cdt.internal.core.parser.scanner.CPreprocessor;
 import org.eclipse.cdt.internal.core.parser.scanner.ScannerUtility;
-import org.eclipse.core.runtime.CoreException;
 
 import java.io.*;
 import java.util.*;

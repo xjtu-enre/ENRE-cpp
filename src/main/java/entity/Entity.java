@@ -14,7 +14,6 @@ public abstract class Entity {
 	Integer id = -1;
 	String qualifiedName;
 	String name;
-	String codesnippet;
 	Entity parent;
 	Set<Entity> children;
 

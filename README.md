@@ -78,17 +78,29 @@ $java -jar ENRE-CPP.jar  cpp  demo-projects\electron  electron -p electron\src
 # Our Tool Support
 
 ### Entity
-- File
-- Class, Struct, Union
-- Enum, Enumerator
-- Namespace
-- Macro
-- Function
-- Var
+#### File
+#### Class, Struct, Union
+#### Enum, Enumerator
+#### Namespace
+- unnamed namespace definition (doing)
+    
+    We extract the name of this type of namespace as [unnamed namespace]
+- inline namespace definition (doing)
+
+#### Macro
+#### Function
+#### Object
+- lambda object: (doing)
+
+    We recognize the 'lamdba_object' in the following expression as an object of lambda type.
+    ```cpp
+    auto lambda_object = [](int para){expression;};
+    ```
+
 
 ### Dependency
-- Include
-- Use, Set
-- Extend
-- Override
-- Parameter, Return
+#### Include
+#### Use, Set
+#### Extend
+#### Override
+#### Parameter, Return

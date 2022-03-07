@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="symtab-1.0.9-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jars/symtab-1.0.9-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

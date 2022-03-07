@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="com.ibm.icu-3.6.1-v20070906-birt-custom1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jars/com.ibm.icu-3.6.1-v20070906-birt-custom.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="org.eclipse.cdt.core.lrparser_5.2.200.201910281707">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jars/org.eclipse.cdt.core.lrparser_5.2.200.201910281707.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

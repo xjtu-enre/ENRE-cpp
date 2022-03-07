@@ -1,6 +1,7 @@
 package cdt;
 
 import entity.*;
+import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTLambdaExpression;
 import symtab.EnumScope;
 import symtab.NamespaceScope;
 import symtab.TemplateScope;
@@ -43,6 +44,14 @@ public class HandlerContext {
 		return currentFileEntity;
 	}
 	
+	public String resolveName(String methodName) {
+		if(this.latestValidContainer() instanceof FileEntity)
+			return methodName;
+		if(this.latestValidContainer().getQualifiedName() == "")
+			return methodName;
+		return this.latestValidContainer().getQualifiedName() + "::" +methodName;
+	}
+	
 	/**
 	* @methodsName: foundNamespace
 	* @description: Build Namespace entity
@@ -50,14 +59,7 @@ public class HandlerContext {
 	* @return: Entity
 	* @throws: 
 	*/
-	public Entity foundNamespace(String namespaceName, int startingLineNumber, Location location) {
-		NamespaceEntity nsEntity = new NamespaceEntity(namespaceName,
-				this.latestValidContainer().getQualifiedName()+"."+ namespaceName, 
-				currentFileEntity,entityRepo.generateId(), location);
-		nsEntity.setLine(startingLineNumber);
-		entityRepo.add(nsEntity);
-		entityStack.push(nsEntity);
-		
+	public Entity foundNamespace(String namespaceName) {
 		NamespaceScope symbol = new NamespaceScope(namespaceName+"_namespace");
 		if(this.currentScope.getSymbol(namespaceName+"_namespace")==null) {
 			this.currentScope.define(symbol);
@@ -66,9 +68,18 @@ public class HandlerContext {
 			symbol = (NamespaceScope) this.currentScope.getSymbol(namespaceName+"_namespace");
 		}
 		this.pushScope(symbol);
+		if(namespaceName.length() == 0) return null;
+		
+		NamespaceEntity nsEntity = new NamespaceEntity(namespaceName,
+				resolveName(namespaceName), currentFileEntity,entityRepo.generateId(),symbol);
+		entityRepo.add(nsEntity);
+		entityStack.push(nsEntity);
+		
 		
 		return nsEntity;
 	}
+	
+
 	
 	/**
 	* @methodsName: foundMethodDeclaratorDeclaration
@@ -88,7 +99,7 @@ public class HandlerContext {
 			symbol = (MethodSymbol) this.currentScope.getSymbol(methodName+"_method");
 		}
 		FunctionEntity functionEntity = new FunctionEntityDecl(methodName,
-				this.latestValidContainer().getQualifiedName()+"."+methodName,  
+				resolveName(methodName),  
 				this.latestValidContainer(),id, symbol, location);
 		functionEntity.setReturn(returnType);
 		entityRepo.add(functionEntity);
@@ -153,7 +164,7 @@ public class HandlerContext {
 		}
 		
 		FunctionEntity functionEntity = new FunctionEntityDefine(methodName,
-				this.latestValidContainer().getQualifiedName()+"."+methodName, 
+				resolveName(methodName),
 				this.latestValidContainer(),id,symbol, location);
 		functionEntity.setReturn(returnType);
 		entityRepo.add(functionEntity);
@@ -188,8 +199,7 @@ public class HandlerContext {
 			}
 		}
 		
-		EnumEntity enumeration = new EnumEntity(enumName,
-				this.latestValidContainer().getQualifiedName()+"."+enumName,
+		EnumEntity enumeration = new EnumEntity(enumName, resolveName(enumName),
 				this.latestValidContainer(),id,symbol, location);
 		entityRepo.add(enumeration);
 		pushScope(symbol);
@@ -213,8 +223,7 @@ public class HandlerContext {
 		else {
 			symbol = (ClassSymbol) this.currentScope.getSymbol(ClassName);
 		}
-		ClassEntity classEntity = new ClassEntity(ClassName, 
-				this.latestValidContainer().getQualifiedName()+"."+ClassName,
+		ClassEntity classEntity = new ClassEntity(ClassName, resolveName(ClassName),
 				this.latestValidContainer(),id,symbol, location);
 		if(baseClass!= null) {
 			classEntity.addBaseClass(baseClass);
@@ -246,8 +255,7 @@ public class HandlerContext {
 			symbol =  (StructSymbol)this.currentScope.getSymbol(StructName+"_struct");
 		}
 
-		StructEntity structEntity = new StructEntity(StructName,
-				this.latestValidContainer().getQualifiedName()+"."+StructName,
+		StructEntity structEntity = new StructEntity(StructName, resolveName(StructName),
 				this.latestValidContainer(), id, symbol, location);
 		if(baseStruct!= null) {
 			structEntity.addBaseStruct(baseStruct);
@@ -278,8 +286,7 @@ public class HandlerContext {
 			symbol = (UnionScope) this.currentScope.getSymbol(UnionName);
 		}
 
-		UnionEntity unionEntity = new UnionEntity(UnionName,
-				this.latestValidContainer().getQualifiedName()+"."+UnionName,
+		UnionEntity unionEntity = new UnionEntity(UnionName, resolveName(UnionName),
 				this.latestValidContainer(), id, symbol, location);
 		
 		entityRepo.add(unionEntity);
@@ -298,8 +305,7 @@ public class HandlerContext {
 	*/
 	public EnumeratorEntity foundEnumeratorDefinition(String enumeratorName, Location location) {
 		int id = entityRepo.generateId();
-		EnumeratorEntity enumertorEntity = new EnumeratorEntity(enumeratorName,
-				this.latestValidContainer().getQualifiedName()+"."+enumeratorName,
+		EnumeratorEntity enumertorEntity = new EnumeratorEntity(enumeratorName, resolveName(enumeratorName),
 				this.latestValidContainer(),id, location);
 		entityRepo.add(enumertorEntity);
 		if(this.latestValidContainer() instanceof EnumEntity) {
@@ -325,10 +331,9 @@ public class HandlerContext {
 			this.dealExpressionNode(binaryExp.getOperand2(), "use");
 		}
 		if(expression instanceof CPPASTCastExpression) {
-			CPPASTCastExpression castExp = (CPPASTCastExpression)expression;
+			CPPASTCastExpression castExp = (CPPASTCastExpression) expression;
 			this.dealExpressionNode(castExp.getOperand(), "cast");
 		}
-		
 		if(expression instanceof CPPASTDeleteExpression) {
 			CPPASTDeleteExpression deleteExp = (CPPASTDeleteExpression)expression;
 			this.dealExpressionNode(deleteExp.getOperand(), "delete");
@@ -340,7 +345,6 @@ public class HandlerContext {
 		}
 		if(expression instanceof CPPASTFunctionCallExpression) {
 			CPPASTFunctionCallExpression functioncallExp = (CPPASTFunctionCallExpression)expression;
-			//System.out.println(((CPPASTFunctionCallExpression)expression).getRawSignature());
 			this.dealExpressionNode(functioncallExp.getFunctionNameExpression(), "call");
 		}
 		if(expression instanceof CPPASTExpressionList) {
@@ -349,6 +353,7 @@ public class HandlerContext {
 				this.dealExpression(exp);
 			}
 		}
+
 	}
 	
 	
@@ -407,7 +412,6 @@ public class HandlerContext {
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPFunction":
 				definitionNode = ((CPPFunction)node).getDefinition();
-				// class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTFunctionDeclarator
 				type = "function";
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPMethod":
@@ -418,24 +422,16 @@ public class HandlerContext {
 				definitionNode = ((CPPEnumerator)node).getDefinition();
 				type = "enumerator";
 				break;
-			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPScope$CPPScopeProblem":
-				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPTypedef":
 				definitionNode = ((CPPTypedef)node).getDefinition();
-			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPDeferredFunction":
 				break;
-			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPFunctionInstance":
-				break;
-			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPClassType":
-				break;
-			case "class org.eclipse.cdt.internal.core.dom.parser.ProblemBinding":
-				break;
-			
-				
+			//case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPLambdaExpressionParameter":
+
 			default:
+				//System.out.println(idExpression.getRawSignature());
 				System.out.println(node.getClass().toString());
 		}
-		if(definitionNode!=null&&definitionNode.getFileLocation()!=null) {
+		if(definitionNode != null && definitionNode.getFileLocation() != null) {
 			return new Tuple(definitionNode.getFileLocation().getFileName()+
 					definitionNode.getFileLocation().getStartingLineNumber()+
 					definitionNode.getFileLocation().getNodeOffset(), type);
@@ -453,8 +449,7 @@ public class HandlerContext {
 	*/
 	public VarEntity foundVarDefinition(String varName, Location location) {
 		if(location == null) return null;
-		VarEntity varEntity = new VarEntity(varName, 
-				this.latestValidContainer().getQualifiedName()+"."+varName,  this.latestValidContainer(), entityRepo.generateId(), location);
+		VarEntity varEntity = new VarEntity(varName,  resolveName(varName),  this.latestValidContainer(), entityRepo.generateId(), location);
 		entityRepo.add(varEntity);
 		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
 			if(!(this.currentScope instanceof DataAggregateSymbol)) {
@@ -492,8 +487,7 @@ public class HandlerContext {
 	* @throws: 
 	*/
 	public AliasEntity foundNewAlias(String aliasName, Entity referToEntity, Location location) {
-		AliasEntity currentTypeEntity = new AliasEntity(aliasName, 
-				this.latestValidContainer().getQualifiedName()+"."+aliasName,this.latestValidContainer(),
+		AliasEntity currentTypeEntity = new AliasEntity(aliasName, resolveName(aliasName),this.latestValidContainer(),
 				entityRepo.generateId(),aliasName, location);
 		currentTypeEntity.setReferToEntity(referToEntity);
 		entityRepo.add(currentTypeEntity);
@@ -510,8 +504,7 @@ public class HandlerContext {
 	public TemplateEntity foundTemplate(Location location) {
 		
 		TemplateScope scope = new TemplateScope("template");
-		TemplateEntity template = new TemplateEntity("template",
-				this.latestValidContainer().getQualifiedName()+".template",
+		TemplateEntity template = new TemplateEntity("template", resolveName("template"),
 				this.latestValidContainer(),entityRepo.generateId(),scope, location);
 		
 		return template;
@@ -577,6 +570,8 @@ public class HandlerContext {
 				return (UnionEntity)t;
 			if (t instanceof ClassEntity)
 				return (ClassEntity)t;
+			if (t instanceof NamespaceEntity)
+				return (NamespaceEntity)t;
 		}
 		return null;
 	}
@@ -604,6 +599,7 @@ public class HandlerContext {
 	* @throws: 
 	*/
 	private void pushScope(Scope s) {
+		
 		this.currentScope = s;
 	}
 	
