@@ -76,6 +76,9 @@ public class JSONString {
 		case "class entity.ClassTemplateEntity":
 			resolvedName = "Class Template";
 			break;
+		case "class entity.TypedefEntity":
+			resolvedName = "Typedef";
+			break;
 		default:
 			System.out.println("Unmapped entity type:"+name);
 		}

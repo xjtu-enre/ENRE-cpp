@@ -508,6 +508,21 @@ public class HandlerContext {
 	
 	
 	/**
+	* @methodsName: foundTypedefDefinition
+	* @description: build Typedef entity
+	* @param: String Name, Location location
+	* @return: TypedefEntity
+	* @throws: 
+	*/
+	public TypedefEntity foundTypedefDefinition(String Name, String originalName, Location location) {
+		TypedefEntity typedefEntity = new TypedefEntity(Name, resolveName(Name),this.latestValidContainer(),
+				entityRepo.generateId(),  location );
+		entityRepo.add(typedefEntity);
+		return typedefEntity;		
+	}
+	
+	
+	/**
 	* @methodsName: foundNewAlias
 	* @description: build alias entity
 	* @param: String aliasName, String originalName, Location location

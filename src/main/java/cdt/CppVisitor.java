@@ -312,7 +312,8 @@ public class CppVisitor extends ASTVisitor {
 				if (declSpecifier.getStorageClass() == IASTDeclSpecifier.sc_typedef) {
 					String varType = declSpecifier.getRawSignature().toString();
 					String varName = declarator.getRawSignature().toString();
-					context.foundNewAlias(varName, varType, getLocation(declarator));
+					context.foundTypedefDefinition(varName, varType, getLocation(declarator));
+					
 				} else if (!(declarator instanceof IASTFunctionDeclarator)) {
 					String varType = declSpecifier.getRawSignature().toString();
 					String varName = declarator.getName().toString();
@@ -361,18 +362,8 @@ public class CppVisitor extends ASTVisitor {
 			String alias = name.getRawSignature();
 			String originalName = namespaceAlias.getMappingName().getRawSignature();
 			context.foundNewAlias(alias, originalName, getLocation(declaration));
-//		} else if (declaration instanceof CPPASTTemplateDeclaration) {
-//			// first, make sure this is a function template or class template
-//			// if templateDeclaration.getDeclaration.getclass is CPPASTSimpleDeclaration->class template
-//			// is functionDefinition -> function template
-//			CPPASTTemplateDeclaration templateDeclaration = (CPPASTTemplateDeclaration)declaration;
-//			if(templateDeclaration.getDeclaration() instanceof CPPASTFunctionDefinition) {
-//				
-//			}
-//			if(templateDeclaration.getDeclaration() instanceof CPPASTSimpleDeclaration) {
-//				
-//			}
 		}
+		
 //		} else if (declaration instanceof CPPASTVisibilityLabel) {
 //			// we ignore the visibility in dependency check
 //		} else if (declaration instanceof CPPASTLinkageSpecification) {

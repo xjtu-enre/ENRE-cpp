@@ -46,8 +46,6 @@ public abstract class Entity {
 	Scope scope = null;
 	int visibilityLabel = 1;
 
-	public Entity() {
-	};
 
 	public Entity(String name, String qualifiedName, Entity parent, Integer id, Location location) {// GenericName
 																									// rawName,
