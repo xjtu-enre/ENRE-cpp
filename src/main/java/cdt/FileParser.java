@@ -50,7 +50,7 @@ public class FileParser {
 		fileList.put(filepath,1);
 		final FileContent content = FileContent.createForExternalFileLocation(filepath);
 		boolean isIncludePath = false;
-		// definedMacros.put("__cplusplus", "1");
+		definedMacros.put("__cplusplus", "1");
 
 		String[] includePaths = new String[0];
 
@@ -218,9 +218,9 @@ public class FileParser {
 				}
 				File file = new File(includefile.getContainingFilename());
 				String filePath = file.getParent();
-				String checkPath = ScannerUtility.createReconciledPath(filePath, path);
+				// String checkPath = ScannerUtility.createReconciledPath(filePath, path);
+				String checkPath = uniformPath(ScannerUtility.reconcilePath(filePath), ScannerUtility.reconcilePath(path), "");
 				checkPath =  uniformPath(checkPath);
-				System.out.println(checkPath);
 				if(exitFile(checkPath)) {
 					includeFile.add(checkPath);
 					if(checkPath.endsWith(".h")) {
@@ -310,6 +310,7 @@ public class FileParser {
 			if (i<pathStack.size()-1)
 				sb.append(File.separator);
 		}
+		
 		return sb.toString();
 	}
 
@@ -340,6 +341,24 @@ public class FileParser {
 			fileEntity.getMacroRepo().put(macros.get(key).toString(), exp);
 		}
 
+	}
+	
+	
+	public static String uniformPath(String str1, String str2, String str3) {
+		String str4 = str1.split("\\\\")[str1.split("\\\\").length-1];
+		String str5 = str2.split("\\\\")[0];
+		
+		if(str5.equals(str4)) {
+			String str6 = str1.substring(0, str1.length()-str4.length()-1);
+			String str7 = str2.substring(str5.length()+1);
+			System.out.println(str6);
+			System.out.println(str7);
+			return uniformPath(str6, str7, str5);
+		}
+		
+		if(str3.length() == 0) return str1+"\\"+str2;
+		return str1+"\\" + str3 + "\\"+ str2;
+		
 	}
 
 
