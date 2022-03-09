@@ -146,7 +146,7 @@ public class HandlerContext {
 	* @return: FunctionEntity
 	* @throws: 
 	*/
-	public FunctionEntity foundMethodDeclaratorDefine(String methodName,  String returnType, Location location){
+	public FunctionEntity foundFunctionDeclaratorDefine(String methodName,  String returnType, Location location){
 		
 		methodName = methodName.replace("::", ".");
 		int id = entityRepo.generateId();
@@ -168,8 +168,32 @@ public class HandlerContext {
 				this.latestValidContainer(),id,symbol, location);
 		functionEntity.setReturn(returnType);
 		entityRepo.add(functionEntity);
-//		System.out.println(functionEntity.getName()+functionEntity.getLocation().getFileName() + functionEntity.getLocation().getStartLine()
-//				+ " "+functionEntity.getLocation().getStartColumn());
+		pushScope(symbol);
+		entityStack.push(functionEntity);
+		return functionEntity;
+	}
+	
+	public FunctionTemplateEntity foundFunctionTemplateDefine(String methodName,  String returnType, Location location) {
+
+		methodName = methodName.replace("::", ".");
+		int id = entityRepo.generateId();
+		MethodSymbol symbol = new MethodSymbol(methodName+"_method");
+		
+		if(this.currentScope.getSymbol(methodName+"_method")==null) {
+			this.currentScope.define(symbol);
+		}
+		else if(this.currentScope.getSymbol(methodName+"_method") instanceof MethodSymbol){
+			symbol = (MethodSymbol) this.currentScope.getSymbol(methodName+"_method");
+		}
+		else {
+			this.currentScope.define(symbol);
+		}
+		
+		FunctionTemplateEntity functionEntity = new FunctionTemplateEntity(methodName,
+				resolveName(methodName),
+				this.latestValidContainer(),id,symbol, location);
+		functionEntity.setReturn(returnType);
+		entityRepo.add(functionEntity);
 		pushScope(symbol);
 		entityStack.push(functionEntity);
 		return functionEntity;
@@ -234,6 +258,26 @@ public class HandlerContext {
 		return classEntity;
 	}
 	
+	
+	public ClassTemplateEntity foundClassTemplateDefinition(String ClassName,List<String> baseClass, Location location){
+		int id = entityRepo.generateId();
+		ClassSymbol symbol = new ClassSymbol(ClassName);
+		if(this.currentScope.getSymbol(ClassName)==null) {
+			this.currentScope.define(symbol);
+		}
+		else {
+			symbol = (ClassSymbol) this.currentScope.getSymbol(ClassName);
+		}
+		ClassTemplateEntity classTemplateEntity = new ClassTemplateEntity(ClassName, resolveName(ClassName),
+				this.latestValidContainer(),id,symbol, location);
+		if(baseClass!= null) {
+			classTemplateEntity.addBaseClass(baseClass);
+		}
+		entityRepo.add(classTemplateEntity);
+		pushScope(symbol);
+		entityStack.push(classTemplateEntity);
+		return classTemplateEntity;
+	}
 	
 	/**
 	* @methodsName: foundStructDefinition
@@ -494,22 +538,8 @@ public class HandlerContext {
 		return currentTypeEntity;		
 	}
 	
-	/**
-	* @methodsName: foundTemplate
-	* @description: build Template entity
-	* @param: Location location
-	* @return: TemplateEntity
-	* @throws: 
-	*/
-	public TemplateEntity foundTemplate(Location location) {
-		
-		TemplateScope scope = new TemplateScope("template");
-		TemplateEntity template = new TemplateEntity("template", resolveName("template"),
-				this.latestValidContainer(),entityRepo.generateId(),scope, location);
-		
-		return template;
-	}
-	
+
+
 	public void addFriendClass(String className) {
 		
 	}

@@ -351,8 +351,6 @@ public class FileParser {
 		if(str5.equals(str4)) {
 			String str6 = str1.substring(0, str1.length()-str4.length()-1);
 			String str7 = str2.substring(str5.length()+1);
-			System.out.println(str6);
-			System.out.println(str7);
 			return uniformPath(str6, str7, str5);
 		}
 		

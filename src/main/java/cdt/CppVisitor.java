@@ -262,10 +262,16 @@ public class CppVisitor extends ASTVisitor {
 						}
 
 					} else {
-						ClassEntity classEntity = context.foundClassDefinition(methodName, baseClass,
-								getLocation(typeSpecifier));
-						if (isTemplate(declSpec))
-							classEntity.setTemplate();
+						
+						if (isTemplate(declSpec)) {
+							ClassTemplateEntity classTemplateEntity = context.foundClassTemplateDefinition(methodName, baseClass,
+									getLocation(typeSpecifier));
+						}
+						else {
+							ClassEntity classEntity = context.foundClassDefinition(methodName, baseClass,
+									getLocation(typeSpecifier));
+						}
+							
 					}
 
 					break;
@@ -308,9 +314,6 @@ public class CppVisitor extends ASTVisitor {
 					String varName = declarator.getRawSignature().toString();
 					context.foundNewAlias(varName, varType, getLocation(declarator));
 				} else if (!(declarator instanceof IASTFunctionDeclarator)) {
-//					System.out.println(declaration.getRawSignature());
-//					System.out.println(declSpecifier.getClass());
-//					System.out.println(declarator.getClass());
 					String varType = declSpecifier.getRawSignature().toString();
 					String varName = declarator.getName().toString();
 					if (!(declSpecifier instanceof CPPASTCompositeTypeSpecifier)) {
@@ -337,10 +340,16 @@ public class CppVisitor extends ASTVisitor {
 			String rawName = declarator.getName().toString();
 			IASTDeclSpecifier declSpeci = decl.getDeclSpecifier();
 			String returnType = getFunctionReturn(declSpeci);
-			FunctionEntity functionEntity = context.foundMethodDeclaratorDefine(rawName, returnType,
-					getLocation(decl.getDeclarator()));
-			if (isTemplate(declaration))
-				functionEntity.setTemplate();
+			if (isTemplate(declaration)) {
+				FunctionTemplateEntity functionTemplateEntity = context.foundFunctionTemplateDefine(rawName, returnType,
+						getLocation(decl.getDeclarator()));
+			}
+			else{
+				FunctionEntity functionEntity = context.foundFunctionDeclaratorDefine(rawName, returnType,
+						getLocation(decl.getDeclarator()));
+			}
+					
+			
 		} else if (declaration instanceof ICPPASTAliasDeclaration) {
 			ICPPASTAliasDeclaration aliasDeclaration = (ICPPASTAliasDeclaration) declaration;
 			String alias = aliasDeclaration.getAlias().toString();
@@ -352,13 +361,21 @@ public class CppVisitor extends ASTVisitor {
 			String alias = name.getRawSignature();
 			String originalName = namespaceAlias.getMappingName().getRawSignature();
 			context.foundNewAlias(alias, originalName, getLocation(declaration));
+//		} else if (declaration instanceof CPPASTTemplateDeclaration) {
+//			// first, make sure this is a function template or class template
+//			// if templateDeclaration.getDeclaration.getclass is CPPASTSimpleDeclaration->class template
+//			// is functionDefinition -> function template
+//			CPPASTTemplateDeclaration templateDeclaration = (CPPASTTemplateDeclaration)declaration;
+//			if(templateDeclaration.getDeclaration() instanceof CPPASTFunctionDefinition) {
+//				
+//			}
+//			if(templateDeclaration.getDeclaration() instanceof CPPASTSimpleDeclaration) {
+//				
+//			}
 		}
 //		} else if (declaration instanceof CPPASTVisibilityLabel) {
 //			// we ignore the visibility in dependency check
 //		} else if (declaration instanceof CPPASTLinkageSpecification) {
-//
-//		} else if (declaration instanceof CPPASTTemplateDeclaration) {
-//
 //		} else if (declaration instanceof CPPASTProblemDeclaration) {
 //		 LOGGER.error("parsing error \n" + declaration.getRawSignature());
 //		} else if (declaration instanceof CPPASTStaticAssertionDeclaration) {

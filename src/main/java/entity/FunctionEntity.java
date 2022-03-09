@@ -11,7 +11,6 @@ public class FunctionEntity extends DataAggregateEntity{
 	String returnType;
 	Entity returnEntity;
 	BaseScope pointScope;
-	boolean isTemplate = false;
 	boolean isCallbackCall = false;
 	
 	
@@ -38,13 +37,6 @@ public class FunctionEntity extends DataAggregateEntity{
 	public Entity getReturnEntity() {
 		if(this.returnEntity == null) return null;
 		return this.returnEntity;
-	}
-	
-	public void setTemplate() {
-		this.isTemplate = true;
-	}
-	public boolean isTemplate() {
-		return this.isTemplate;
 	}
 	
 	

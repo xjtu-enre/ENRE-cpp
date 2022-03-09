@@ -1,5 +1,19 @@
 # Entity Doc
 
+
+
+support entity:
+
+1) file
+2) function
+3) class/struct/union
+4) enum/enumerator
+5) class/function template
+6) macro
+7) variable
+
+
+
 - lambda expression
 
     [ captures ] ( params ) specs requires(optional) { body }	(1)	
@@ -22,17 +36,20 @@
         ```
         
     - tparams 为参数列表
-    
+
     - lambda function的处理方法：
         - 均为[unnamed]形式，具体区分需要依靠define关系的位置
         - lambda function往往与function call相结合，也有可能将自身地址赋值给一个变量，需要结合起来进行判断
         - lambda function本身的属性有：default-captures，parameter
 
 - enum
-	- 作用域内枚举 enum class/enum struct
+  - 作用域内枚举 enum class/enum struct
+
+- template
+
+    - 区分class template & function template
+
 
 ## perhaps bugs
 
 1) cdt cannot solve Structured binding declaration - auto (C++ 17), 
-
-2)

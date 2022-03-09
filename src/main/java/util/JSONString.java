@@ -70,8 +70,14 @@ public class JSONString {
 		case "class entity.UnionEntity":
 			resolvedName = "Union";
 			break;
+		case "class entity.FunctionTemplateEntity":
+			resolvedName = "Function Template";
+			break;
+		case "class entity.ClassTemplateEntity":
+			resolvedName = "Class Template";
+			break;
 		default:
-			System.out.println(name);
+			System.out.println("Unmapped entity type:"+name);
 		}
 		return resolvedName;
 	}
