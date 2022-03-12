@@ -8,7 +8,6 @@ public class Location implements Serializable{
 	Integer startLine;
 	Integer endLine;
 	Integer startColumn;
-
 	
 	String filePath;
 	public Location(String filePath) {

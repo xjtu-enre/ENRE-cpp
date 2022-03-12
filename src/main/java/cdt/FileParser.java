@@ -51,7 +51,7 @@ public class FileParser {
 		final FileContent content = FileContent.createForExternalFileLocation(filepath);
 		boolean isIncludePath = false;
 		definedMacros.put("__cplusplus", "1");
-
+		definedMacros.put("LEVELDB_EXPORT", "__declspec(dllexport)");
 		String[] includePaths = new String[0];
 
 		IASTTranslationUnit tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
@@ -141,7 +141,7 @@ public class FileParser {
 						statement.getFileLocation().getNodeOffset(),
 						statement.getFileLocation().getFileName().toString());
 				MacroEntity macroEntity = new MacroEntity(statement.getRawSignature(),
-						filepath+"."+"macro"+"."+macroname, fileEntity, entityrepo.generateId(), location);
+						macroname, fileEntity, entityrepo.generateId(), location);
 				entityrepo.add(macroEntity);
 			}
 		}

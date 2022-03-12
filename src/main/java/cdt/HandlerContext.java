@@ -6,6 +6,7 @@ import symtab.EnumScope;
 import symtab.NamespaceScope;
 import symtab.TemplateScope;
 import symtab.UnionScope;
+import util.Configure;
 import util.Tuple;
 import org.antlr.symtab.*;
 import org.eclipse.cdt.core.dom.ast.*;
@@ -19,6 +20,8 @@ public class HandlerContext {
 	protected FileEntity currentFileEntity;
 	protected Stack<Entity> entityStack = new Stack<Entity>();
 	Scope currentScope;
+	Configure configure = Configure.getConfigureInstance();
+
 	
 	public HandlerContext(EntityRepo entityrepo) {
 		this.entityRepo = entityrepo;
@@ -35,7 +38,7 @@ public class HandlerContext {
 	public FileEntity makeFile(String filefullpath) {
 		String[] name = filefullpath.split("\\\\");
 		GlobalScope scope = new GlobalScope(null);
-		currentFileEntity = new FileEntity(name[name.length-1], filefullpath, 
+		currentFileEntity = new FileEntity(name[name.length-1], filefullpath.replace(configure.getInputSrcPath(), ""), 
 				null, entityRepo.generateId(),filefullpath,scope, new Location(filefullpath));
 		
 		entityRepo.add(currentFileEntity);
@@ -60,6 +63,7 @@ public class HandlerContext {
 	* @throws: 
 	*/
 	public Entity foundNamespace(String namespaceName) {
+		if(namespaceName.length() == 0) return null;
 		NamespaceScope symbol = new NamespaceScope(namespaceName+"_namespace");
 		if(this.currentScope.getSymbol(namespaceName+"_namespace")==null) {
 			this.currentScope.define(symbol);
@@ -68,8 +72,6 @@ public class HandlerContext {
 			symbol = (NamespaceScope) this.currentScope.getSymbol(namespaceName+"_namespace");
 		}
 		this.pushScope(symbol);
-		if(namespaceName.length() == 0) return null;
-		
 		NamespaceEntity nsEntity = new NamespaceEntity(namespaceName,
 				resolveName(namespaceName), currentFileEntity,entityRepo.generateId(),symbol);
 		entityRepo.add(nsEntity);

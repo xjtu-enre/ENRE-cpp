@@ -80,6 +80,7 @@ public class CppVisitor extends ASTVisitor {
 
 	@Override
 	public int leave(ICPPASTNamespaceDefinition namespaceDefinition) {
+		if(namespaceDefinition.getName().toString().length() == 0) return super.leave(namespaceDefinition);
 		context.exitLastedEntity();
 		context.popScope();
 		return super.leave(namespaceDefinition);
@@ -204,16 +205,20 @@ public class CppVisitor extends ASTVisitor {
 				String methodName = typeSpecifier.getName().toString();
 				switch (type) {
 				case 1:
+//					if(typeSpecifier.getStorageClass() == IASTDeclSpecifier.sc_typedef) {
+//						System.out.println(typeSpecifier.getRawSignature());
+//					}
 					ArrayList<String> baseStruct = new ArrayList<String>();
 					ICPPASTBaseSpecifier[] base1 = ((CPPASTCompositeTypeSpecifier) declSpec).getBaseSpecifiers();
 					for (ICPPASTBaseSpecifier b : base1) {
 						baseStruct.add(b.getName().getRawSignature());
 					}
 					if (methodName.equals("")) {
+						StructEntity struct = context.foundStructDefinition("defaultName", baseStruct, getLocation(typeSpecifier));
 						boolean isNoObject = true;
 						for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
-							String varName = declarator.getRawSignature().toString();
-							StructEntity struct = context.foundStructDefinition(varName, baseStruct, getLocation(typeSpecifier));
+							String varName = declarator.getRawSignature().toString();					
+							// 
 							context.foundVarDefinition(varName, getLocation(typeSpecifier));
 							isNoObject = false;
 						}
@@ -243,7 +248,6 @@ public class CppVisitor extends ASTVisitor {
 
 					break;
 				case 3:
-
 					ArrayList<String> baseClass = new ArrayList<String>();
 					ICPPASTBaseSpecifier[] base3 = ((CPPASTCompositeTypeSpecifier) declSpec).getBaseSpecifiers();
 					for (ICPPASTBaseSpecifier b : base3) {
@@ -310,8 +314,9 @@ public class CppVisitor extends ASTVisitor {
 					super.visit(declaration);
 				}
 				if (declSpecifier.getStorageClass() == IASTDeclSpecifier.sc_typedef) {
+					System.out.println(declSpecifier.getRawSignature());
 					String varType = declSpecifier.getRawSignature().toString();
-					String varName = declarator.getRawSignature().toString();
+					String varName = declarator.getName().toString();
 					context.foundTypedefDefinition(varName, varType, getLocation(declarator));
 					
 				} else if (!(declarator instanceof IASTFunctionDeclarator)) {

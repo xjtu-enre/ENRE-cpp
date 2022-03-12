@@ -11,14 +11,12 @@ public class Main {
 	*/
 	public static void main(String[] args) throws Exception {
 
-		Configure configure = CommandLine.populateCommand(new Configure(),args);
+		Configure configure = CommandLine.populateCommand(Configure.getConfigureInstance(),args);
 
 		String lang = configure.getLang();
 		String inputDir = configure.getInputSrcPath();
-	    // String usageDir = configure.getUsageSrcPath();
 		String projectName = configure.getProjectName();
 		Set<String> Program_environment = configure.getProgram_environment();
-		System.out.println(Program_environment.size());
 
 		if(lang.equals("cpp")) {
 			Processor processor = new Processor(Program_environment);

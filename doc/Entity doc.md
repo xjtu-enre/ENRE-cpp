@@ -1,7 +1,7 @@
-# Entity Doc
+# Doc
 
 
-
+## Entity 
 support entity:
 
 1) file
@@ -49,7 +49,19 @@ support entity:
 
     - 区分class template & function template
 
+- typedef
+    - declSpecifier = declaration.getSpecifier()
+    - declSpecifier.getStorageClass() == IASTDeclSpecifier.sc_typedef
+
+### Understand perhaps bugs
+
+1) und class name final-> final is just a specifier 是说这个类不能派生的，understand在这里把它当成了类的名字
+
+2) enum class -> 其实只是给没有作用域的enum类规定了作用域，understand在这里把它当成了class来判断
+
 
 ## perhaps bugs
 
 1) cdt cannot solve Structured binding declaration - auto (C++ 17), 
+
+

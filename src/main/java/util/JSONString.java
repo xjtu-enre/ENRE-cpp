@@ -17,19 +17,8 @@ import java.util.Map;
 
 
 public class JSONString {
-	protected static Configure configure = Configure.getConfigureInstance();
-	
-	class EntityTemp {
-		private String qualifiedName;
-		private Integer id;
-		private String entityType;
-		public EntityTemp(){}
-		public EntityTemp(String name, Integer key, String type){
-			this.qualifiedName = name;
-			this.id = key;
-			this.entityType = type;
-		}
-	}
+	//protected static Configure configure = Configure.getConfigureInstance();
+
 	
 	public String resolveTypeName(String name) {
 		String resolvedName = "";
@@ -86,6 +75,38 @@ public class JSONString {
 	}
 	
 	
+	class EntityTemp {
+		private String qualifiedName;
+		private Integer id;
+		private String entityType;
+		private String entityFile;
+		private int startLine;
+		private int startColumn;
+		private int endLine;
+		private int endColumn;
+		public EntityTemp(){}
+		public EntityTemp(String name, Integer key, String type, String entityFile){
+			this.qualifiedName = name;
+			this.id = key;
+			this.entityType = type;
+			this.entityFile = entityFile;
+			this.startLine = -1;
+			this.startColumn = -1;
+			this.endLine = -1;
+			this.endColumn = -1;
+		}
+		public EntityTemp(String name, Integer key, String type, String entityFile, 
+				int startLine, int startColumn, int endLine, int endColumn){
+			this.qualifiedName = name;
+			this.id = key;
+			this.entityType = type;
+			this.entityFile = entityFile;
+			this.startLine = startLine;
+			this.startColumn = startColumn;
+			this.endLine = endLine;
+			this.endColumn = endColumn;
+		}
+	}
 	public void writeEntityJsonStream(OutputStream out, Map<Integer, Entity> entityList) throws IOException {
         JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
         writer.setIndent("  ");
@@ -95,12 +116,26 @@ public class JSONString {
         	String entityName = entity.getQualifiedName();
         	entityName = entityName.replace("\\", "/");
         	entityName = entityName.replace("\"", "");
+        	String entityFile = "null";
         	
-        	String jsonString = "{\"qualifiedName\":\""+entityName+"\", \"id\":"+en+", \"entityType\":\""+ resolveTypeName(entityList.get(en).getClass().toString()) +"\"}";
+        	EntityTemp entitytemp;
+        	if(entity.getLocation() != null) {
+        		entityFile = entity.getLocation().getFileName();
+        		if(entity.getLocation().getStartLine() != null) {
+        			entitytemp = new EntityTemp(entityName, en, this.resolveTypeName(entityList.get(en).getClass().toString()), entityFile,
+        					entity.getLocation().getStartLine(), entity.getLocation().getStartColumn(), 
+        					entity.getLocation().getEndLine(), entity.getLocation().getEndColumn());
+        		}
+        		else entitytemp = new EntityTemp(entityName, en, entityList.get(en).getClass().toString(), entityFile);
+        	}
+        	else {
+        		entitytemp = new EntityTemp(entityName, en, entityList.get(en).getClass().toString(), entityFile);
+        	}
+        	
         	GsonBuilder builder = new GsonBuilder(); 
+        	builder.setPrettyPrinting();
             builder.setPrettyPrinting(); 
             Gson gson = builder.create(); 
-            EntityTemp entitytemp = gson.fromJson(jsonString, EntityTemp.class); 
             gson.toJson(entitytemp, EntityTemp.class, writer);
         }
         writer.endArray();
@@ -127,7 +162,6 @@ public class JSONString {
         	List<Tuple<Integer, Integer>> relationListByType = relationList.get(Type);
         	for(Tuple<Integer, Integer> relation:relationListByType) {
         		String jsonString = "{\"type\":\""+Type+"\", \"src\":"+relation.getFirst()+", \"dest\":\""+ relation.getSecond() +"\"}";
-				//"{\"type\":\""+Type+"\", \"src\"\":"+relation.first+"\", \"dest\"\":"+relation.second+"}";
             	GsonBuilder builder = new GsonBuilder();
                 builder.setPrettyPrinting();
                 Gson gson = builder.create();
@@ -160,13 +194,28 @@ public class JSONString {
 		Gson gson = builder.create();
 		List<EntityTemp> entityTempList = new ArrayList<EntityTemp>();
 		for (Integer en:entityList.keySet()) {
-			String entityName = entityList.get(en).getQualifiedName();
-			entityName = entityName.replace("\\", "/");
-			entityName = entityName.replace("\"", "");
-			builder.setPrettyPrinting();
-			EntityTemp entitytemp = new EntityTemp(entityName, en, entityList.get(en).getClass().toString());
-			entityTempList.add(entitytemp);
 
+        	Entity entity = entityList.get(en);
+        	String entityName = entity.getQualifiedName();
+        	entityName = entityName.replace("\\", "/");
+        	entityName = entityName.replace("\"", "");
+        	String entityFile = "null";
+        	
+        	EntityTemp entitytemp;
+        	if(entity.getLocation() != null) {
+        		entityFile = entity.getLocation().getFileName();
+        		if(entity.getLocation().getStartLine() != null) {
+        			entitytemp = new EntityTemp(entityName, en, this.resolveTypeName(entityList.get(en).getClass().toString()), entityFile,
+        					entity.getLocation().getStartLine(), entity.getLocation().getStartColumn(), 
+        					entity.getLocation().getEndLine(), entity.getLocation().getEndColumn());
+        		}
+        		else entitytemp = new EntityTemp(entityName, en, entityList.get(en).getClass().toString(), entityFile);
+        	}
+        	else {
+        		entitytemp = new EntityTemp(entityName, en, entityList.get(en).getClass().toString(), entityFile);
+        	}
+			builder.setPrettyPrinting();
+			entityTempList.add(entitytemp);
 		}
 
 

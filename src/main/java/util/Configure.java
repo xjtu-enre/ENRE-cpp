@@ -10,6 +10,12 @@ import java.util.Set;
 public class Configure {
 
     private static Configure configure = new Configure();
+    private Configure() {}
+
+//    private ImageLoader(){} 
+//    public static ImageLoader getInstance(){  
+//         return instance;  
+//     } 
     public static Configure getConfigureInstance() {
         return configure;
     }
