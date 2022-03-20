@@ -24,9 +24,10 @@ public class JSONString {
 	//protected static Configure configure = Configure.getConfigureInstance();
 
 	Configure configure = Configure.getConfigureInstance();
-	public String resolveTypeName(String name) {
+	public String resolveTypeName(Entity entity) {
+		String typeName = entity.getClass().toString();
 		String resolvedName = "";
-		switch(name) {
+		switch(typeName) {
 		case "class entity.VarEntity":
 			resolvedName = "Var";
 			break;
@@ -54,7 +55,6 @@ public class JSONString {
 		case "class entity.MacroEntity":
 			resolvedName = "Macro";
 			break;
-
 		case "class entity.NamespaceEntity":
 			resolvedName = "Namespace";
 			break;
@@ -68,8 +68,18 @@ public class JSONString {
 			resolvedName = "Typedef";
 			break;
 		default:
-			System.out.println("Unmapped entity type:"+name);
+			System.out.println("Unmapped entity type:"+ typeName);
 		}
+		
+    	if(entity instanceof DataAggregateEntity) {
+    		if(((DataAggregateEntity) entity).getIsTemplate()) {
+    			resolvedName = resolvedName + " Template";
+    			if(((DataAggregateEntity) entity).getIsSpecializationTemplate()) {
+    				resolvedName = resolvedName + " Specialization";
+    			}
+    		}
+    	}
+    	
 		return resolvedName;
 	}
 	
@@ -107,7 +117,7 @@ public class JSONString {
 		}
 	}
 	
-	public EntityTemp resolveEntityType(Entity entity) {
+	public EntityTemp resolveEntity(Entity entity) {
 		String entityName = entity.getQualifiedName();
 		if(entity instanceof FileEntity) {
 			entityName = entityName.replace(configure.getInputSrcPath()+"\\", "");
@@ -115,12 +125,8 @@ public class JSONString {
     	entityName = entityName.replace("\\", "/");
     	entityName = entityName.replace("\"", "");
     	
-    	String entityType = this.resolveTypeName(entity.getClass().toString());
-    	if(entity instanceof DataAggregateEntity) {
-    		if(((DataAggregateEntity) entity).getIsTemplate()) {
-    			entityType = entityType + " Template";
-    		}
-    	}
+    	String entityType = this.resolveTypeName(entity);
+
     	String entityFile = "null";
     	
     	EntityTemp entitytemp;
@@ -151,7 +157,7 @@ public class JSONString {
         	GsonBuilder builder = new GsonBuilder(); 
         	builder.setPrettyPrinting();
             Gson gson = builder.create(); 
-            gson.toJson(this.resolveEntityType(entity), EntityTemp.class, writer);
+            gson.toJson(this.resolveEntity(entity), EntityTemp.class, writer);
         }
         writer.endArray();
         writer.close();
@@ -211,7 +217,7 @@ public class JSONString {
 		for (Integer en:entityList.keySet()) {
         	Entity entity = entityList.get(en);
 			builder.setPrettyPrinting();
-			entityTempList.add(this.resolveEntityType(entity));
+			entityTempList.add(this.resolveEntity(entity));
 		}
 
 

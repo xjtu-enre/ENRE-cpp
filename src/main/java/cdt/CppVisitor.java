@@ -8,6 +8,7 @@ import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTAliasDeclaration;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTCompositeTypeSpecifier.ICPPASTBaseSpecifier;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTNamespaceDefinition;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTTemplateId;
+import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTTemplateSpecialization;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTUsingDeclaration;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTUsingDirective;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.*;
@@ -250,6 +251,9 @@ public class CppVisitor extends ASTVisitor {
 						structEntity = context.foundStructDefinition(methodName, baseStruct, getLocation(typeSpecifier));
 						if (declaration.getParent() instanceof CPPASTTemplateDeclaration) {
 							structEntity.setTemplate(true);
+							if(declaration.getParent() instanceof ICPPASTTemplateSpecialization) {
+								structEntity.setSpecializationTemplate(true);
+							}
 						}
 					}
 						
@@ -294,6 +298,9 @@ public class CppVisitor extends ASTVisitor {
 						classEntity = context.foundClassDefinition(methodName, baseClass, getLocation(typeSpecifier));
 						if (declaration.getParent() instanceof ICPPASTInternalTemplateDeclaration) {
 							classEntity.setTemplate(true);
+							if(declaration.getParent() instanceof ICPPASTTemplateSpecialization) {
+								classEntity.setSpecializationTemplate(true);
+							}
 						}					
 					}
 
@@ -389,8 +396,8 @@ public class CppVisitor extends ASTVisitor {
 //		 LOGGER.error("parsing error \n" + declaration.getRawSignature());
 //		} else if (declaration instanceof CPPASTStaticAssertionDeclaration) {
 //
-//		} else if (declaration instanceof CPPASTTemplateSpecialization) {
-//		} else {
+//		else if (declaration instanceof CPPASTTemplateSpecialization){
+//			System.out.println("tets");
 //		}
 		return super.visit(declaration);
 	}

@@ -49,8 +49,10 @@ support entity:
 
     - 区分class template & function template
     - 把template变成了DataAggregateEntity的一个属性，判断时只往父类节点找一层，判断struct，class，function三种实体是否为template属性的实体，在输出时判断是否具有template属性，加上一层名字
-    - Partial template specialization(部分模板特化)
-    - 把template name的内容与普通的class、function的名字区分开
+    - deal with specialization(具体化)
+        - explicit specialization
+        - partial specialization
+    - TODO：依赖型模板（https://www.cnblogs.com/yyxt/p/5150449.html）
 
 
 - typedef

@@ -11,6 +11,7 @@ public class DataAggregateEntity extends Entity{
 	
 	boolean isScopeTrue = true;
 	boolean isTemplate = false;
+	boolean isSpecializationTemplate = false;
 	List<Entity> useList = new ArrayList<Entity>();
 	
 	public DataAggregateEntity(String name, String qualifiedName, Entity parent, Integer id,BaseScope scope, Location location) {
@@ -34,7 +35,7 @@ public class DataAggregateEntity extends Entity{
 	
 	
 	/*
-	 * 
+	 * Determines whether this entity is a template
 	 */
 	public void setTemplate(boolean isTemplate) {
 		this.isTemplate = isTemplate;
@@ -44,6 +45,18 @@ public class DataAggregateEntity extends Entity{
 		return this.isTemplate;
 	}
 	
+	/*
+	 * Determines whether this template is a Specialization
+	 */
+	public void setSpecializationTemplate(boolean isSpecializationTemplate) {
+		if(this.isTemplate) {
+			this.isSpecializationTemplate = isSpecializationTemplate;
+		}
+	}
+	
+	public boolean getIsSpecializationTemplate() {
+		return this.isTemplate & this.isSpecializationTemplate;
+	}
 	
 	
 	public Scope foundTrueScope(Scope scope, String name) {
