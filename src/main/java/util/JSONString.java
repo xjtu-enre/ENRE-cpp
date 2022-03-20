@@ -4,8 +4,12 @@ package util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
+
+import entity.DataAggregateEntity;
 import entity.Entity;
 import entity.EntityRepo;
+import entity.FileEntity;
+
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -19,7 +23,7 @@ import java.util.Map;
 public class JSONString {
 	//protected static Configure configure = Configure.getConfigureInstance();
 
-	
+	Configure configure = Configure.getConfigureInstance();
 	public String resolveTypeName(String name) {
 		String resolvedName = "";
 		switch(name) {
@@ -28,6 +32,9 @@ public class JSONString {
 			break;
 		case "class entity.FunctionEntityDefine":
 			resolvedName = "FunctionDefine";
+			break;
+		case "class entity.FunctionEntityDecl":
+			resolvedName = "FunctionDecl";
 			break;
 		case "class entity.ClassEntity":
 			resolvedName = "Class";
@@ -47,9 +54,7 @@ public class JSONString {
 		case "class entity.MacroEntity":
 			resolvedName = "Macro";
 			break;
-		case "class entity.FunctionEntityDecl":
-			resolvedName = "FunctionDecl";
-			break;
+
 		case "class entity.NamespaceEntity":
 			resolvedName = "Namespace";
 			break;
@@ -58,12 +63,6 @@ public class JSONString {
 			break;
 		case "class entity.UnionEntity":
 			resolvedName = "Union";
-			break;
-		case "class entity.FunctionTemplateEntity":
-			resolvedName = "Function Template";
-			break;
-		case "class entity.ClassTemplateEntity":
-			resolvedName = "Class Template";
 			break;
 		case "class entity.TypedefEntity":
 			resolvedName = "Typedef";
@@ -107,36 +106,52 @@ public class JSONString {
 			this.endColumn = endColumn;
 		}
 	}
+	
+	public EntityTemp resolveEntityType(Entity entity) {
+		String entityName = entity.getQualifiedName();
+		if(entity instanceof FileEntity) {
+			entityName = entityName.replace(configure.getInputSrcPath()+"\\", "");
+		}
+    	entityName = entityName.replace("\\", "/");
+    	entityName = entityName.replace("\"", "");
+    	
+    	String entityType = this.resolveTypeName(entity.getClass().toString());
+    	if(entity instanceof DataAggregateEntity) {
+    		if(((DataAggregateEntity) entity).getIsTemplate()) {
+    			entityType = entityType + " Template";
+    		}
+    	}
+    	String entityFile = "null";
+    	
+    	EntityTemp entitytemp;
+    	if(entity.getLocation() != null) {
+    		entityFile = entity.getLocation().getFileName();
+    		entityFile = entityFile.replace(configure.getInputSrcPath()+"\\", "");
+    		entityFile = entityFile.replace("\\", "/");
+        	
+    		if(entity.getLocation().getStartLine() != null) {
+    			entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile,
+    					entity.getLocation().getStartLine(), entity.getLocation().getStartColumn(), 
+    					entity.getLocation().getEndLine(), entity.getLocation().getEndColumn());
+    		}
+    		else entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile);
+    	}
+    	else {
+    		entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile);
+    	}
+    	return entitytemp;
+	}
+	
 	public void writeEntityJsonStream(OutputStream out, Map<Integer, Entity> entityList) throws IOException {
         JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
         writer.setIndent("  ");
         writer.beginArray();
         for (Integer en:entityList.keySet()) {
         	Entity entity = entityList.get(en);
-        	String entityName = entity.getQualifiedName();
-        	entityName = entityName.replace("\\", "/");
-        	entityName = entityName.replace("\"", "");
-        	String entityFile = "null";
-        	
-        	EntityTemp entitytemp;
-        	if(entity.getLocation() != null) {
-        		entityFile = entity.getLocation().getFileName();
-        		if(entity.getLocation().getStartLine() != null) {
-        			entitytemp = new EntityTemp(entityName, en, this.resolveTypeName(entityList.get(en).getClass().toString()), entityFile,
-        					entity.getLocation().getStartLine(), entity.getLocation().getStartColumn(), 
-        					entity.getLocation().getEndLine(), entity.getLocation().getEndColumn());
-        		}
-        		else entitytemp = new EntityTemp(entityName, en, entityList.get(en).getClass().toString(), entityFile);
-        	}
-        	else {
-        		entitytemp = new EntityTemp(entityName, en, entityList.get(en).getClass().toString(), entityFile);
-        	}
-        	
         	GsonBuilder builder = new GsonBuilder(); 
         	builder.setPrettyPrinting();
-            builder.setPrettyPrinting(); 
             Gson gson = builder.create(); 
-            gson.toJson(entitytemp, EntityTemp.class, writer);
+            gson.toJson(this.resolveEntityType(entity), EntityTemp.class, writer);
         }
         writer.endArray();
         writer.close();
@@ -194,28 +209,9 @@ public class JSONString {
 		Gson gson = builder.create();
 		List<EntityTemp> entityTempList = new ArrayList<EntityTemp>();
 		for (Integer en:entityList.keySet()) {
-
         	Entity entity = entityList.get(en);
-        	String entityName = entity.getQualifiedName();
-        	entityName = entityName.replace("\\", "/");
-        	entityName = entityName.replace("\"", "");
-        	String entityFile = "null";
-        	
-        	EntityTemp entitytemp;
-        	if(entity.getLocation() != null) {
-        		entityFile = entity.getLocation().getFileName();
-        		if(entity.getLocation().getStartLine() != null) {
-        			entitytemp = new EntityTemp(entityName, en, this.resolveTypeName(entityList.get(en).getClass().toString()), entityFile,
-        					entity.getLocation().getStartLine(), entity.getLocation().getStartColumn(), 
-        					entity.getLocation().getEndLine(), entity.getLocation().getEndColumn());
-        		}
-        		else entitytemp = new EntityTemp(entityName, en, entityList.get(en).getClass().toString(), entityFile);
-        	}
-        	else {
-        		entitytemp = new EntityTemp(entityName, en, entityList.get(en).getClass().toString(), entityFile);
-        	}
 			builder.setPrettyPrinting();
-			entityTempList.add(entitytemp);
+			entityTempList.add(this.resolveEntityType(entity));
 		}
 
 

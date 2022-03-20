@@ -10,6 +10,7 @@ import java.util.List;
 public class DataAggregateEntity extends Entity{
 	
 	boolean isScopeTrue = true;
+	boolean isTemplate = false;
 	List<Entity> useList = new ArrayList<Entity>();
 	
 	public DataAggregateEntity(String name, String qualifiedName, Entity parent, Integer id,BaseScope scope, Location location) {
@@ -29,6 +30,18 @@ public class DataAggregateEntity extends Entity{
 	
 	public List<Entity> getUse() {
 		return this.useList;
+	}
+	
+	
+	/*
+	 * 
+	 */
+	public void setTemplate(boolean isTemplate) {
+		this.isTemplate = isTemplate;
+	}
+	
+	public boolean getIsTemplate() {
+		return this.isTemplate;
 	}
 	
 	

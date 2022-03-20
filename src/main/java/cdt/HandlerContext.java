@@ -20,8 +20,6 @@ public class HandlerContext {
 	protected FileEntity currentFileEntity;
 	protected Stack<Entity> entityStack = new Stack<Entity>();
 	Scope currentScope;
-	Configure configure = Configure.getConfigureInstance();
-
 	
 	public HandlerContext(EntityRepo entityrepo) {
 		this.entityRepo = entityrepo;
@@ -38,7 +36,7 @@ public class HandlerContext {
 	public FileEntity makeFile(String filefullpath) {
 		String[] name = filefullpath.split("\\\\");
 		GlobalScope scope = new GlobalScope(null);
-		currentFileEntity = new FileEntity(name[name.length-1], filefullpath.replace(configure.getInputSrcPath(), ""), 
+		currentFileEntity = new FileEntity(name[name.length-1], filefullpath, 
 				null, entityRepo.generateId(),filefullpath,scope, new Location(filefullpath));
 		
 		entityRepo.add(currentFileEntity);
@@ -91,7 +89,6 @@ public class HandlerContext {
 	* @throws: 
 	*/
 	public FunctionEntity foundMethodDeclaratorDeclaration(String methodName, String returnType, Location location){
-		methodName = methodName.replace("::", ".");
 		int id = entityRepo.generateId();
 		MethodSymbol symbol = new MethodSymbol(methodName+"_method");
 		if(this.currentScope.getSymbol(methodName+"_method")==null) {
@@ -100,6 +97,7 @@ public class HandlerContext {
 		else {
 			symbol = (MethodSymbol) this.currentScope.getSymbol(methodName+"_method");
 		}
+		methodName = methodName.replace(" ", "");
 		FunctionEntity functionEntity = new FunctionEntityDecl(methodName,
 				resolveName(methodName),  
 				this.latestValidContainer(),id, symbol, location);
@@ -142,15 +140,13 @@ public class HandlerContext {
 	}
 	
 	/**
-	* @methodsName: foundMethodDeclaratorDefine
+	* @methodsName: foundFunctionDeclaratorDefine
 	* @description: build function entity
 	* @param:  String methodName,  String returnType, Location location
 	* @return: FunctionEntity
 	* @throws: 
 	*/
 	public FunctionEntity foundFunctionDeclaratorDefine(String methodName,  String returnType, Location location){
-		
-		methodName = methodName.replace("::", ".");
 		int id = entityRepo.generateId();
 		MethodSymbol symbol = new MethodSymbol(methodName+"_method");
 		
@@ -164,7 +160,7 @@ public class HandlerContext {
 		else {
 			this.currentScope.define(symbol);
 		}
-		
+		methodName = methodName.replace(" ", "");
 		FunctionEntity functionEntity = new FunctionEntityDefine(methodName,
 				resolveName(methodName),
 				this.latestValidContainer(),id,symbol, location);
@@ -175,63 +171,7 @@ public class HandlerContext {
 		return functionEntity;
 	}
 	
-	public FunctionTemplateEntity foundFunctionTemplateDefine(String methodName,  String returnType, Location location) {
-
-		methodName = methodName.replace("::", ".");
-		int id = entityRepo.generateId();
-		MethodSymbol symbol = new MethodSymbol(methodName+"_method");
-		
-		if(this.currentScope.getSymbol(methodName+"_method")==null) {
-			this.currentScope.define(symbol);
-		}
-		else if(this.currentScope.getSymbol(methodName+"_method") instanceof MethodSymbol){
-			symbol = (MethodSymbol) this.currentScope.getSymbol(methodName+"_method");
-		}
-		else {
-			this.currentScope.define(symbol);
-		}
-		
-		FunctionTemplateEntity functionEntity = new FunctionTemplateEntity(methodName,
-				resolveName(methodName),
-				this.latestValidContainer(),id,symbol, location);
-		functionEntity.setReturn(returnType);
-		entityRepo.add(functionEntity);
-		pushScope(symbol);
-		entityStack.push(functionEntity);
-		return functionEntity;
-	}
 	
-	
-	/**
-	* @methodsName: foundEnumDefinition
-	* @description: build Enum entity
-	* @param:  String enumName, Location location
-	* @return: EnumEntity
-	* @throws: 
-	*/
-	public EnumEntity foundEnumDefinition(String enumName, Location location) {
-		int id = entityRepo.generateId();
-		EnumScope symbol = new EnumScope(enumName);
-		if(this.currentScope.getSymbol(enumName)==null) {
-			this.currentScope.define(symbol);
-		}
-		else {
-			if(this.currentScope.getSymbol(enumName) instanceof EnumScope) {
-				symbol = (EnumScope) this.currentScope.getSymbol(enumName);
-			}
-			else {
-				symbol = new EnumScope(enumName+"_default");
-				this.currentScope.define(symbol);
-			}
-		}
-		
-		EnumEntity enumeration = new EnumEntity(enumName, resolveName(enumName),
-				this.latestValidContainer(),id,symbol, location);
-		entityRepo.add(enumeration);
-		pushScope(symbol);
-		entityStack.push(enumeration);
-		return enumeration;
-	}
 	
 	/**
 	* @methodsName: foundClassDefinition
@@ -260,26 +200,6 @@ public class HandlerContext {
 		return classEntity;
 	}
 	
-	
-	public ClassTemplateEntity foundClassTemplateDefinition(String ClassName,List<String> baseClass, Location location){
-		int id = entityRepo.generateId();
-		ClassSymbol symbol = new ClassSymbol(ClassName);
-		if(this.currentScope.getSymbol(ClassName)==null) {
-			this.currentScope.define(symbol);
-		}
-		else {
-			symbol = (ClassSymbol) this.currentScope.getSymbol(ClassName);
-		}
-		ClassTemplateEntity classTemplateEntity = new ClassTemplateEntity(ClassName, resolveName(ClassName),
-				this.latestValidContainer(),id,symbol, location);
-		if(baseClass!= null) {
-			classTemplateEntity.addBaseClass(baseClass);
-		}
-		entityRepo.add(classTemplateEntity);
-		pushScope(symbol);
-		entityStack.push(classTemplateEntity);
-		return classTemplateEntity;
-	}
 	
 	/**
 	* @methodsName: foundStructDefinition
@@ -341,6 +261,37 @@ public class HandlerContext {
 		return unionEntity;
 	}
 	
+	/**
+	* @methodsName: foundEnumDefinition
+	* @description: build Enum entity
+	* @param:  String enumName, Location location
+	* @return: EnumEntity
+	* @throws: 
+	*/
+	public EnumEntity foundEnumDefinition(String enumName, Location location) {
+		int id = entityRepo.generateId();
+		EnumScope symbol = new EnumScope(enumName);
+		if(this.currentScope.getSymbol(enumName)==null) {
+			this.currentScope.define(symbol);
+		}
+		else {
+			if(this.currentScope.getSymbol(enumName) instanceof EnumScope) {
+				symbol = (EnumScope) this.currentScope.getSymbol(enumName);
+			}
+			else {
+				symbol = new EnumScope(enumName+"_default");
+				this.currentScope.define(symbol);
+			}
+		}
+		
+		EnumEntity enumeration = new EnumEntity(enumName, resolveName(enumName),
+				this.latestValidContainer(),id,symbol, location);
+		entityRepo.add(enumeration);
+		pushScope(symbol);
+		entityStack.push(enumeration);
+		return enumeration;
+	}
+	
 	
 	/**
 	* @methodsName: foundEnumeratorDefinition
@@ -357,6 +308,7 @@ public class HandlerContext {
 		if(this.latestValidContainer() instanceof EnumEntity) {
 			((EnumEntity)this.latestValidContainer()).addEnumerator(enumertorEntity);
 		}
+
 		return enumertorEntity;
 	}
 	
@@ -534,7 +486,7 @@ public class HandlerContext {
 	public AliasEntity foundNewAlias(String aliasName, String originalName, Location location) {
 		if (aliasName.equals(originalName)) return null; 
 		AliasEntity currentTypeEntity = new AliasEntity(aliasName, 
-				this.latestValidContainer().getQualifiedName()+"."+aliasName,this.latestValidContainer(),
+				this.resolveName(originalName), this.latestValidContainer(),
 				entityRepo.generateId(), originalName, location );
 		entityRepo.add(currentTypeEntity);
 		return currentTypeEntity;		
@@ -619,6 +571,13 @@ public class HandlerContext {
 				return (ClassEntity)t;
 			if (t instanceof NamespaceEntity)
 				return (NamespaceEntity)t;
+			if (t instanceof EnumEntity) {
+				EnumEntity enumEntity = (EnumEntity)t;
+				if(enumEntity.getisScope()) {
+					return enumEntity;
+				}
+			}
+				
 		}
 		return null;
 	}

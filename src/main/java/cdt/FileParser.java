@@ -5,6 +5,8 @@ import entity.EntityRepo;
 import entity.FileEntity;
 import entity.Location;
 import entity.MacroEntity;
+import util.Configure;
+
 import org.eclipse.cdt.core.dom.ast.*;
 import org.eclipse.cdt.core.dom.ast.gnu.c.GCCLanguage;
 import org.eclipse.cdt.core.dom.ast.gnu.cpp.GPPLanguage;
@@ -25,6 +27,7 @@ public class FileParser {
 	HashMap<String,Integer> fileList;
 	Map<String, String> definedMacros = new HashMap<>();
 	Set<String> Program_environment;
+	Configure configure = Configure.getConfigureInstance();
 	public FileParser(String filepath, EntityRepo entityrepo,HashMap<String,Integer> fileList, Set<String> environment) {
 		this.filepath = filepath;
 		this.entityrepo = entityrepo;
@@ -52,6 +55,7 @@ public class FileParser {
 		boolean isIncludePath = false;
 		definedMacros.put("__cplusplus", "1");
 		definedMacros.put("LEVELDB_EXPORT", "__declspec(dllexport)");
+		definedMacros.put("BOOST_FIXTURE_TEST_SUITE(a, b)", "");
 		String[] includePaths = new String[0];
 
 		IASTTranslationUnit tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
@@ -61,7 +65,6 @@ public class FileParser {
 		CppVisitor visitor = new CppVisitor(entityrepo, filepath);
 		fileEntity = visitor.getfile();
 		HashSet<String> includePathset = getdirectedinclude(tu);
-
 
 		IASTPreprocessorStatement[] statements= tu.getAllPreprocessorStatements();
 		getallstatements(statements);
@@ -127,8 +130,7 @@ public class FileParser {
 	public void getallstatements(IASTPreprocessorStatement[] statements) {
 		for(IASTPreprocessorStatement statement:statements) {
 			if(statement instanceof IASTPreprocessorIncludeStatement) {
-				fileEntity.addinclude(((IASTPreprocessorIncludeStatement) statement).getPath());
-
+				
 			}
 			else if(statement instanceof IASTPreprocessorMacroDefinition) {
 				IASTPreprocessorMacroDefinition macroDefinition = (IASTPreprocessorMacroDefinition)statement;
@@ -225,11 +227,17 @@ public class FileParser {
 					includeFile.add(checkPath);
 					if(checkPath.endsWith(".h")) {
 						checkPath = checkPath.replace(".h", ".cpp");
-						if(exitFile(checkPath)&& !checkPath.equals(this.filepath)) includeFile.add(checkPath);
+						if(exitFile(checkPath)&& !checkPath.equals(this.filepath)) {
+							includeFile.add(checkPath);
+							fileEntity.addinclude(checkPath);
+						}
 					}
 					else if(checkPath.endsWith(".hpp")) {
 						checkPath = checkPath.replace(".hpp", ".cpp");
-						if(exitFile(checkPath)) includeFile.add(checkPath);
+						if(exitFile(checkPath)) {
+							includeFile.add(checkPath);
+							
+						}
 					}
 					continue;
 				}

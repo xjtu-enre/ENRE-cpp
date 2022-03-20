@@ -7,6 +7,7 @@ import org.eclipse.cdt.core.dom.ast.IASTEnumerationSpecifier.IASTEnumerator;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTAliasDeclaration;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTCompositeTypeSpecifier.ICPPASTBaseSpecifier;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTNamespaceDefinition;
+import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTTemplateId;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTUsingDeclaration;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTUsingDirective;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.*;
@@ -101,8 +102,8 @@ public class CppVisitor extends ASTVisitor {
 
 	@Override
 	public int visit(IASTEnumerator enumerator) {
-		int startingLineNumber = enumerator.getFileLocation().getStartingLineNumber();
-		EnumeratorEntity var = context.foundEnumeratorDefinition(enumerator.getRawSignature(), getLocation(enumerator));
+		String enumeratorName = enumerator.getName().toString();
+		EnumeratorEntity var = context.foundEnumeratorDefinition(enumeratorName, getLocation(enumerator));
 		return super.visit(enumerator);
 	}
 
@@ -181,30 +182,49 @@ public class CppVisitor extends ASTVisitor {
 			}
 			if (declSpec instanceof IASTEnumerationSpecifier) {
 				// enum
-
-				IASTEnumerationSpecifier enumeration = (IASTEnumerationSpecifier) declSpec;
-				String methodName = enumeration.getName().toString();
+				IASTEnumerationSpecifier enumerationSpecifier = (IASTEnumerationSpecifier) declSpec;
+				EnumEntity enumentity = null;
+				String methodName = enumerationSpecifier.getName().toString();
 				if (methodName.equals("")) {
 					boolean isNoObject = true;
 					for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
-							String varName = declarator.getRawSignature().toString();
-							EnumEntity enumentity = context.foundEnumDefinition(varName, getLocation(enumeration));
-							context.foundVarDefinition(varName, getLocation(declarator.getName()));
-							isNoObject = false;
+						String varName = declarator.getName().toString();
+						enumentity = context.foundEnumDefinition(varName, getLocation(enumerationSpecifier));
+						context.foundVarDefinition(varName, getLocation(declarator.getName()));
+						isNoObject = false;
 					}
 					if (isNoObject) {
-						context.foundEnumDefinition("defaultEnumName", getLocation(enumeration));
+						enumentity = context.foundEnumDefinition("defaultEnumName", getLocation(enumerationSpecifier));
 					}
 					
-				} else
-					context.foundEnumDefinition(methodName, getLocation(enumeration));
+				} else {
+					enumentity = context.foundEnumDefinition(methodName, getLocation(enumerationSpecifier));
+				}
+				try {
+					// enum with scope: enum class/enum struct
+					if(enumerationSpecifier.getName()!= null & !methodName.equals("")) {
+						if(enumerationSpecifier.getName().getLeadingSyntax()!=null) {
+							if(enumerationSpecifier.getName().getLeadingSyntax().getNext()!=null) {
+								enumentity.setScope(true);
+							}
+						}
+					}
+				} catch (UnsupportedOperationException | ExpansionOverlapsBoundaryException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			if (declSpec instanceof CPPASTCompositeTypeSpecifier) {
 				CPPASTCompositeTypeSpecifier typeSpecifier = (CPPASTCompositeTypeSpecifier) declSpec;
 				int type = typeSpecifier.getKey();
 				String methodName = typeSpecifier.getName().toString();
+				if(typeSpecifier.getName() instanceof ICPPASTTemplateId) {
+					ICPPASTTemplateId templateId = (ICPPASTTemplateId)(typeSpecifier.getName());
+					methodName = templateId.getTemplateName().toString();
+				}
 				switch (type) {
 				case 1:
+					StructEntity structEntity = null;
 //					if(typeSpecifier.getStorageClass() == IASTDeclSpecifier.sc_typedef) {
 //						System.out.println(typeSpecifier.getRawSignature());
 //					}
@@ -214,21 +234,25 @@ public class CppVisitor extends ASTVisitor {
 						baseStruct.add(b.getName().getRawSignature());
 					}
 					if (methodName.equals("")) {
-						StructEntity struct = context.foundStructDefinition("defaultName", baseStruct, getLocation(typeSpecifier));
+						structEntity = context.foundStructDefinition("defaultName", baseStruct, getLocation(typeSpecifier));
 						boolean isNoObject = true;
 						for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
 							String varName = declarator.getRawSignature().toString();					
-							// 
 							context.foundVarDefinition(varName, getLocation(typeSpecifier));
 							isNoObject = false;
 						}
 						if (isNoObject) {
-							context.foundStructDefinition("defaultName", baseStruct, getLocation(typeSpecifier));
+							structEntity = context.foundStructDefinition("defaultName", baseStruct, getLocation(typeSpecifier));
 						}
 					}
 
-					else
-						context.foundStructDefinition(methodName, baseStruct, getLocation(typeSpecifier));
+					else {
+						structEntity = context.foundStructDefinition(methodName, baseStruct, getLocation(typeSpecifier));
+						if (declaration.getParent() instanceof CPPASTTemplateDeclaration) {
+							structEntity.setTemplate(true);
+						}
+					}
+						
 					break;
 				case 2:
 					if (methodName.equals("")) {
@@ -248,6 +272,7 @@ public class CppVisitor extends ASTVisitor {
 
 					break;
 				case 3:
+					ClassEntity classEntity = null;
 					ArrayList<String> baseClass = new ArrayList<String>();
 					ICPPASTBaseSpecifier[] base3 = ((CPPASTCompositeTypeSpecifier) declSpec).getBaseSpecifiers();
 					for (ICPPASTBaseSpecifier b : base3) {
@@ -257,25 +282,19 @@ public class CppVisitor extends ASTVisitor {
 						boolean isNoObject = true;
 						for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
 							String varName = declarator.getRawSignature().toString();
-							ClassEntity classtype = context.foundClassDefinition(varName, baseClass, getLocation(typeSpecifier));
+							classEntity = context.foundClassDefinition(varName, baseClass, getLocation(typeSpecifier));
 							context.foundVarDefinition(varName, getLocation(typeSpecifier));
 							isNoObject = false;
 						}
 						if (isNoObject) {
-							context.foundClassDefinition("defaultName", baseClass, getLocation(typeSpecifier));
+							classEntity = context.foundClassDefinition("defaultName", baseClass, getLocation(typeSpecifier));
 						}
 
 					} else {
-						
-						if (isTemplate(declSpec)) {
-							ClassTemplateEntity classTemplateEntity = context.foundClassTemplateDefinition(methodName, baseClass,
-									getLocation(typeSpecifier));
-						}
-						else {
-							ClassEntity classEntity = context.foundClassDefinition(methodName, baseClass,
-									getLocation(typeSpecifier));
-						}
-							
+						classEntity = context.foundClassDefinition(methodName, baseClass, getLocation(typeSpecifier));
+						if (declaration.getParent() instanceof ICPPASTInternalTemplateDeclaration) {
+							classEntity.setTemplate(true);
+						}					
 					}
 
 					break;
@@ -289,7 +308,7 @@ public class CppVisitor extends ASTVisitor {
 				// Found new typedef definition
 				if (declarator instanceof IASTFunctionDeclarator) {
 					// function declarator
-					String rawName = declarator.getName().toString().replace("::", ".");
+					String rawName = declarator.getName().toString();
 					IASTDeclSpecifier declSpeci = simpleDeclaration.getDeclSpecifier();
 					String returnType = getFunctionReturn(declSpeci);
 					// function pointer
@@ -314,7 +333,6 @@ public class CppVisitor extends ASTVisitor {
 					super.visit(declaration);
 				}
 				if (declSpecifier.getStorageClass() == IASTDeclSpecifier.sc_typedef) {
-					System.out.println(declSpecifier.getRawSignature());
 					String varType = declSpecifier.getRawSignature().toString();
 					String varName = declarator.getName().toString();
 					context.foundTypedefDefinition(varName, varType, getLocation(declarator));
@@ -340,21 +358,16 @@ public class CppVisitor extends ASTVisitor {
 
 		} else if (declaration instanceof IASTFunctionDefinition) {
 			// function definition
-			//System.out.println(declaration.getRawSignature());
+			FunctionEntity functionEntity = null;
 			IASTFunctionDefinition decl = (IASTFunctionDefinition) declaration;
 			IASTDeclarator declarator = decl.getDeclarator();
 			String rawName = declarator.getName().toString();
 			IASTDeclSpecifier declSpeci = decl.getDeclSpecifier();
 			String returnType = getFunctionReturn(declSpeci);
-			if (isTemplate(declaration)) {
-				FunctionTemplateEntity functionTemplateEntity = context.foundFunctionTemplateDefine(rawName, returnType,
-						getLocation(decl.getDeclarator()));
-			}
-			else{
-				FunctionEntity functionEntity = context.foundFunctionDeclaratorDefine(rawName, returnType,
-						getLocation(decl.getDeclarator()));
-			}
-					
+			functionEntity = context.foundFunctionDeclaratorDefine(rawName, returnType, getLocation(decl.getDeclarator()));
+			if (declaration.getParent() instanceof CPPASTTemplateDeclaration) {
+				functionEntity.setTemplate(true);
+			}				
 			
 		} else if (declaration instanceof ICPPASTAliasDeclaration) {
 			ICPPASTAliasDeclaration aliasDeclaration = (ICPPASTAliasDeclaration) declaration;
@@ -434,16 +447,15 @@ public class CppVisitor extends ASTVisitor {
 			CPPASTFunctionDeclarator functionDeclarator = (CPPASTFunctionDeclarator) parameterDeclaration
 					.getDeclarator();
 			if (this.getLocation(functionDeclarator.getName()) != null)
-				var = context.foundVarDefinition(functionDeclarator.getName().toString().replace("::", "."),
+				var = context.foundVarDefinition(functionDeclarator.getName().toString(),
 						getLocation(functionDeclarator.getName()));
 			if (parameterDeclaration.getParent() instanceof IASTStandardFunctionDeclarator) {
 				context.currentFunction().setCallbackCall(true);
 			}
 
 		} else if (parameterDeclaration.getDeclSpecifier() instanceof CPPASTSimpleDeclSpecifier) {
-			String parameterName = parameterDeclaration.getDeclarator().getName().toString().replace("::", ".");
-			String parameterType = parameterDeclaration.getDeclSpecifier().getRawSignature().toString().replace("::",
-					".");
+			String parameterName = parameterDeclaration.getDeclarator().getName().toString();
+			String parameterType = parameterDeclaration.getDeclSpecifier().getRawSignature().toString();
 			IASTNode[] declaratorChild = parameterDeclaration.getDeclarator().getChildren();
 			if (declaratorChild.length == 1) {
 				if (getLocation(parameterDeclaration.getDeclarator().getName()) != null) {
@@ -507,10 +519,11 @@ public class CppVisitor extends ASTVisitor {
 	public boolean isTemplate(IASTNode node) {
 		if (node instanceof CPPASTTemplateDeclaration)
 			return true;
-		if (node.getParent() == null)
-			return false;
-		else
-			return isTemplate(node.getParent());
+		return false;
+//		if (node.getParent() == null)
+//			return false;
+//		else
+//			return isTemplate(node.getParent());
 	}
 
 	public void showASTNode(IASTNode node, int i) {
