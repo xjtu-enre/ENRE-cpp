@@ -60,7 +60,6 @@ public class CppVisitor extends ASTVisitor {
 
 	@Override
 	public int visit(IASTTranslationUnit tu) {
-		//showASTNode(tu, 0);
 		return super.visit(tu);
 	}
 
@@ -162,6 +161,7 @@ public class CppVisitor extends ASTVisitor {
 	// Variables
 	@Override
 	public int visit(IASTDeclaration declaration) {
+		//System.out.println("this entity from:"+declaration.getFileLocation().getFileName().toString());
 		if (declaration instanceof ICPPASTUsingDeclaration) {
 			String ns = ASTStringUtil.getName((ICPPASTUsingDeclaration) declaration);
 			context.foundUsingImport(ns);

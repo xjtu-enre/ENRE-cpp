@@ -52,15 +52,14 @@ public class FileParser {
 		}
 		fileList.put(filepath,1);
 		final FileContent content = FileContent.createForExternalFileLocation(filepath);
+		IParserLogService log = new DefaultLogService();
+		
 		boolean isIncludePath = false;
-		definedMacros.put("__cplusplus", "1");
-		definedMacros.put("LEVELDB_EXPORT", "__declspec(dllexport)");
-		definedMacros.put("BOOST_FIXTURE_TEST_SUITE(a, b)", "");
 		String[] includePaths = new String[0];
 
 		IASTTranslationUnit tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
-				new ScannerInfo(definedMacros, includePaths), IncludeFileContentProvider.getEmptyFilesProvider(),
-				EmptyCIndex.INSTANCE, 0, new DefaultLogService());
+				new ScannerInfo(), IncludeFileContentProvider.getEmptyFilesProvider(),
+				EmptyCIndex.INSTANCE, 0, log);
 
 		CppVisitor visitor = new CppVisitor(entityrepo, filepath);
 		fileEntity = visitor.getfile();
@@ -70,7 +69,7 @@ public class FileParser {
 		getallstatements(statements);
 		for(String includePath:includePathset) {
 			if(!isFileParse(includePath)) {
-				FileParser fileparse = new FileParser(includePath,entityrepo,fileList,Program_environment);
+				FileParser fileparse = new FileParser(includePath, entityrepo, fileList, Program_environment);
 				fileparse.parse();
 			}
 			if(entityrepo.getEntityByName(includePath)!=null && entityrepo.getEntityByName(includePath) instanceof FileEntity) {
@@ -81,16 +80,20 @@ public class FileParser {
 			}
 			isIncludePath = true;
 		}
+		
 		getMacro(filepath);
+		for(String macroInfo:fileEntity.getMacroRepo().keySet()) {
+			definedMacros.remove(macroInfo);
+		}
+
 		if(isIncludePath) {
 			tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
-					new ScannerInfo(definedMacros, includePaths), IncludeFileContentProvider.getEmptyFilesProvider(),
-					EmptyCIndex.INSTANCE, 0, new DefaultLogService());
+					new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
+					EmptyCIndex.INSTANCE, 0, log);
 		}
 		tu.accept(visitor);
 	}
-
-
+	
 	/**
 	 * @methodsName: exitFile
 	 * @description: Check whether the file exists based on the path
