@@ -48,6 +48,8 @@ public class HandlerContext {
 	public String resolveName(String methodName) {
 		if(this.latestValidContainer() instanceof FileEntity)
 			return methodName;
+		if(this.latestValidContainer().getQualifiedName() == "defaultName")
+			return this.latestValidContainer().getQualifiedName().replace("::defaultName", "") + "::" +methodName;
 		if(this.latestValidContainer().getQualifiedName() == "")
 			return methodName;
 		return this.latestValidContainer().getQualifiedName() + "::" +methodName;

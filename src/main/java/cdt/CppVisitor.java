@@ -132,18 +132,18 @@ public class CppVisitor extends ASTVisitor {
 			context.foundCodeScope(statement);
 		}
 
-		if (statement instanceof IASTReturnStatement) {
-			IASTReturnStatement returnstatement = (IASTReturnStatement) statement;
-			if (returnstatement.getReturnArgument() != null) {
-				if (context.currentFunction() != null && returnstatement.getReturnValue() != null) {
-					VarEntity var = context.foundVarDefinition(returnstatement.getReturnValue().getRawSignature(),
-							getLocation(returnstatement));
-					if (var != null && context.currentFunction() != null) {
-						context.currentFunction().setReturn(var);
-					}
-				}
-			}
-		}
+//		if (statement instanceof IASTReturnStatement) {
+//			IASTReturnStatement returnstatement = (IASTReturnStatement) statement;
+//			if (returnstatement.getReturnArgument() != null) {
+//				if (context.currentFunction() != null && returnstatement.getReturnValue() != null) {
+//					VarEntity var = context.foundVarDefinition(returnstatement.getReturnValue().getRawSignature(),
+//							getLocation(returnstatement));
+//					if (var != null && context.currentFunction() != null) {
+//						context.currentFunction().setReturn(var);
+//					}
+//				}
+//			}
+//		}
 		if (statement instanceof IASTProblemStatement) {
 
 		}
@@ -239,7 +239,7 @@ public class CppVisitor extends ASTVisitor {
 						structEntity = context.foundStructDefinition("defaultName", baseStruct, getLocation(typeSpecifier));
 						boolean isNoObject = true;
 						for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
-							String varName = declarator.getRawSignature().toString();					
+							String varName = declarator.getName().toString();					
 							context.foundVarDefinition(varName, getLocation(typeSpecifier));
 							isNoObject = false;
 						}
@@ -263,7 +263,7 @@ public class CppVisitor extends ASTVisitor {
 					if (methodName.equals("")) {
 						boolean isNoObject = true;
 						for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
-							String varName = declarator.getRawSignature().toString();
+							String varName = declarator.getName().toString();
 							UnionEntity uniontype = context.foundUnionDefinition(varName, getLocation(typeSpecifier));
 							context.foundVarDefinition(varName, getLocation(typeSpecifier));
 							isNoObject = false;
@@ -286,7 +286,7 @@ public class CppVisitor extends ASTVisitor {
 					if (methodName.equals("")) {
 						boolean isNoObject = true;
 						for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
-							String varName = declarator.getRawSignature().toString();
+							String varName = declarator.getName().toString();
 							classEntity = context.foundClassDefinition(varName, baseClass, getLocation(typeSpecifier));
 							context.foundVarDefinition(varName, getLocation(typeSpecifier));
 							isNoObject = false;
@@ -520,7 +520,6 @@ public class CppVisitor extends ASTVisitor {
 			}
 		}
 		formatName = formatName.replaceFirst("::", "");
-		System.out.println(formatName);
 		return formatName;
 	}
 	

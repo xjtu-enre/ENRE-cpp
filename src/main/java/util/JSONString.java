@@ -29,7 +29,7 @@ public class JSONString {
 		String resolvedName = "";
 		switch(typeName) {
 		case "class entity.VarEntity":
-			resolvedName = "Var";
+			resolvedName = "Object";
 			break;
 		case "class entity.FunctionEntityDefine":
 			resolvedName = "FunctionDefine";
