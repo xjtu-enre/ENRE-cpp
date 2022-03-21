@@ -6,6 +6,7 @@ import org.eclipse.cdt.core.dom.ast.*;
 import org.eclipse.cdt.core.dom.ast.IASTEnumerationSpecifier.IASTEnumerator;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTAliasDeclaration;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTCompositeTypeSpecifier.ICPPASTBaseSpecifier;
+import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTNameSpecifier;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTNamespaceDefinition;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTTemplateId;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTTemplateSpecialization;
@@ -368,7 +369,8 @@ public class CppVisitor extends ASTVisitor {
 			FunctionEntity functionEntity = null;
 			IASTFunctionDefinition decl = (IASTFunctionDefinition) declaration;
 			IASTDeclarator declarator = decl.getDeclarator();
-			String rawName = declarator.getName().toString();
+			String rawName = this.resolveEntityName(declarator.getName());
+			
 			IASTDeclSpecifier declSpeci = decl.getDeclSpecifier();
 			String returnType = getFunctionReturn(declSpeci);
 			functionEntity = context.foundFunctionDeclaratorDefine(rawName, returnType, getLocation(decl.getDeclarator()));
@@ -495,7 +497,33 @@ public class CppVisitor extends ASTVisitor {
 
 		return super.visit(parameterDeclaration);
 	}
-
+	
+	public String resolveEntityName(IASTName name) {
+		String formatName = "";
+		String rawName = name.toString();
+		if(name instanceof CPPASTName) {
+			return name.toString();
+		}
+		else {
+			if(name instanceof CPPASTQualifiedName) {
+				CPPASTQualifiedName qualifiedName = (CPPASTQualifiedName)name;
+				for(ICPPASTNameSpecifier nameSpecifier:qualifiedName.getAllSegments()) {
+					if(nameSpecifier instanceof ICPPASTTemplateId) {
+						ICPPASTTemplateId templateId = (ICPPASTTemplateId)nameSpecifier;
+						formatName = formatName + "::" + templateId.getTemplateName().toString();
+					}
+					else if(nameSpecifier instanceof IASTName) {
+						formatName = formatName + "::" + nameSpecifier.getRawSignature();
+					}
+					
+				}
+			}
+		}
+		formatName = formatName.replaceFirst("::", "");
+		System.out.println(formatName);
+		return formatName;
+	}
+	
 	public String getFunctionReturn(IASTDeclSpecifier declSpeci) {
 		String type = null;
 		if (declSpeci instanceof IASTCompositeTypeSpecifier) {

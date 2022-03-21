@@ -56,7 +56,8 @@ public class FileParser {
 		
 		boolean isIncludePath = false;
 		String[] includePaths = new String[0];
-
+		definedMacros.put("LEVELDB_EXPORT", "__declspec(dllexport)");
+		
 		IASTTranslationUnit tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
 				new ScannerInfo(), IncludeFileContentProvider.getEmptyFilesProvider(),
 				EmptyCIndex.INSTANCE, 0, log);
@@ -132,10 +133,7 @@ public class FileParser {
 	 */
 	public void getallstatements(IASTPreprocessorStatement[] statements) {
 		for(IASTPreprocessorStatement statement:statements) {
-			if(statement instanceof IASTPreprocessorIncludeStatement) {
-				
-			}
-			else if(statement instanceof IASTPreprocessorMacroDefinition) {
+			if(statement instanceof IASTPreprocessorMacroDefinition) {
 				IASTPreprocessorMacroDefinition macroDefinition = (IASTPreprocessorMacroDefinition)statement;
 				String macroname = macroDefinition.getName().toString();
 				String expansion = macroDefinition.getExpansion();
