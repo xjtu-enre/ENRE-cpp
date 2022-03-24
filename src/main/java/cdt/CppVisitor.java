@@ -51,9 +51,7 @@ public class CppVisitor extends ASTVisitor {
 		this.shouldVisitTranslationUnit = true;
 		this.shouldVisitTypeIds = true;
 		this.shouldVisitVirtSpecifiers = true;
-
 		this.entityrepo = entityrepo;
-
 		this.context = new HandlerContext(entityrepo);
 		this.currentfile = context.makeFile(filefullpath);
 
@@ -88,11 +86,8 @@ public class CppVisitor extends ASTVisitor {
 		return super.leave(namespaceDefinition);
 	}
 
-	// enum, struct, union, class
 	@Override
 	public int visit(IASTDeclSpecifier declSpec) {
-		
-
 		return super.visit(declSpec);
 	}
 
@@ -181,8 +176,14 @@ public class CppVisitor extends ASTVisitor {
 				if (ela.isFriend() && ela.getKind() == CPPASTElaboratedTypeSpecifier.k_class) {
 					context.addFriendClass(ela.getName().toString());
 				}
+			}else if(declSpec instanceof CPPASTNamedTypeSpecifier) {
+				// TODO: 绑定到相应的类型
+				for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
+					String varName = this.resolveEntityName(declarator.getName());
+					context.foundVarDefinition(varName, getLocation(declarator.getName()));
+				}
 			}
-			if (declSpec instanceof IASTEnumerationSpecifier) {
+			else if (declSpec instanceof IASTEnumerationSpecifier) {
 				// enum
 				IASTEnumerationSpecifier enumerationSpecifier = (IASTEnumerationSpecifier) declSpec;
 				EnumEntity enumentity = null;
@@ -215,8 +216,7 @@ public class CppVisitor extends ASTVisitor {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}
-			if (declSpec instanceof CPPASTCompositeTypeSpecifier) {
+			}else if (declSpec instanceof CPPASTCompositeTypeSpecifier) {
 				CPPASTCompositeTypeSpecifier typeSpecifier = (CPPASTCompositeTypeSpecifier) declSpec;
 				int type = typeSpecifier.getKey();
 				String methodName = typeSpecifier.getName().toString();
@@ -227,9 +227,6 @@ public class CppVisitor extends ASTVisitor {
 				switch (type) {
 				case 1:
 					StructEntity structEntity = null;
-//					if(typeSpecifier.getStorageClass() == IASTDeclSpecifier.sc_typedef) {
-//						System.out.println(typeSpecifier.getRawSignature());
-//					}
 					ArrayList<String> baseStruct = new ArrayList<String>();
 					ICPPASTBaseSpecifier[] base1 = ((CPPASTCompositeTypeSpecifier) declSpec).getBaseSpecifiers();
 					for (ICPPASTBaseSpecifier b : base1) {
@@ -239,7 +236,7 @@ public class CppVisitor extends ASTVisitor {
 						structEntity = context.foundStructDefinition("defaultName", baseStruct, getLocation(typeSpecifier));
 						boolean isNoObject = true;
 						for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
-							String varName = declarator.getName().toString();					
+							String varName = declarator.getName().toString();
 							context.foundVarDefinition(varName, getLocation(typeSpecifier));
 							isNoObject = false;
 						}
@@ -250,6 +247,10 @@ public class CppVisitor extends ASTVisitor {
 
 					else {
 						structEntity = context.foundStructDefinition(methodName, baseStruct, getLocation(typeSpecifier));
+						for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
+							String varName = declarator.getName().toString();
+							context.foundVarDefinition(varName, getLocation(typeSpecifier));
+						}
 						if (declaration.getParent() instanceof CPPASTTemplateDeclaration) {
 							structEntity.setTemplate(true);
 							if(declaration.getParent() instanceof ICPPASTTemplateSpecialization) {
@@ -323,7 +324,9 @@ public class CppVisitor extends ASTVisitor {
 					if (declarator.getName().toString().equals("")) {
 						for (IASTNode node : declarator.getChildren()) {
 							if (node instanceof CPPASTDeclarator) {
-								rawName = node.getRawSignature();
+								rawName = ((CPPASTDeclarator) node).getName().toString();
+								VarEntity varEntity = context.foundVarDefinition(rawName, getLocation(declarator));
+								varEntity.setPoint(true);
 							}
 						}
 					}

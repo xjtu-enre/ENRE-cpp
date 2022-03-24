@@ -7,12 +7,16 @@ public class VarEntity extends Entity{
 	protected String value = null;
 	protected Entity typeEntity;
 	protected boolean isReference = false;
+	protected boolean isPoint = false;
 	
 	public VarEntity(String name, String qualifiedName,  Entity parent, Integer id, Location location) {
 		super(name,qualifiedName, parent, id, location);
 	}
 	public void setTypeEntity(Entity type) {
 		this.typeEntity = type;
+	}
+	public void setPoint(boolean isPoint) {
+		this.isPoint = isPoint;
 	}
 
 

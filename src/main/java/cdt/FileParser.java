@@ -56,10 +56,19 @@ public class FileParser {
 		
 		boolean isIncludePath = false;
 		String[] includePaths = new String[0];
+		definedMacros.put("__cplusplus", "1");
 		definedMacros.put("LEVELDB_EXPORT", "__declspec(dllexport)");
-		
+		definedMacros.put(	"#define Q_OBJECT", "public:"
+				+ "Q_OBJECT_CHECK"
+				+ "static const QMetaObject staticMetaObject; "
+				+ "Q_OBJECT_GETSTATICMETAOBJECT "
+				+ " virtual const QMetaObject *metaObject() const; "
+				+ "virtual void *qt_metacast(const char *); "
+				+ "QT_TR_FUNCTIONS "
+				+ "virtual int qt_metacall(QMetaObject::Call, int, void **); "
+				+ "private:");
 		IASTTranslationUnit tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
-				new ScannerInfo(), IncludeFileContentProvider.getEmptyFilesProvider(),
+				new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
 				EmptyCIndex.INSTANCE, 0, log);
 
 		CppVisitor visitor = new CppVisitor(entityrepo, filepath);
@@ -86,7 +95,7 @@ public class FileParser {
 		for(String macroInfo:fileEntity.getMacroRepo().keySet()) {
 			definedMacros.remove(macroInfo);
 		}
-
+		
 		if(isIncludePath) {
 			tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
 					new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
@@ -221,8 +230,7 @@ public class FileParser {
 				}
 				File file = new File(includefile.getContainingFilename());
 				String filePath = file.getParent();
-				// String checkPath = ScannerUtility.createReconciledPath(filePath, path);
-				String checkPath = uniformPath(ScannerUtility.reconcilePath(filePath), ScannerUtility.reconcilePath(path), "");
+				String checkPath = uniformPath(ScannerUtility.reconcilePath(filePath), ScannerUtility.reconcilePath(path));
 				checkPath =  uniformPath(checkPath);
 				if(exitFile(checkPath)) {
 					includeFile.add(checkPath);
@@ -300,28 +308,7 @@ public class FileParser {
 	public Map<String, String> getdefinedMacros(){
 		return this.definedMacros;
 	}
-	public String uniformPath(String path) {
-		String[] paths = path.split("[/|\\\\]");
-		StringBuilder sb = new StringBuilder();
-		Stack<String> pathStack = new Stack<>();
-		for (int i=0;i<paths.length;i++) {
-			String s = paths[i];
-			if (s.equals(".")) continue;
-			if (s.equals("..") && !pathStack.empty()) {
-				pathStack.pop();
-				continue;
-			}
-			pathStack.push(s);
-		}
 
-		for (int i=0;i<pathStack.size();i++) {
-			sb.append(pathStack.get(i));
-			if (i<pathStack.size()-1)
-				sb.append(File.separator);
-		}
-		
-		return sb.toString();
-	}
 
 
 	/**
@@ -353,19 +340,109 @@ public class FileParser {
 	}
 	
 	
-	public static String uniformPath(String str1, String str2, String str3) {
-		String str4 = str1.split("\\\\")[str1.split("\\\\").length-1];
-		String str5 = str2.split("\\\\")[0];
-		
-		if(str5.equals(str4)) {
-			String str6 = str1.substring(0, str1.length()-str4.length()-1);
-			String str7 = str2.substring(str5.length()+1);
-			return uniformPath(str6, str7, str5);
+//	public static String uniformPath(String str1, String str2, String str3) {
+//		String str4 = str1.split("\\\\")[str1.split("\\\\").length-1];
+//		String str5 = str2.split("\\\\")[0];
+//		
+//		if(str5.equals(str4)) {
+//			String str6 = str1.substring(0, str1.length()-str4.length()-1);
+//			String str7 = str2.substring(str5.length()+1);
+//			return uniformPath(str6, str7, str5);
+//		}
+//		
+//		if(str3.length() == 0) return str1+"\\"+str2;
+//		return str1+"\\" + str3 + "\\"+ str2;
+//		
+//	}
+	public static String uniformPath(String root, String include_file) {
+		String[] root_split = root.split("[/|\\\\]");
+		String[] include_file_split = include_file.split("[/|\\\\]");
+		Stack<String> pathStack = new Stack<>();
+		if(include_file_split[0].equals("..")) {
+			int up_level = -1;
+			for(int i=0;i<include_file_split.length;i++) {
+				if(include_file_split[i].equals(".."))
+					up_level = i;
+				else
+					break;
+			}
+			StringBuilder sb = new StringBuilder();
+			for (int i=0;i <root_split.length - 2 - up_level;i++) {
+				sb.append(root_split[i]);
+				sb.append(File.separator);
+			}
+			for(int i=up_level+1; i<include_file_split.length;i++) {
+				sb.append(include_file_split[i]);
+				if (i<include_file_split.length-1)
+					sb.append(File.separator);
+			}
+			return sb.toString();
 		}
 		
-		if(str3.length() == 0) return str1+"\\"+str2;
-		return str1+"\\" + str3 + "\\"+ str2;
+		boolean isRoot = false;
+		int same_location = -1;
+		int include_file_length = include_file_split.length;
+		if(include_file_length > 1) {
+			for(int i=root_split.length-1;i>0;i--) {
+				if(root_split[i].equals(include_file_split[0])) {
+					isRoot = true;
+					same_location = i;
+					int level_word_number = Math.min(root_split.length-i,include_file_split.length);
+					for(int j=0; j<level_word_number; j++) {
+						if(root_split[i+j].equals(include_file_split[j])) {
+							pathStack.push(include_file_split[j]);
+						}
+						else {
+							isRoot = false;
+							continue;
+						}
+					}
+				}
+			}
+		}
+		StringBuilder sb = new StringBuilder();
+		if(isRoot) {
+			for (int i=0;i < same_location;i++) {
+				sb.append(root_split[i]);
+				sb.append(File.separator);
+			}
+			for (int i=0;i<include_file_split.length;i++) {
+				sb.append(include_file_split[i]);
+				if (i<include_file_split.length-1)
+					sb.append(File.separator);
+			}
+		}
+		else {
+			for (int i=0;i<root_split.length;i++) {
+				sb.append(root_split[i]);
+				sb.append(File.separator);
+			}
+			sb.append(include_file);
+		}
+		return sb.toString();
+	}
+
+	public String uniformPath(String path) {
+		String[] paths = path.split("[/|\\\\]");
+		StringBuilder sb = new StringBuilder();
+		Stack<String> pathStack = new Stack<>();
+		for (int i=0;i<paths.length;i++) {
+			String s = paths[i];
+			if (s.equals(".")) continue;
+			if (s.equals("..") && !pathStack.empty()) {
+				pathStack.pop();
+				continue;
+			}
+			pathStack.push(s);
+		}
+
+		for (int i=0;i<pathStack.size();i++) {
+			sb.append(pathStack.get(i));
+			if (i<pathStack.size()-1)
+				sb.append(File.separator);
+		}
 		
+		return sb.toString();
 	}
 
 
