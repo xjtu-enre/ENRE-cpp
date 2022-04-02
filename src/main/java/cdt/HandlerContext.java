@@ -344,8 +344,8 @@ public class HandlerContext {
 			this.dealExpressionNode(unaryExp.getOperand(), "modify");
 		}
 		if(expression instanceof CPPASTFunctionCallExpression) {
-			CPPASTFunctionCallExpression functioncallExp = (CPPASTFunctionCallExpression)expression;
-			this.dealExpressionNode(functioncallExp.getFunctionNameExpression(), "call");
+			CPPASTFunctionCallExpression functionCallExpression = (CPPASTFunctionCallExpression)expression;
+			this.dealExpressionNode(functionCallExpression.getFunctionNameExpression(), "call");
 		}
 		if(expression instanceof CPPASTExpressionList) {
 			CPPASTExpressionList expressionList = (CPPASTExpressionList)expression;

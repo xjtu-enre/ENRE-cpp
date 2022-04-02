@@ -17,7 +17,8 @@ public class Main {
 		String inputDir = configure.getInputSrcPath();
 		String projectName = configure.getProjectName();
 		Set<String> Program_environment = configure.getProgram_environment();
-
+		
+		long startTime = System.currentTimeMillis();
 		if(lang.equals("cpp")) {
 			Processor processor = new Processor(Program_environment);
 			processor.parseAllFlie(inputDir);
@@ -26,5 +27,8 @@ public class Main {
 			processor.outputFile(projectName);
 			System.out.println("Process finish!");
 		}
+		long endTime = System.currentTimeMillis();
+		System.out.println("Consumed time: " + (float) ((endTime - startTime) / 1000.00) + " s,  or "
+				+ (float) ((endTime - startTime) / 60000.00) + " min.");
 	}
 }

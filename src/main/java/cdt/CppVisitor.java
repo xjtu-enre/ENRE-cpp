@@ -462,7 +462,8 @@ public class CppVisitor extends ASTVisitor {
 				var = context.foundVarDefinition(functionDeclarator.getName().toString(),
 						getLocation(functionDeclarator.getName()));
 			if (parameterDeclaration.getParent() instanceof IASTStandardFunctionDeclarator) {
-				context.currentFunction().setCallbackCall(true);
+				if(context.currentFunction()!=null)
+					context.currentFunction().setCallbackCall(true);
 			}
 
 		} else if (parameterDeclaration.getDeclSpecifier() instanceof CPPASTSimpleDeclSpecifier) {
