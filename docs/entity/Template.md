@@ -35,13 +35,13 @@ template < parameter-list > concept concept-name = constraint-expression ;	(3)	(
     template<C2 T> struct S {};
     ```
 
-    ``` json
+    ``` 
     entities:
-        filter: Alias
+        filter: Template
         items:
             -   name: flags
                 loc: [ 1, 7 ]
-                kind: Alias
+                kind: Template
     ```
 
 - Example2
@@ -52,13 +52,13 @@ template < parameter-list > concept concept-name = constraint-expression ;	(3)	(
     };
     ```
 
-    ``` json
+    ``` 
     entities:
-        filter: Alias
+        filter: Template
         items:
             -   name: flags
                 loc: [ 1, 7 ]
-                kind: Alias
+                kind: Template
     ```
 
 # Reference

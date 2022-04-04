@@ -9,11 +9,11 @@ name: FileDeclaration
 #### Examples: 
 
 - Example1:
-    ``` json
+    ``` 
     entities:
         filter: File
         items:
-            -   name: flags
+            -   name: filename.cpp
                 loc: [ -1, -1 ]
-                kind: Alias
+                kind: File
     ```

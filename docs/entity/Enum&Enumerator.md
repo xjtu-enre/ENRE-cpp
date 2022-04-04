@@ -24,13 +24,19 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
     };
     ```
 
-    ``` json
+    ``` 
     entities:
-        filter: Alias
+        filter: Enum & Enumerator
         items:
-            -   name: flags
+            -   name: Color
                 loc: [ 1, 7 ]
-                kind: Alias
+                kind: Enum
+            -   name: Color::red
+                loc: [ 1, 7 ]
+                kind: Enumerator
+            -   name: Color::green
+                loc: [ 1, 7 ]
+                kind: Enumerator
     ```
 
 ### Syntax: Scoped enumerations
@@ -45,18 +51,21 @@ enum struct|class name : type ;	(4)
 
 - Example1: 
     ``` cpp
-    enum class Handle : std::uint32_t { 
+    enum class Handle { 
         Invalid = 0 
     };
     ```
 
-    ``` json
+    ``` 
     entities:
-        filter: Alias
+        filter: Enum Class
         items:
-            -   name: flags
+            -   name: Handle
                 loc: [ 1, 7 ]
-                kind: Alias
+                kind: Enum
+            -   name: Handle::Invalid
+                loc: [ 1, 7 ]
+                kind: Enumerator
     ```
 
 

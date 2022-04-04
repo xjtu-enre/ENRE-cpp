@@ -38,9 +38,9 @@ Objects of implicit-lifetime types can also be implicitly created by
     }
     ```
 
-    ``` json
+    ``` 
     entities:
-        filter: Alias
+        filter: Object
         items:
             -   name: flags
                 loc: [ 1, 7 ]
@@ -66,9 +66,9 @@ Objects of implicit-lifetime types can also be implicitly created by
     }
     ```
 
-    ``` json
+    ``` 
     entities:
-        filter: Alias
+        filter: Object
         items:
             -   name: flags
                 loc: [ 1, 7 ]

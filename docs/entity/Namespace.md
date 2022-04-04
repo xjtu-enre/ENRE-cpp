@@ -32,13 +32,13 @@ namespace ns-name :: inline member-name { declarations }	(9)	(since C++20)
     }
     ```
 
-    ``` json
+    ``` 
     entities:
-        filter: Alias
+        filter: Namespace
         items:
-            -   name: flags
+            -   name: Lib
                 loc: [ 1, 7 ]
-                kind: Alias
+                kind: Namespace
     ```
 
 - Example2
@@ -49,13 +49,13 @@ namespace ns-name :: inline member-name { declarations }	(9)	(since C++20)
     }
     ```
 
-    ``` json
+    ``` 
     entities:
-        filter: Alias
+        filter: Namespace
         items:
-            -   name: flags
+            -   name: [unnamed namespace]
                 loc: [ 1, 7 ]
-                kind: Alias
+                kind: Namespace
     ```
 
 # Reference

@@ -21,13 +21,13 @@ name: Macro Declaration
     #define F(...) f(0 __VA_OPT__(,) __VA_ARGS__)
     ```
 
-    ``` json
+    ``` 
     entities:
-        filter: Alias
+        filter:  Macro
         items:
-            -   name: flags
+            -   name: F
                 loc: [ 1, 7 ]
-                kind: Alias
+                kind:  Macro
     ```
 
 

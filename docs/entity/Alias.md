@@ -16,7 +16,7 @@ Type alias is a name that refers to a previously defined type (similar to typede
 using flags = std::ios_base::fmtflags;
 ```
 
-``` json
+``` 
 entities:
     filter: Alias
     items:
@@ -39,7 +39,7 @@ using ptr = T*;
 ptr<int> x;
 ```
 
-``` json
+``` 
 entities:
     filter: Alias
     items:
@@ -72,7 +72,7 @@ namespace foo {
 namespace fbz = foo::bar::baz;
 ```
 
-``` json
+``` 
 name: flags
 entities:
     filter: Namespace Alias

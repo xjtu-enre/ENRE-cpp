@@ -22,13 +22,13 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
     }
     ```
 
-    ``` json
+    ``` 
     entities:
-        filter: Alias
+        filter: Function
         items:
-            -   name: flags
+            -   name: max
                 loc: [ 1, 7 ]
-                kind: Alias
+                kind:Function
     ```
 
 
@@ -52,13 +52,13 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
     bool b = glambda(3, 3.14); 
     ```
 
-    ``` json
+    ``` 
     entities:
-        filter: Alias
+        filter: Function
         items:
-            -   name: flags
+            -   name: glambda
                 loc: [ 1, 7 ]
-                kind: Alias
+                kind: Function
     ```
 
 
@@ -84,11 +84,11 @@ operator type	(2)
 
     ``` json
     entities:
-        filter: Alias
+        filter: Function
         items:
-            -   name: flags
+            -   name: operator()
                 loc: [ 1, 7 ]
-                kind: Alias
+                kind: Function
     ```
 
 

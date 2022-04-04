@@ -23,13 +23,19 @@ class-key can be one of class, struct, union.
     };
     ```
 
-    ``` json
+    ``` 
     entities:
-        filter: Alias
+        filter: classes
         items:
-            -   name: flags
+            -   name: Matrix
                 loc: [ 1, 7 ]
-                kind: Alias
+                kind: Class
+            -   name: MyStruct
+                loc: [ 1, 7 ]
+                kind: Struct
+            -   name: MyStruct::value
+                loc: [ 1, 7 ]
+                kind: Object
     ```
 
 - Example2
@@ -38,13 +44,13 @@ class-key can be one of class, struct, union.
     };
     ```
 
-    ``` json
+    ``` 
     entities:
-        filter: Alias
+        filter: classes
         items:
-            -   name: flags
+            -   name: Vector
                 loc: [ 1, 7 ]
-                kind: Alias
+                kind: Class
     ```
 
 ### Syntax: Type alias
@@ -64,11 +70,17 @@ union attr class-head-name { member-specification }
     };  
     ```
 
-    ``` json
+    ``` 
     entities:
-        filter: Alias
+        filter: classes
         items:
-            -   name: flags
+            -   name: month
                 loc: [ 1, 7 ]
-                kind: Alias
+                kind: Union
+            -   name: month::s
+                loc: [ 1, 7 ]
+                kind: Object
+            -   name: month::c
+                loc: [ 1, 7 ]
+                kind: Object
     ```
