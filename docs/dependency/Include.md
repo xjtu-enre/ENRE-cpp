@@ -1,95 +1,66 @@
-# Alias
+# Include
 
 ## Supported pattern
 ```
-name: AliasDeclaration
+name: Source file inclusion
 ```
-### Syntax: Type alias(since C++11)
+### Syntax: 
 ``` cpp
-using identifier attr(optional) = type-id;
+#include < h-char-sequence > new-line	(1)	
+#include " q-char-sequence " new-line	(2)	
+#include pp-tokens new-line	(3)	
+
+__has_include ( " q-char-sequence " )
+__has_include ( < h-char-sequence > )	(4)	(since C++17)
+
+__has_include ( string-literal )
+__has_include ( < h-pp-tokens > )	(5)	(since C++17)
 ```
-Type alias is a name that refers to a previously defined type (similar to typedef).
 
 #### Examples: 
 
 ``` cpp
-using flags = std::ios_base::fmtflags;
+// in fileA.cpp
+#if __has_include(<optional>)
+    #include <optional>
+    #define has_optional 1
+    template<class T> using optional_t = std::optional<T>;
+#elif __has_include(<experimental/optional>)
+    #include <experimental/optional>
+    #define has_optional -1
+    template<class T> using optional_t = std::experimental::optional<T>;
+#else
+    #define has_optional 0
+    #include <utility>
 ```
 
 ``` 
 entities:
-    filter: Alias
     items:
-        -   name: flags
-            loc: [ 1, 7 ]
-            kind: Alias
-```
-
-### Syntax: alias template(since C++11)
-``` cpp
-template < template-parameter-list >
-using identifier attr(optional) = type-id ;
-```
-Alias template is a name that refers to a family of types.
-#### Examples: 
-
-``` cpp
-template<class T>
-using ptr = T*; 
-ptr<int> x;
-```
-
-``` 
-entities:
-    filter: Alias
+        -   id: 0
+            name: fileA.cpp
+            kind: File
+        -   id: 1
+            name: optional
+            kind: File
+        -   id: 2
+            name: experimental/optional
+            kind: File
+        -   id: 3
+            name: utility
+            kind: File
+dependencies:
     items:
-        -   name: ptr
-            loc: [ 1, 7 ]
-            kind: Alias Template
+        -   kind: Include
+            src: 0
+            dest: 1
+        -   kind: Include
+            src: 0
+            dest: 2
+        -   kind: Include
+            src: 0
+            dest: 3
 ```
 
-### Syntax: Namespace aliases
-
-
-
-``` cpp
-namespace alias_name = ns_name;	(1)	
-namespace alias_name = ::ns_name;	(2)	
-namespace alias_name = nested_name::ns_name;	(3)
-```
-
-alias_name must be a name not previously used. alias_name is valid for the duration of the scope in which it is introduced.
-
-#### Examples: 
-``` cpp
-namespace foo {
-    namespace bar {
-         namespace baz {
-             int qux = 42;
-         }
-    }
-}
-namespace fbz = foo::bar::baz;
-```
-
-``` 
-name: flags
-entities:
-    filter: Namespace Alias
-    items:
-        -   name: foo
-            loc: [ 0, 11 ]
-            kind: Namespace
-        -   name: foo::bar
-            loc: [ 1, 15 ]
-            kind: Namespace
-        -   name: foo::bar::baz
-            loc: [ 2, 20 ]
-            kind: Namespace
-        -   name: foo::bar::baz::qux
-            loc: [ 3, 18 ]
-            kind: Object
-        -   name: fbz
-            loc: [ 7, 11 ]
-            kind: Namespace Alias
-```
+# Reference
+- https://en.cppreference.com/w/cpp/preprocessor/include

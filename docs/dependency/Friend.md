@@ -1,95 +1,105 @@
-# Alias
+# Friend
+The friend declaration appears in a class body and grants a function or another class access to private and protected members of the class where the friend declaration appears.
 
 ## Supported pattern
 ```
-name: AliasDeclaration
+name: Friend Declaration
 ```
-### Syntax: Type alias(since C++11)
+### Syntax: 
 ``` cpp
-using identifier attr(optional) = type-id;
+friend function-declaration	(1)	
+friend function-definition	(2)	
+friend elaborated-class-specifier ;	(3)
+
+friend simple-type-specifier ;
+friend typename-specifier ;         (4)	(since C++11)
 ```
 Type alias is a name that refers to a previously defined type (similar to typedef).
 
 #### Examples: 
 
 ``` cpp
-using flags = std::ios_base::fmtflags;
-```
-
-``` 
-entities:
-    filter: Alias
-    items:
-        -   name: flags
-            loc: [ 1, 7 ]
-            kind: Alias
-```
-
-### Syntax: alias template(since C++11)
-``` cpp
-template < template-parameter-list >
-using identifier attr(optional) = type-id ;
-```
-Alias template is a name that refers to a family of types.
-#### Examples: 
-
-``` cpp
-template<class T>
-using ptr = T*; 
-ptr<int> x;
-```
-
-``` 
-entities:
-    filter: Alias
-    items:
-        -   name: ptr
-            loc: [ 1, 7 ]
-            kind: Alias Template
-```
-
-### Syntax: Namespace aliases
-
-
-
-``` cpp
-namespace alias_name = ns_name;	(1)	
-namespace alias_name = ::ns_name;	(2)	
-namespace alias_name = nested_name::ns_name;	(3)
-```
-
-alias_name must be a name not previously used. alias_name is valid for the duration of the scope in which it is introduced.
-
-#### Examples: 
-``` cpp
-namespace foo {
-    namespace bar {
-         namespace baz {
-             int qux = 42;
-         }
-    }
+class Y {
+    int data; // private member
+    // the non-member function operator<< will have access to Y's private members
+    friend std::ostream& operator<<(std::ostream& out, const Y& o);
+    friend char* X::foo(int); // members of other classes can be friends too
+    friend X::X(char), X::~X(); // constructors and destructors can be friends
+};
+// friend declaration does not declare a member function
+// this operator<< still needs to be defined, as a non-member
+std::ostream& operator<<(std::ostream& out, const Y& y){
+    return out << y.data; // can access private member Y::data
 }
-namespace fbz = foo::bar::baz;
 ```
 
 ``` 
-name: flags
 entities:
-    filter: Namespace Alias
     items:
-        -   name: foo
-            loc: [ 0, 11 ]
-            kind: Namespace
-        -   name: foo::bar
-            loc: [ 1, 15 ]
-            kind: Namespace
-        -   name: foo::bar::baz
-            loc: [ 2, 20 ]
-            kind: Namespace
-        -   name: foo::bar::baz::qux
-            loc: [ 3, 18 ]
-            kind: Object
-        -   name: fbz
-            loc: [ 7, 11 ]
-            kind: Namespace Alias
+        -   id: 0
+            name: Y
+            kind: Class
+        -   id: 1
+            name: Y::operator<<
+            kind: Function
+        -   id: 2
+            name: X::foo
+            kind: Function
+        -   id: 3
+            name: X::X
+            kind: Function(constructor)
+        -   id: 4
+            name: X::~X
+            kind: Function(destructor)
+dependencies:
+    items:
+        -   kind: Friend
+            src: 0
+            dest: 1
+        -   kind: Friend
+            src: 0
+            dest: 2
+        -   kind: Friend
+            src: 0
+            dest: 3
+        -   kind: Friend
+            src: 0
+            dest: 4
 ```
+
+### Syntax: Template friends
+
+#### Examples: 
+
+``` cpp
+template<class T> class A {}; // primary
+template<> class A<int> {}; // full
+class X {
+    friend class A<int>; 
+};
+```
+
+``` 
+entities:
+    items:
+        -   id: 0
+            name: A
+            kind: Class Template
+        -   id: 1
+            name: A
+            kind: Class Template Specoalization
+        -   id: 2
+            name: X
+            kind: Class
+dependencies:
+    items:
+        -   kind: Specoalization
+            src: 0
+            dest: 1
+        -   kind: Friend
+            src: 2
+            dest: 1
+```
+
+# Reference
+- https://en.cppreference.com/w/cpp/language/friend

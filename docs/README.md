@@ -2,8 +2,6 @@
 
 
 ## Entity Categories
-["File", "Namespace", "Alias", "Class", "Struct", "Union", "Macro",  "Enum", "Enumerator",  "Object", "Function", "Template", 'Typedef']
-
 
 | Entity Name                        | Definition                                   |
 |------------------------------------|----------------------------------------------|
@@ -23,26 +21,19 @@
 
 ## Dependency Categories
 
-["Include", "Override", "Friend", "Set", "Use", "Alias", "Define", "Declare", "Modify", "Exception", "Call", "Extend", "End", "Typed", "Using", "Name"]
-'Set Init',
-
-
 
 | Dependency Name                        | Definition                                   |
 |------------------------------------|----------------------------------------------|
-| [Alias](dependency/Alias.md)             | TBD                                          |
-| [Call](dependency/Call.md)   | TBD                                          |
-| [Declare](dependency/Declare.md)           | TBD                                          |
-| [Define](dependency/Define.md)           | TBD                                          |
-| [End](dependency/End.md)         | TBD                                          |
-| [Exception](dependency/Exception.md)           | TBD                                          |
-| [Extend](dependency/Extend.md)           | TBD                                          |
-| [Friend](dependency/Friend.md)             | TBD                                          |
-| [Include](dependency/Include.md) | TBD                                          |
-| [Modify](dependency/Modify.md)         | TBD                                          |
-| [Name](dependency/Name.md)     | TBD                                          |
-| [Override](dependency/Override.md)     | TBD                                          |
-| [Set](dependency/Set.md)       | TBD                                          |
-| [Typed](dependency/Typed.md)       | TBD                                          |
-| [Use](dependency/Use.md)       | TBD                                          |
-| [Using](dependency/Using.md)       | TBD                                          |
+| [Alias](dependency/Alias.md)|                                           |
+| [Call](dependency/Call.md) | Call dependency indicates a reference to a known C/C++ function. |
+| [Declare](dependency/Declare.md) | Declare dependency indicates the declaration of an entity. |
+| [Define](dependency/Define.md)    | Define dependency indicates the definition of an entity.|
+| [End](dependency/End.md)         | End dependency marks the end point of functions, classes, enums, and namespaces. Each entity references itself.|
+| [Exception](dependency/Exception.md) | Exception dependency indicates exceptions which may throw from function |
+| [Extend](dependency/Extend.md)| Extend dependency indicates the inheritance relation between classes.|
+| [Friend](dependency/Friend.md) | Friend dependency indicates the granting of friendship to a class or member function.  |
+| [Include](dependency/Include.md)|Include dependency indicates a reference to an include file. |
+| [Modify](dependency/Modify.md)   | Modify dependency indicates a reference which a variable is modified without an explicit assignment statment.|
+| [Override](dependency/Override.md)  | Override dependency indicates when a method in one class overrides a virtual method in a base class.|
+| [Set](dependency/Set.md)  | A Set dependency indicates any explicit assignment of a variable.|
+| [Use](dependency/Use.md)  | A Use dependency indicates a reference in an active region of code to a known C/C++ variable.|

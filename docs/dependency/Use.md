@@ -1,97 +1,74 @@
 # Use
-'Asm Use', 'Use Ptr', 'Addr Use', 'Addr Use Return', 'Cast Use', 'Use Return', 'Use Macrodefine',
 
+Use dependency can be divided into following kinds:
+``` 
+'Asm Use', 'Use Ptr', 'Addr Use', 'Addr Use Return', 'Cast Use', 'Use Return', 'Use Macrodefine'
+```
+A Use dependency indicates a reference in an active region of code to a known C/C++ variable.
 
 ## Supported pattern
 ```
-name: AliasDeclaration
+name: Use Declaration
 ```
-### Syntax: Type alias(since C++11)
-``` cpp
-using identifier attr(optional) = type-id;
-```
-Type alias is a name that refers to a previously defined type (similar to typedef).
+### Syntax: ordinary Use
 
 #### Examples: 
 
 ``` cpp
-using flags = std::ios_base::fmtflags;
-```
-
-``` 
-entities:
-    filter: Alias
-    items:
-        -   name: flags
-            loc: [ 1, 7 ]
-            kind: Alias
-```
-
-### Syntax: alias template(since C++11)
-``` cpp
-template < template-parameter-list >
-using identifier attr(optional) = type-id ;
-```
-Alias template is a name that refers to a family of types.
-#### Examples: 
-
-``` cpp
-template<class T>
-using ptr = T*; 
-ptr<int> x;
-```
-
-``` 
-entities:
-    filter: Alias
-    items:
-        -   name: ptr
-            loc: [ 1, 7 ]
-            kind: Alias Template
-```
-
-### Syntax: Namespace aliases
-
-
-
-``` cpp
-namespace alias_name = ns_name;	(1)	
-namespace alias_name = ::ns_name;	(2)	
-namespace alias_name = nested_name::ns_name;	(3)
-```
-
-alias_name must be a name not previously used. alias_name is valid for the duration of the scope in which it is introduced.
-
-#### Examples: 
-``` cpp
-namespace foo {
-    namespace bar {
-         namespace baz {
-             int qux = 42;
-         }
-    }
+extern int var1;
+int func() {
+    int local_var;
+    local_var = var1; // use of var1
 }
-namespace fbz = foo::bar::baz;
 ```
 
 ``` 
-name: flags
 entities:
-    filter: Namespace Alias
     items:
-        -   name: foo
-            loc: [ 0, 11 ]
-            kind: Namespace
-        -   name: foo::bar
-            loc: [ 1, 15 ]
-            kind: Namespace
-        -   name: foo::bar::baz
-            loc: [ 2, 20 ]
-            kind: Namespace
-        -   name: foo::bar::baz::qux
-            loc: [ 3, 18 ]
+        -   id: 0
+            name: var1
             kind: Object
-        -   name: fbz
-            loc: [ 7, 11 ]
-            kind: Namespace Alias
+        -   id: 1
+            name: func
+            kind: Function
+        -   id: 2
+            name: func::local_var
+            kind: Object
+dependencies:
+    items:
+        -   kind: Use
+            src: 1
+            dest: 0
+        -   kind: Set
+            src: 1
+            dest: 2
+```
+
+### Use Macrodefine
+Use Macrodefine and Useby Macrodefine indicate a reference to a known entity in a macro definition.
+#### Examples: 
+
+``` cpp
+// in fileA.cpp
+int func1();
+#define MACRO (func1())
+```
+
+``` 
+entities:
+    items:
+        -   id: 0
+            name: fileA.cpp
+            kind: File
+        -   id: 1
+            name: func1
+            kind: Function
+        -   id: 2
+            name: MACRO
+            kind: Macro
+dependencies:
+    items:
+        -   kind: Use Macrodefine
+            src: 0
+            dest: 1
 ```
