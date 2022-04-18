@@ -90,7 +90,6 @@ public class FileParser {
 					new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
 					EmptyCIndex.INSTANCE, 0, log);
 		}
-		System.out.println(this.filepath);
 		tu.accept(visitor);
 	}
 	

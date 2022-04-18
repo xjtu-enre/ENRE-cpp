@@ -74,6 +74,7 @@ public class Processor {
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
 		this.relationcontext = new RelationContext(entityrepo);
 		this.relationcontext.relationListDeal();
+		this.relationcontext.AggregateDeal();
 		this.relationcontext.FileDeal();
 		this.relationcontext.ClassDeal();
 		this.relationcontext.FunctionDeal();

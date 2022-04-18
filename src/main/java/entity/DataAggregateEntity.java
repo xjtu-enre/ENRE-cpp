@@ -13,6 +13,7 @@ public class DataAggregateEntity extends Entity{
 	boolean isTemplate = false;
 	boolean isSpecializationTemplate = false;
 	List<Entity> useList = new ArrayList<Entity>();
+	List<String> usingImport = new ArrayList<String>();
 	
 	public DataAggregateEntity(String name, String qualifiedName, Entity parent, Integer id,BaseScope scope, Location location) {
 		super(name,qualifiedName, parent,id, location);
@@ -20,6 +21,7 @@ public class DataAggregateEntity extends Entity{
 		if(name.contains("::")) {
 			isScopeTrue = false;
 		}
+		this.usingImport = new ArrayList<String>();
 	}
 	
 	/*
@@ -81,5 +83,11 @@ public class DataAggregateEntity extends Entity{
 		return null;
 	}
 
+	public void setUsing(String using) {
+		if(using != null) this.usingImport.add(using);
+	}
+	public List<String> getUsingImport(){
+		return this.usingImport;
+	}
 
 }

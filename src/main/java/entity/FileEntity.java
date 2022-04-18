@@ -13,7 +13,6 @@ public class FileEntity extends DataAggregateEntity {
 	String path;
 	List<String> includeFile;
 	List<FileEntity> includeEntity= new ArrayList<FileEntity>();
-	List<String> usingImport = new ArrayList<String>();
 	Map<String, String> macrorepo;
 	
 	public FileEntity(String name,String qualifiedName, Entity parent, int id,String filefullpath, BaseScope scope, Location location) {
@@ -49,7 +48,5 @@ public class FileEntity extends DataAggregateEntity {
 		if(macrorepo == null)  macrorepo = new HashMap<String, String>();
 		return macrorepo;
 	}
-	public void setUsing(String using) {
-		if(using != null) this.usingImport.add(using);
-	}
+
 }

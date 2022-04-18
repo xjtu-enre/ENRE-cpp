@@ -430,8 +430,8 @@ public class HandlerContext {
 			//case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPLambdaExpressionParameter":
 
 			default:
-				//System.out.println(idExpression.getRawSignature());
-				//System.out.println(node.getClass().toString());
+//				System.out.println(idExpression.getRawSignature());
+//				System.out.println(node.getClass().toString());
 		}
 		if(definitionNode != null && definitionNode.getFileLocation() != null) {
 			return new Tuple(definitionNode.getFileLocation().getFileName()+
@@ -463,7 +463,20 @@ public class HandlerContext {
 		}
 		return varEntity;
 	}
-	
+	public LabelEntity foundLabelDefinition(String labelName, Location location) {
+		if(location == null) return null;
+		LabelEntity labelEntity = new LabelEntity(labelName,  resolveName(labelName),  this.latestValidContainer(), entityRepo.generateId(), location);
+		entityRepo.add(labelEntity);
+		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
+			if(!(this.currentScope instanceof DataAggregateSymbol)) {
+				if(this.currentScope.getSymbol(labelName)==null) {
+					VariableSymbol v = new VariableSymbol(labelName);
+					this.currentScope.define(v);
+				}
+			}
+		}
+		return labelEntity;
+	}
 	
 	/**
 	* @methodsName: foundTypedefDefinition
@@ -538,7 +551,7 @@ public class HandlerContext {
 	
 	
 	public void foundUsingImport(String usingname) {
-		this.currentFileEntity.setUsing(usingname);
+		this.latestValidContainer().setUsing(usingname);
 	}
 	
 	/**

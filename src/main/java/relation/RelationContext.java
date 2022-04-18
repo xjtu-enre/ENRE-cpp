@@ -122,28 +122,31 @@ public class RelationContext {
 		return null;
 	}
 
-//	public void AggregateDeal() {
-//		Iterator<Entity> iterator = entityrepo.entityIterator();
-//		while (iterator.hasNext()) {
-//			Entity entity = iterator.next();
-//			if (entity instanceof DataAggregateEntity) {
-//				List<Entity> useList = ((DataAggregateEntity) entity).getUse();
-//				if (useList.size() != 0) {
-//					for (Entity toEntity : useList) {
-//						Relation re = new Relation(entity, toEntity, "Use");
-//						relationrepo.addRelation(re);
-//					}
-//				}
-//				List<Entity> callList = ((DataAggregateEntity) entity).getCall();
-//				if (callList.size() != 0) {
-//					for (Entity toEntity : callList) {
-//						Relation re = new Relation(entity, toEntity, "Call");
-//						relationrepo.addRelation(re);
-//					}
-//				}
-//			}
-//		}
-//	}
+	public void AggregateDeal() {
+		Iterator<Entity> iterator = entityrepo.entityIterator();
+		while (iterator.hasNext()) {
+			Entity entity = iterator.next();
+			if (entity instanceof DataAggregateEntity) {
+				List<Entity> useList = ((DataAggregateEntity) entity).getUse();
+				if (useList.size() != 0) {
+					for (Entity toEntity : useList) {
+						Relation re = new Relation(entity, toEntity, "Use");
+						relationrepo.addRelation(re);
+					}
+				}
+				List<String> usingList = ((DataAggregateEntity) entity).getUsingImport();
+				if (usingList.size() != 0) {
+					for (String usingEntity : usingList) {
+						Entity toEntity = this.foundEntity(entity, usingEntity);
+						if(toEntity!=null) {
+							Relation re = new Relation(entity, toEntity, "Using");
+							relationrepo.addRelation(re);
+						}
+					}
+				}
+			}
+		}
+	}
 	/**
 	* @methodsName: ClassDeal()
 	* @description: deal extend dependency
@@ -158,7 +161,7 @@ public class RelationContext {
 			if (entity instanceof ClassEntity) {
 				List<String> baseclass = ((ClassEntity) entity).getBaseClass();
 				for (String base : baseclass) {
-					Entity fromentity = foundClassReferEntity(entity, base);
+					Entity fromentity = foundEntity(entity, base);
 					if (fromentity != null) {
 						foundOverride(fromentity, entity);
 						Relation re = new Relation(entity, fromentity,  "Extend");
@@ -167,7 +170,7 @@ public class RelationContext {
 				}
 				List<String> friendClass = ((ClassEntity) entity).getFriendClass();
 				for (String friend_class : friendClass) {
-					Entity fromentity = foundClassReferEntity(entity, friend_class);
+					Entity fromentity = foundEntity(entity, friend_class);
 					if (fromentity != null) {
 						Relation re = new Relation(entity, fromentity,  "Friend");
 						relationrepo.addRelation(re);
@@ -175,7 +178,7 @@ public class RelationContext {
 				}
 				List<String> friendFunction = ((ClassEntity) entity).getFriendFunction();
 				for (String friend : friendFunction) {
-					Entity fromentity = foundClassReferEntity(entity, friend);
+					Entity fromentity = foundEntity(entity, friend);
 					if (fromentity != null) {
 						Relation re = new Relation(entity, fromentity,  "Friend");
 						relationrepo.addRelation(re);
@@ -185,7 +188,7 @@ public class RelationContext {
 			if (entity instanceof StructEntity) {
 				List<String> baseStruct = ((StructEntity) entity).getBaseStruct();
 				for (String base : baseStruct) {
-					Entity fromentity = foundClassReferEntity(entity, base);
+					Entity fromentity = foundEntity(entity, base);
 					if (fromentity != null) {
 						Relation re = new Relation(fromentity, entity, "Extend");
 						extendnum++;
@@ -225,7 +228,7 @@ public class RelationContext {
 	* @return: Entity
 	* @throws: 
 	*/
-	public Entity foundClassReferEntity(Entity entity, String toentity) {
+	public Entity foundEntity(Entity entity, String toentity) {
 		if (((BaseScope) entity.getScope()).getEnclosingScope() != null) {
 			if(entity.getParent() instanceof FileEntity) {
 				return entityrepo.getEntityByName(toentity);

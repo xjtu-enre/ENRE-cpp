@@ -165,6 +165,7 @@ public class CppVisitor extends ASTVisitor {
 			context.foundUsingImport(ns);
 		}
 		else if (declaration instanceof ICPPASTUsingDirective) {
+			// using namespace xxx
 			String ns = ((ICPPASTUsingDirective) declaration).getQualifiedName().toString().replace("::", ".");
 			context.foundUsingImport(ns);
 		}
@@ -406,7 +407,13 @@ public class CppVisitor extends ASTVisitor {
 			String originalName = namespaceAlias.getMappingName().getRawSignature();
 			context.foundNewAlias(alias, originalName, getLocation(declaration));
 		} else if(declaration instanceof CPPASTVisibilityLabel) {
-			System.out.println("label");
+			CPPASTVisibilityLabel visibilityLabel = (CPPASTVisibilityLabel)declaration;
+//			context.foundLabelDefinition(visibilityLabel.get)
+			//System.out.println(visibilityLabel.getVisibility());
+			int temp = visibilityLabel.getVisibility();
+			if(temp>2 | temp < 1){
+				System.out.println(visibilityLabel.getRawSignature());
+			}
 		}
 		//else if (declaration instanceof CPPASTLinkageSpecification) {
 //		} else if (declaration instanceof CPPASTProblemDeclaration) {
