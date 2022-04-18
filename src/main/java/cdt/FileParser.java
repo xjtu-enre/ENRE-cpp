@@ -45,7 +45,6 @@ public class FileParser {
 	 */
 	public void parse( ) throws Exception {
 		if(exitFile(filepath)) {
-			//if(entityrepo.getEntity(filepath)!=null && entityrepo.getEntity(filepath) instanceof FileEntity) {
 			if(isFileParse(filepath)) {
 				return ;
 			}
@@ -57,16 +56,6 @@ public class FileParser {
 		boolean isIncludePath = false;
 		String[] includePaths = new String[0];
 		definedMacros.put("__cplusplus", "1");
-		definedMacros.put("LEVELDB_EXPORT", "__declspec(dllexport)");
-		definedMacros.put(	"#define Q_OBJECT", "public:"
-				+ "Q_OBJECT_CHECK"
-				+ "static const QMetaObject staticMetaObject; "
-				+ "Q_OBJECT_GETSTATICMETAOBJECT "
-				+ " virtual const QMetaObject *metaObject() const; "
-				+ "virtual void *qt_metacast(const char *); "
-				+ "QT_TR_FUNCTIONS "
-				+ "virtual int qt_metacall(QMetaObject::Call, int, void **); "
-				+ "private:");
 		IASTTranslationUnit tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
 				new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
 				EmptyCIndex.INSTANCE, 0, log);
@@ -90,17 +79,18 @@ public class FileParser {
 			}
 			isIncludePath = true;
 		}
-		
+
 		getMacro(filepath);
 		for(String macroInfo:fileEntity.getMacroRepo().keySet()) {
 			definedMacros.remove(macroInfo);
 		}
-		
+
 		if(isIncludePath) {
 			tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
 					new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
 					EmptyCIndex.INSTANCE, 0, log);
 		}
+		System.out.println(this.filepath);
 		tu.accept(visitor);
 	}
 	
@@ -245,7 +235,7 @@ public class FileParser {
 						checkPath = checkPath.replace(".hpp", ".cpp");
 						if(exitFile(checkPath)) {
 							includeFile.add(checkPath);
-							
+
 						}
 					}
 					continue;

@@ -12,6 +12,7 @@ import org.antlr.symtab.*;
 import org.eclipse.cdt.core.dom.ast.*;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.*;
 
+import java.io.File;
 import java.util.List;
 import java.util.Stack;
 
@@ -34,7 +35,7 @@ public class HandlerContext {
 	* @throws: 
 	*/
 	public FileEntity makeFile(String filefullpath) {
-		String[] name = filefullpath.split("\\\\");
+		String[] name = filefullpath.split(File.separator);
 		GlobalScope scope = new GlobalScope(null);
 		currentFileEntity = new FileEntity(name[name.length-1], filefullpath, 
 				null, entityRepo.generateId(),filefullpath,scope, new Location(filefullpath));

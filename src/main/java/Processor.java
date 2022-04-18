@@ -40,9 +40,6 @@ public class Processor {
 				String fileFullPath = file.getAbsolutePath();
 				fileFullPath = FileUtil.uniqFilePath(fileFullPath);
 				System.out.println("parse "+fileFullPath);
-				if (!fileFullPath.startsWith(inputSrcPath)) {
-					return;
-				}			
 				parseFile(fileFullPath);
 			}
 
@@ -51,7 +48,6 @@ public class Processor {
 		fileList = fileTrasversal.getfile();
 		fileTrasversal.extensionFilter(SUFFIX);
 		fileTrasversal.travers(inputSrcPath);
-		
 	}
 	
 	/**
