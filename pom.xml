@@ -53,6 +53,13 @@
             <artifactId>picocli</artifactId>
             <version>4.6.2</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.eclipse.core.filesystem.linux/x86 -->
+        <dependency>
+            <groupId>org.eclipse.core.filesystem.linux</groupId>
+            <artifactId>x86</artifactId>
+            <version>1.1.0-v20070416</version>
+        </dependency>
+
     </dependencies>
     <build>
         <defaultGoal>compile</defaultGoal>
