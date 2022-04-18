@@ -15,13 +15,6 @@ public class RelationContext {
 	RelationRepo relationrepo;
 	List<FileEntity> FileList;
 	int entityrepoSize;
-	int includenum = 0;
-	int definenum = 0;
-	int callnum = 0;
-	int returnnum = 0;
-	int parameternum = 0;
-	int extendnum = 0;
-	int overridenum = 0;
 
 	public RelationContext(EntityRepo entityrepo) {
 		this.entityrepo = entityrepo;
@@ -41,7 +34,6 @@ public class RelationContext {
 		for (FileEntity File : FileList) {
 			for (FileEntity includefile : File.getIncludeEntity()) {
 				Relation re = new Relation(File, includefile, "Include");
-				includenum++;
 				relationrepo.addRelation(re);
 			}
 		}
@@ -96,14 +88,10 @@ public class RelationContext {
 				if (getToFile(file) != null) {
 					Relation re = new Relation(fromEntity, getToFile(file), "Include");
 					fromEntity.addincludeEntity(getToFile(file));
-					includenum++;
 					relationrepo.addRelation(re);
-
 				}
-
 			}
 		}
-
 	}
 	
 	/**
@@ -191,7 +179,6 @@ public class RelationContext {
 					Entity fromentity = foundEntity(entity, base);
 					if (fromentity != null) {
 						Relation re = new Relation(fromentity, entity, "Extend");
-						extendnum++;
 						relationrepo.addRelation(re);
 					}
 				}
@@ -213,7 +200,6 @@ public class RelationContext {
 				if (((BaseScope) entity.getScope()).getSymbol(child.getName()+"_method") != null) {
 					Entity OverrideEntity = entityrepo.getEntityByName(entity.getQualifiedName() + "::" + child.getName());
 					Relation re = new Relation(child, OverrideEntity, "Override");
-					overridenum++;
 					relationrepo.addRelation(re);
 				}
 			}
@@ -280,14 +266,12 @@ public class RelationContext {
 				for (Entity parameterEntity : ((FunctionEntity) entity).getParameter()) {
 					if (parameterEntity != null) {
 						Relation re = new Relation(entity, parameterEntity, "Parameter");
-						parameternum++;
 						relationrepo.addRelation(re);
 					}
 				}
 				Entity returnEntity = ((FunctionEntity) entity).getReturnEntity();
 				if (returnEntity != null) {
 					Relation re = new Relation(entity, returnEntity, "Return");
-					returnnum++;
 					relationrepo.addRelation(re);
 				}
 				if (entity instanceof FunctionEntityDecl) {
@@ -297,7 +281,6 @@ public class RelationContext {
 						if (entityfunc instanceof FunctionEntityDefine) {
 							if (entityfunc.getName().equals(entity.getName())) {
 								Relation redefine = new Relation(entityfunc, entity, "Define");
-								definenum++;
 								relationrepo.addRelation(redefine);
 							}
 						}
