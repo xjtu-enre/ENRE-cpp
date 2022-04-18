@@ -33,7 +33,7 @@ public class Processor {
 	* @return: void
 	* @throws: 
 	*/
-	public static void parseAllFlie(String inputSrcPath) throws Exception {
+	public static void parseAllFile(String inputSrcPath) throws Exception {
 		FileTraversal fileTrasversal = new FileTraversal(new FileTraversal.IFileVisitor() {
 			@Override
 			public void visit(File file) throws Exception {
@@ -77,18 +77,13 @@ public class Processor {
 	public void dependencyBuild() throws Exception {
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
 		this.relationcontext = new RelationContext(entityrepo);
-
 		this.relationcontext.relationListDeal();
-		//relationcontext.AggregateDeal();
 		this.relationcontext.FileDeal();
 		this.relationcontext.ClassDeal();
 		this.relationcontext.FunctionDeal();
-		this.relationcontext.stastics();
 	}
 
 	public void outputFile(String projectName) throws Exception {
-		//EntityRepo entityrepo = cdtparser.getEntityRepo();
-		// RelationContext relationcontext = new RelationContext(entityrepo);
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
 		JSONString node_str = new JSONString();
 		FileOutputStream outputEntityStream = new FileOutputStream(projectName + "_node.json");

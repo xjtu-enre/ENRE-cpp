@@ -32,10 +32,10 @@ public class JSONString {
 			resolvedName = "Object";
 			break;
 		case "class entity.FunctionEntityDefine":
-			resolvedName = "FunctionDefine";
+			resolvedName = "Function";
 			break;
 		case "class entity.FunctionEntityDecl":
-			resolvedName = "FunctionDecl";
+			resolvedName = "Function";
 			break;
 		case "class entity.ClassEntity":
 			resolvedName = "Class";
@@ -74,9 +74,9 @@ public class JSONString {
     	if(entity instanceof DataAggregateEntity) {
     		if(((DataAggregateEntity) entity).getIsTemplate()) {
     			resolvedName = resolvedName + " Template";
-    			if(((DataAggregateEntity) entity).getIsSpecializationTemplate()) {
-    				resolvedName = resolvedName + " Specialization";
-    			}
+//    			if(((DataAggregateEntity) entity).getIsSpecializationTemplate()) {
+//    				resolvedName = resolvedName + " Specialization";
+//    			}
     		}
     	}
     	

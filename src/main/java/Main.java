@@ -21,7 +21,7 @@ public class Main {
 		long startTime = System.currentTimeMillis();
 		if(lang.equals("cpp")) {
 			Processor processor = new Processor(Program_environment);
-			processor.parseAllFlie(inputDir);
+			processor.parseAllFile(inputDir);
 			System.out.println("Entity found finish!");
 			processor.dependencyBuild();
 			processor.outputFile(projectName);

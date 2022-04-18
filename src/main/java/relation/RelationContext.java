@@ -158,20 +158,34 @@ public class RelationContext {
 			if (entity instanceof ClassEntity) {
 				List<String> baseclass = ((ClassEntity) entity).getBaseClass();
 				for (String base : baseclass) {
-					Entity fromentity = foundExtendEntity(entity, base);
+					Entity fromentity = foundClassReferEntity(entity, base);
 					if (fromentity != null) {
 						foundOverride(fromentity, entity);
-						Relation re = new Relation(fromentity, entity, "Extend");
-						extendnum++;
+						Relation re = new Relation(entity, fromentity,  "Extend");
 						relationrepo.addRelation(re);
 					}
 				}
-
+				List<String> friendClass = ((ClassEntity) entity).getFriendClass();
+				for (String friend_class : friendClass) {
+					Entity fromentity = foundClassReferEntity(entity, friend_class);
+					if (fromentity != null) {
+						Relation re = new Relation(entity, fromentity,  "Friend");
+						relationrepo.addRelation(re);
+					}
+				}
+				List<String> friendFunction = ((ClassEntity) entity).getFriendFunction();
+				for (String friend : friendFunction) {
+					Entity fromentity = foundClassReferEntity(entity, friend);
+					if (fromentity != null) {
+						Relation re = new Relation(entity, fromentity,  "Friend");
+						relationrepo.addRelation(re);
+					}
+				}
 			}
 			if (entity instanceof StructEntity) {
 				List<String> baseStruct = ((StructEntity) entity).getBaseStruct();
 				for (String base : baseStruct) {
-					Entity fromentity = foundExtendEntity(entity, base);
+					Entity fromentity = foundClassReferEntity(entity, base);
 					if (fromentity != null) {
 						Relation re = new Relation(fromentity, entity, "Extend");
 						extendnum++;
@@ -191,9 +205,10 @@ public class RelationContext {
 	*/
 	public void foundOverride(Entity baseEntity, Entity entity) {
 		for (Entity child : baseEntity.getChild()) {
-			if (child instanceof FunctionEntityDefine) {
-				if (((BaseScope) entity.getScope()).getSymbol(child.getName()) != null) {
-					Entity OverrideEntity = entityrepo.getEntityByName(entity.getQualifiedName() + "." + child.getName());
+			
+			if (child instanceof FunctionEntity) {
+				if (((BaseScope) entity.getScope()).getSymbol(child.getName()+"_method") != null) {
+					Entity OverrideEntity = entityrepo.getEntityByName(entity.getQualifiedName() + "::" + child.getName());
 					Relation re = new Relation(child, OverrideEntity, "Override");
 					overridenum++;
 					relationrepo.addRelation(re);
@@ -210,14 +225,15 @@ public class RelationContext {
 	* @return: Entity
 	* @throws: 
 	*/
-	public Entity foundExtendEntity(Entity entity, String toentity) {
+	public Entity foundClassReferEntity(Entity entity, String toentity) {
 		if (((BaseScope) entity.getScope()).getEnclosingScope() != null) {
-			BaseScope scope = ((BaseScope) ((BaseScope) entity.getScope()).getEnclosingScope());
-			if (scope.getMembers().get(toentity) != null) {
-				return entityrepo.getEntityByName(entity.getParent().getQualifiedName() + "." + toentity);
+			if(entity.getParent() instanceof FileEntity) {
+				return entityrepo.getEntityByName(toentity);
+			}
+			else {
+				return entityrepo.getEntityByName(entity.getParent().getQualifiedName() + "::" + toentity);
 			}
 		}
-
 		return null;
 	}
 	
@@ -356,13 +372,4 @@ public class RelationContext {
 		return relationrepo;
 	}
 
-	public void stastics() {
-		//LOGGER.info("includenum:" + includenum);
-		//LOGGER.info("definenum:" + definenum);
-		//LOGGER.info("callnum:" + callnum);
-		//LOGGER.info("returnnum:" + returnnum);
-		//LOGGER.info("parameternum:" + parameternum);
-		//LOGGER.info("extendnum:" + extendnum);
-		//LOGGER.info("overridenum:" + overridenum);
-	}
 }

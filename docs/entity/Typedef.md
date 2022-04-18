@@ -15,8 +15,8 @@ typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;
 - Example1
     ``` cpp
     typedef int int_t;
-    typedef int A[]; // A is int[]
-    A a = {1, 2}, b = {3,4,5}; // type of a is int[2], type of b is int[3]
+    typedef int A[]; 
+    A a = {1, 2}, b = {3,4,5}; 
     ```
 
     ``` 

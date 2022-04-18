@@ -195,6 +195,7 @@ public class HandlerContext {
 				this.latestValidContainer(),id,symbol, location);
 		if(baseClass!= null) {
 			classEntity.addBaseClass(baseClass);
+			
 		}
 		entityRepo.add(classEntity);
 		pushScope(symbol);
@@ -327,25 +328,25 @@ public class HandlerContext {
 	public void dealExpression(IASTExpression expression) {
 		if(expression instanceof CPPASTBinaryExpression) {
 			CPPASTBinaryExpression binaryExp = (CPPASTBinaryExpression)expression;
-			this.dealExpressionNode(binaryExp.getOperand1(), "set");
-			this.dealExpressionNode(binaryExp.getOperand2(), "use");
+			this.dealExpressionNode(binaryExp.getOperand1(), "Set");
+			this.dealExpressionNode(binaryExp.getOperand2(), "Use");
 		}
 		if(expression instanceof CPPASTCastExpression) {
 			CPPASTCastExpression castExp = (CPPASTCastExpression) expression;
-			this.dealExpressionNode(castExp.getOperand(), "cast");
+			this.dealExpressionNode(castExp.getOperand(), "Cast");
 		}
 		if(expression instanceof CPPASTDeleteExpression) {
 			CPPASTDeleteExpression deleteExp = (CPPASTDeleteExpression)expression;
-			this.dealExpressionNode(deleteExp.getOperand(), "delete");
+			this.dealExpressionNode(deleteExp.getOperand(), "Delete");
 		}
 		
 		if(expression instanceof CPPASTUnaryExpression) {
 			CPPASTUnaryExpression unaryExp = (CPPASTUnaryExpression)expression;
-			this.dealExpressionNode(unaryExp.getOperand(), "modify");
+			this.dealExpressionNode(unaryExp.getOperand(), "Modify");
 		}
 		if(expression instanceof CPPASTFunctionCallExpression) {
 			CPPASTFunctionCallExpression functionCallExpression = (CPPASTFunctionCallExpression)expression;
-			this.dealExpressionNode(functionCallExpression.getFunctionNameExpression(), "call");
+			this.dealExpressionNode(functionCallExpression.getFunctionNameExpression(), "Call");
 		}
 		if(expression instanceof CPPASTExpressionList) {
 			CPPASTExpressionList expressionList = (CPPASTExpressionList)expression;
@@ -512,10 +513,14 @@ public class HandlerContext {
 
 
 	public void addFriendClass(String className) {
-		
+		if(this.latestValidContainer() instanceof ClassEntity) {
+			((ClassEntity) this.latestValidContainer()).addFriendClass(className);
+		}
 	}
 	public void addFriendFunction(String functionName) {
-		
+		if(this.latestValidContainer() instanceof ClassEntity) {
+			((ClassEntity) this.latestValidContainer()).addFriendFunction(functionName);
+		}
 	}
 	
 	/**
