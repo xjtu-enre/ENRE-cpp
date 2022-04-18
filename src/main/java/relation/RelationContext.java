@@ -229,7 +229,17 @@ public class RelationContext {
 	* @throws: 
 	*/
 	public Entity foundEntity(Entity entity, String toentity) {
-		if (((BaseScope) entity.getScope()).getEnclosingScope() != null) {
+		if(entity.getScope() != null){
+			if (((BaseScope) entity.getScope()).getEnclosingScope() != null) {
+				if(entity.getParent() instanceof FileEntity) {
+					return entityrepo.getEntityByName(toentity);
+				}
+				else {
+					return entityrepo.getEntityByName(entity.getParent().getQualifiedName() + "::" + toentity);
+				}
+			}
+		}
+		if(entity.getParent() != null){
 			if(entity.getParent() instanceof FileEntity) {
 				return entityrepo.getEntityByName(toentity);
 			}
@@ -296,7 +306,22 @@ public class RelationContext {
 			}
 		}
 	}
-	
+	public void NamespaceAliasDeal() {
+		Iterator<Entity> iterator = entityrepo.entityIterator();
+		while (iterator.hasNext()) {
+			Entity entity = iterator.next();
+			if (entity instanceof NamespaceAliasEntity) {
+				if(((NamespaceAliasEntity) entity).getToNamespaceName() != null){
+					Entity namespace = this.foundEntity(entity, ((NamespaceAliasEntity) entity).getToNamespaceName());
+					if(namespace != null){
+						Relation aliasDep= new Relation(entity, namespace, "Alias");
+						relationrepo.addRelation(aliasDep);
+					}
+				}
+
+			}
+		}
+	}
 	
 	/**
 	* @methodsName: getEntity()

@@ -508,6 +508,15 @@ public class HandlerContext {
 		entityRepo.add(currentTypeEntity);
 		return currentTypeEntity;		
 	}
+
+	public NamespaceAliasEntity foundNewNamespaceAlias(String aliasName, String originalName, Location location) {
+		if (aliasName.equals(originalName)) return null;
+		NamespaceAliasEntity currentTypeEntity = new NamespaceAliasEntity(aliasName,
+				this.resolveName(aliasName), this.latestValidContainer(),
+				entityRepo.generateId(), originalName, location );
+		entityRepo.add(currentTypeEntity);
+		return currentTypeEntity;
+	}
 	
 	/**
 	* @methodsName: foundNewAlias

@@ -405,14 +405,15 @@ public class CppVisitor extends ASTVisitor {
 			IASTName name = ((CPPASTNamespaceAlias) declaration).getAlias();
 			String alias = name.getRawSignature();
 			String originalName = namespaceAlias.getMappingName().getRawSignature();
-			context.foundNewAlias(alias, originalName, getLocation(declaration));
+			NamespaceAliasEntity namespaceAliasEntity = context.foundNewNamespaceAlias(alias, originalName, getLocation(declaration));
+			namespaceAliasEntity.setToNamespaceName(originalName);
 		} else if(declaration instanceof CPPASTVisibilityLabel) {
 			CPPASTVisibilityLabel visibilityLabel = (CPPASTVisibilityLabel)declaration;
-//			context.foundLabelDefinition(visibilityLabel.get)
-			//System.out.println(visibilityLabel.getVisibility());
 			int temp = visibilityLabel.getVisibility();
-			if(temp>2 | temp < 1){
-				System.out.println(visibilityLabel.getRawSignature());
+			// not be public, private or protected
+			if(temp > 3 | temp < 1){
+				context.foundLabelDefinition(visibilityLabel.getRawSignature().replace(":", ""),
+						getLocation(visibilityLabel));
 			}
 		}
 		//else if (declaration instanceof CPPASTLinkageSpecification) {

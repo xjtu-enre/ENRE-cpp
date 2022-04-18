@@ -39,7 +39,7 @@ public class Processor {
 			public void visit(File file) throws Exception {
 				String fileFullPath = file.getAbsolutePath();
 				fileFullPath = FileUtil.uniqFilePath(fileFullPath);
-				System.out.println("parse "+fileFullPath);
+//				System.out.println("parse "+fileFullPath);
 				parseFile(fileFullPath);
 			}
 
@@ -78,6 +78,7 @@ public class Processor {
 		this.relationcontext.FileDeal();
 		this.relationcontext.ClassDeal();
 		this.relationcontext.FunctionDeal();
+		this.relationcontext.NamespaceAliasDeal();
 	}
 
 	public void outputFile(String projectName) throws Exception {

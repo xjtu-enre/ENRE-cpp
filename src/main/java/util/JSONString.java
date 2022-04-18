@@ -67,6 +67,9 @@ public class JSONString {
 		case "class entity.TypedefEntity":
 			resolvedName = "Typedef";
 			break;
+		case "class entity.NamespaceAliasEntity":
+			resolvedName = "Namespace Alias";
+			break;
 		default:
 			System.out.println("Unmapped entity type:"+ typeName);
 		}
