@@ -10,11 +10,13 @@ public class ClassEntity extends DataAggregateEntity{
 	List<String> baseClass;
 	List<String> friendClass;
 	List<String> friendFunction;
+	List<Integer> containEntity;
 	public ClassEntity(String name, String qualifiedName, Entity parent, Integer id, BaseScope scope, Location location) {
 		super(name,qualifiedName,  parent, id, scope, location);
 		this.baseClass = new ArrayList<String>(); 
 		this.friendClass = new ArrayList<String>(); 
-		this.friendFunction = new ArrayList<String>(); 
+		this.friendFunction = new ArrayList<String>();
+		this.containEntity = new ArrayList<Integer>();
 	}
 	public void addBaseClass(List<String> classentity) {
 		baseClass.addAll(classentity);
@@ -34,5 +36,7 @@ public class ClassEntity extends DataAggregateEntity{
 	public List<String> getFriendFunction(){
 		return friendFunction;
 	}
+	public void addContainEntity(Integer entityID){this.containEntity.add(entityID);}
+	public List<Integer> getContainEntity() {return this.containEntity;}
 
 }

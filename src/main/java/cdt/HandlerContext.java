@@ -100,7 +100,9 @@ public class HandlerContext {
 		else {
 			symbol = (MethodSymbol) this.currentScope.getSymbol(methodName+"_method");
 		}
-		methodName = methodName.replace(" ", "");
+		if(this.latestValidContainer() instanceof ClassEntity){
+			((ClassEntity) this.latestValidContainer()).addContainEntity(id);
+		}
 		FunctionEntity functionEntity = new FunctionEntityDecl(methodName,
 				resolveName(methodName),  
 				this.latestValidContainer(),id, symbol, location);
@@ -451,7 +453,8 @@ public class HandlerContext {
 	*/
 	public VarEntity foundVarDefinition(String varName, Location location) {
 		if(location == null) return null;
-		VarEntity varEntity = new VarEntity(varName,  resolveName(varName),  this.latestValidContainer(), entityRepo.generateId(), location);
+		Integer id = entityRepo.generateId();
+		VarEntity varEntity = new VarEntity(varName,  resolveName(varName),  this.latestValidContainer(), id, location);
 		entityRepo.add(varEntity);
 		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
 			if(!(this.currentScope instanceof DataAggregateSymbol)) {
@@ -460,6 +463,9 @@ public class HandlerContext {
 					this.currentScope.define(v);
 				}
 			}
+		}
+		if(this.latestValidContainer() instanceof ClassEntity){
+			((ClassEntity) this.latestValidContainer()).addContainEntity(id);
 		}
 		return varEntity;
 	}

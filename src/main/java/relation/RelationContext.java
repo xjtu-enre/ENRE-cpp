@@ -172,6 +172,14 @@ public class RelationContext {
 						relationrepo.addRelation(re);
 					}
 				}
+				List<Integer> containEntity = ((ClassEntity) entity).getContainEntity();
+				for(Integer to_entity:containEntity){
+					Entity contain_to_entity = entityrepo.getEntity(to_entity);
+					if(contain_to_entity != null){
+						Relation re = new Relation(entity, contain_to_entity, "Contain");
+						relationrepo.addRelation(re);
+					}
+				}
 			}
 			if (entity instanceof StructEntity) {
 				List<String> baseStruct = ((StructEntity) entity).getBaseStruct();
@@ -195,7 +203,6 @@ public class RelationContext {
 	*/
 	public void foundOverride(Entity baseEntity, Entity entity) {
 		for (Entity child : baseEntity.getChild()) {
-			
 			if (child instanceof FunctionEntity) {
 				if (((BaseScope) entity.getScope()).getSymbol(child.getName()+"_method") != null) {
 					Entity OverrideEntity = entityrepo.getEntityByName(entity.getQualifiedName() + "::" + child.getName());
@@ -234,21 +241,6 @@ public class RelationContext {
 			}
 		}
 		return null;
-	}
-	
-	
-	/**
-	* @methodsName: EntityScopeDeal
-	* @description: pre-deal with source entity dependencies based on scope
-	* @param: sourceEntity
-	*/
-	public void EntityScopeDeal(Entity en) {
-		
-	}
-	
-	public void EntityInformationDeal() {
-		
-	
 	}
 	
 	/**
@@ -301,7 +293,6 @@ public class RelationContext {
 						relationrepo.addRelation(aliasDep);
 					}
 				}
-
 			}
 		}
 	}

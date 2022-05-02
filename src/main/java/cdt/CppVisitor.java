@@ -144,7 +144,6 @@ public class CppVisitor extends ASTVisitor {
 //			}
 //		}
 		if (statement instanceof IASTProblemStatement) {
-
 		}
 		return super.visit(statement);
 	}
@@ -416,14 +415,16 @@ public class CppVisitor extends ASTVisitor {
 						getLocation(visibilityLabel));
 			}
 		}
-		//else if (declaration instanceof CPPASTLinkageSpecification) {
-//		} else if (declaration instanceof CPPASTProblemDeclaration) {
-//		 LOGGER.error("parsing error \n" + declaration.getRawSignature());
-//		} else if (declaration instanceof CPPASTStaticAssertionDeclaration) {
-//
-//		else if (declaration instanceof CPPASTTemplateSpecialization){
-//			System.out.println("tets");
-//		}
+		else if (declaration instanceof CPPASTLinkageSpecification) {
+			System.out.println(declaration.getRawSignature());
+		}
+		else if (declaration instanceof CPPASTProblemDeclaration) {
+
+		} else if (declaration instanceof CPPASTStaticAssertionDeclaration) {
+
+		}else if (declaration instanceof CPPASTTemplateSpecialization){
+
+		}
 		return super.visit(declaration);
 	}
 
@@ -466,8 +467,6 @@ public class CppVisitor extends ASTVisitor {
 	public int visit(IASTExpression expression) {
 		if(expression instanceof CPPASTLambdaExpression){
 			CPPASTLambdaExpression lambdaExpression = (CPPASTLambdaExpression) expression;
-			//System.out.println(lambdaExpression.getRawSignature());
-			//System.out.println(lambdaExpression.getCaptureDefault());
 		}
 		return PROCESS_CONTINUE;
 	}
