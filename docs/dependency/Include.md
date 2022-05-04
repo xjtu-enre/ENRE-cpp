@@ -1,8 +1,8 @@
 # Include
 
 ## Supported pattern
-```
-name: Source file inclusion
+```yaml
+name: Include Declaration
 ```
 ### Syntax: 
 ``` cpp
@@ -19,45 +19,48 @@ __has_include ( < h-pp-tokens > )	(5)	(since C++17)
 
 #### Examples: 
 
-``` cpp
-// in fileA.cpp
-#if __has_include(<optional>)
-    #include <optional>
-    #define has_optional 1
-    template<class T> using optional_t = std::optional<T>;
-#elif __has_include(<experimental/optional>)
-    #include <experimental/optional>
-    #define has_optional -1
-    template<class T> using optional_t = std::experimental::optional<T>;
-#else
-    #define has_optional 0
-    #include <utility>
+```cpp
+//fileA.cpp
+
+#include <experimental/optional>
+#include <utility.h>
+
+//experimental/optional.h
+
+int main(）{
+}
+
+//utility.h
+
+int main(）{
+}
 ```
 
-``` 
+```yaml
+name: Include 
 entities:
     items:
         -   id: 0
             name: fileA.cpp
-            kind: File
+            category: File
         -   id: 1
             name: optional
-            kind: File
+            category: File
         -   id: 2
-            name: experimental/optional
-            kind: File
+            name: experimental/optional.h
+            category: File
         -   id: 3
-            name: utility
-            kind: File
+            name: utility.h
+            category: File
 dependencies:
     items:
-        -   kind: Include
+        -   category: Include
             src: 0
             dest: 1
-        -   kind: Include
+        -   category: Include
             src: 0
             dest: 2
-        -   kind: Include
+        -   category: Include
             src: 0
             dest: 3
 ```

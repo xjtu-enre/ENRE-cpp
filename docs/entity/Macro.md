@@ -1,7 +1,7 @@
 # Macro
 
 ## Supported pattern
-```
+```yaml
 name: Macro Declaration
 ```
 ### Syntax
@@ -17,18 +17,19 @@ name: Macro Declaration
 #### Examples: 
 
 - Example1
-    ``` cpp
+```cpp
     #define F(...) f(0 __VA_OPT__(,) __VA_ARGS__)
-    ```
+```
 
-    ``` 
+```yaml
+    name: Macro
     entities:
         filter:  Macro
         items:
             -   name: F
                 loc: [ 1, 7 ]
                 kind:  Macro
-    ```
+```
 
 
 # Reference

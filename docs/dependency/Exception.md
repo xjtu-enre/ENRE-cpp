@@ -1,14 +1,14 @@
 # Exception
 
 ## Supported pattern
-```
+```yaml
 name: Exception Declaration
 ```
 ### Syntax: Catch Exception
 
 #### Examples: 
 
-``` cpp
+```cpp
 class DbNotFoundError : public std::exception
 {
     using std::exception::exception;
@@ -24,21 +24,21 @@ std::optional<bilingual_str> LoadAddrman()
 }
 ```
 
-``` 
+```yaml
+name: Exception
 entities:
     items:
         -   id: 0
             name: DbNotFoundError
             loc: [ 1, 7 ]
-            kind: Class
+            category: Class
         -   id: 1
             name: LoadAddrman
             loc: [ 6, 30 ]
-            kind: Function
-
+            category: Function
 dependencies:
     items:
-        -   kind: Catch Exception
+        -   category: Catch Exception
             src: 0
             dest: 1
             loc: [8, 20]
@@ -49,7 +49,7 @@ dependencies:
 
 #### Examples: 
 
-``` cpp
+```cpp
 class CConnectionFailed : public std::runtime_error{};
 static UniValue CallRPC()
 {
@@ -60,18 +60,19 @@ static UniValue CallRPC()
 }
 ```
 
-``` 
+```yaml
+name: Throw Exception
 entities:
     items:
         -   id: 0
             name: CConnectionFailed
-            kind: Class
+            category: Class
         -   id: 1
             name: CallRPC
-            kind: Function
+            category: Function
 dependencies:
     items:
-        -   kind: Throw Exception
+        -   category: Throw Exception
             src: 0
             dest: 1
             loc: [5, 15]

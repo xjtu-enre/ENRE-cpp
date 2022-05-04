@@ -1,8 +1,8 @@
 # Use
 
 Use dependency can be divided into following kinds:
-``` 
-'Asm Use', 'Use Ptr', 'Addr Use', 'Addr Use Return', 'Cast Use', 'Use Return', 'Use Macrodefine'
+```yaml
+name: Use Declaration
 ```
 A Use dependency indicates a reference in an active region of code to a known C/C++ variable.
 
@@ -14,7 +14,7 @@ name: Use Declaration
 
 #### Examples: 
 
-``` cpp
+```cpp
 extern int var1;
 int func() {
     int local_var;
@@ -22,24 +22,25 @@ int func() {
 }
 ```
 
-``` 
+```yaml
+name: Use
 entities:
     items:
         -   id: 0
             name: var1
-            kind: Object
+            category: Object
         -   id: 1
             name: func
-            kind: Function
+            category: Function
         -   id: 2
             name: func::local_var
-            kind: Object
+            category: Object
 dependencies:
     items:
-        -   kind: Use
+        -   category: Use
             src: 1
             dest: 0
-        -   kind: Set
+        -   category: Set
             src: 1
             dest: 2
 ```
@@ -48,27 +49,28 @@ dependencies:
 Use Macrodefine and Useby Macrodefine indicate a reference to a known entity in a macro definition.
 #### Examples: 
 
-``` cpp
+```cpp
 // in fileA.cpp
 int func1();
 #define MACRO (func1())
 ```
 
-``` 
+```yaml
+name: Use MacroDefine
 entities:
     items:
         -   id: 0
             name: fileA.cpp
-            kind: File
+            category: File
         -   id: 1
             name: func1
-            kind: Function
+            category: Function
         -   id: 2
             name: MACRO
-            kind: Macro
+            category: Macro
 dependencies:
     items:
-        -   kind: Use Macrodefine
+        -   category: Use Macrodefine
             src: 0
             dest: 1
 ```

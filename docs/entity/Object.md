@@ -1,7 +1,7 @@
 # Object
 
 ## Supported pattern
-```
+```yaml
 name: Object Declaration
 ```
 ### Syntax
@@ -27,7 +27,7 @@ Objects of implicit-lifetime types can also be implicitly created by
 #### Examples: 
 
 - Example1
-    ``` cpp
+```cpp
     struct X { int a, b; };
     X *MakeX()
     {
@@ -36,19 +36,20 @@ Objects of implicit-lifetime types can also be implicitly created by
         p->b = 2;
         return p;
     }
-    ```
+```
 
-    ``` 
+```yaml
+    name: Object
     entities:
         filter: Object
         items:
             -   name: flags
                 loc: [ 1, 7 ]
                 kind: Alias
-    ```
+```
 
 - Example2
-    ``` cpp
+```cpp
     struct S {
         char c;  
         float f; 
@@ -64,16 +65,17 @@ Objects of implicit-lifetime types can also be implicitly created by
         reinterpret_cast<unsigned char*>(&s1)[2] = 'b'; 
         assert(s1 == s2); 
     }
-    ```
+```
 
-    ``` 
+```yaml
+    name: Object 2
     entities:
         filter: Object
         items:
             -   name: flags
                 loc: [ 1, 7 ]
                 kind: Alias
-    ```
+```
 
 # Reference
 - https://en.cppreference.com/w/cpp/language/object

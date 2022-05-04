@@ -1,11 +1,11 @@
 # Template
 
 ## Supported pattern
-```
+```yaml
 name: Template Declaration
 ```
 ### Syntax
-``` cpp
+```cpp
 template < parameter-list > requires-clause(optional) declaration	(1)	
 export template < parameter-list > declaration	(2)	(until C++11)
 template < parameter-list > concept concept-name = constraint-expression ;	(3)	(since C++20)
@@ -15,51 +15,39 @@ template < parameter-list > concept concept-name = constraint-expression ;	(3)	(
 #### Examples: 
 
 - Example1
-    ``` cpp
-    template<typename T>
-    concept C1 = sizeof(T) != sizeof(int);
- 
-    template<C1 T>
-    struct S1 {};
- 
-    template<C1 T>
-    using Ptr = T*;
- 
-    template<typename T>
-    struct S3 { Ptr<T> x; };         
 
- 
-    template<typename T>
-    concept C2 = sizeof(T) == 1;
- 
-    template<C2 T> struct S {};
-    ```
+```cpp
+    template<C1 T>
+    class S1 {};
+```
 
-    ``` 
+```yaml
+    name: Class Template
     entities:
         filter: Template
         items:
-            -   name: flags
+            -   name: S1
                 loc: [ 1, 7 ]
                 kind: Template
-    ```
+```
 
 - Example2
-    ``` cpp
+```cpp
     template<typename T>
     struct A{
         void f() {}
     };
-    ```
+```
 
-    ``` 
+```yaml
+    name: Struct Template
     entities:
-        filter: Template
+        filter: Struct Template
         items:
             -   name: flags
                 loc: [ 1, 7 ]
                 kind: Template
-    ```
+```
 
 # Reference
 - https://en.cppreference.com/w/cpp/language/templates

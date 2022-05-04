@@ -1,7 +1,7 @@
 # Typedef
 
 ## Supported pattern
-```
+```yaml
 name: Typedef Declaration
 ```
 ### Syntax
@@ -13,35 +13,36 @@ typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;
 #### Examples: 
 
 - Example1
-    ``` cpp
+```cpp
     typedef int int_t;
     typedef int A[]; 
     A a = {1, 2}, b = {3,4,5}; 
-    ```
+```
 
-    ``` 
+```yaml
+    name: typedef built-in type
     entities:
         filter:  Typedef
         items:
             -   name: int_t
                 loc: [ 1, 7 ]
                 kind:  Typedef
-    ```
+```
 
 - Example2
-    ``` cpp
+```cpp
     typedef struct { double hi, lo; } range;
     range z, *zp;
-    ```
+```
 
-    ``` 
+```yaml
+    name: typedef struct
     entities:
         filter:  Typedef
         items:
             -   name:  range
                 loc: [ 1, 7 ]
-                kind:  Typedef
-    ```
+```
 
 # Reference
 - https://en.cppreference.com/w/cpp/language/typedef

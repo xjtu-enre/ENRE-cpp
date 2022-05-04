@@ -1,7 +1,7 @@
 # Alias
 
 ## Supported pattern
-```
+```yaml
 name: AliasDeclaration
 ```
 ### Syntax: Type alias(since C++11)
@@ -12,11 +12,12 @@ Type alias is a name that refers to a previously defined type (similar to typede
 
 #### Examples: 
 
-``` cpp
+```cpp
 using flags = std::ios_base::fmtflags;
 ```
 
-``` 
+```yaml
+name: Using Alias
 entities:
     filter: Alias
     items:
@@ -39,7 +40,8 @@ using ptr = T*;
 ptr<int> x;
 ```
 
-``` 
+```yaml
+name: Template Alias
 entities:
     filter: Alias
     items:
@@ -72,8 +74,8 @@ namespace foo {
 namespace fbz = foo::bar::baz;
 ```
 
-``` 
-name: flags
+```yaml
+name: Namespace Alias
 entities:
     filter: Namespace Alias
     items:

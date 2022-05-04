@@ -2,11 +2,11 @@
 The friend declaration appears in a class body and grants a function or another class access to private and protected members of the class where the friend declaration appears.
 
 ## Supported pattern
-```
+```yaml
 name: Friend Declaration
 ```
 ### Syntax: 
-``` cpp
+```cpp
 friend function-declaration	(1)	
 friend function-definition	(2)	
 friend elaborated-class-specifier ;	(3)
@@ -18,7 +18,7 @@ Type alias is a name that refers to a previously defined type (similar to typede
 
 #### Examples: 
 
-``` cpp
+```cpp
 class Y {
     int data; // private member
     // the non-member function operator<< will have access to Y's private members
@@ -26,43 +26,42 @@ class Y {
     friend char* X::foo(int); // members of other classes can be friends too
     friend X::X(char), X::~X(); // constructors and destructors can be friends
 };
-// friend declaration does not declare a member function
-// this operator<< still needs to be defined, as a non-member
 std::ostream& operator<<(std::ostream& out, const Y& y){
     return out << y.data; // can access private member Y::data
 }
 ```
 
-``` 
+```yaml
+name: Friend Function
 entities:
     items:
         -   id: 0
             name: Y
-            kind: Class
+            category: Class
         -   id: 1
             name: Y::operator<<
-            kind: Function
+            category: Function
         -   id: 2
             name: X::foo
-            kind: Function
+            category: Function
         -   id: 3
             name: X::X
-            kind: Function(constructor)
+            category: Function
         -   id: 4
             name: X::~X
-            kind: Function(destructor)
+            category: Function
 dependencies:
     items:
-        -   kind: Friend
+        -   category: Friend
             src: 0
             dest: 1
-        -   kind: Friend
+        -   category: Friend
             src: 0
             dest: 2
-        -   kind: Friend
+        -   category: Friend
             src: 0
             dest: 3
-        -   kind: Friend
+        -   category: Friend
             src: 0
             dest: 4
 ```
@@ -71,7 +70,7 @@ dependencies:
 
 #### Examples: 
 
-``` cpp
+```cpp
 template<class T> class A {}; // primary
 template<> class A<int> {}; // full
 class X {
@@ -79,24 +78,25 @@ class X {
 };
 ```
 
-``` 
+```yaml
+name: Friend Class
 entities:
     items:
         -   id: 0
             name: A
-            kind: Class Template
+            category: Class Template
         -   id: 1
             name: A
-            kind: Class Template Specoalization
+            category: Class Template Specialization
         -   id: 2
             name: X
-            kind: Class
+            category: Class
 dependencies:
     items:
-        -   kind: Specoalization
+        -   category: Template Specialization
             src: 0
             dest: 1
-        -   kind: Friend
+        -   category: Friend
             src: 2
             dest: 1
 ```

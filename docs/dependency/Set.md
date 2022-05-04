@@ -1,7 +1,7 @@
 # Set
 
 ## Supported pattern
-```
+```yaml
 name: Set Declaration
 ```
 A set dependency indicates any explicit assignment of a variable.
@@ -11,31 +11,32 @@ A set dependency indicates any explicit assignment of a variable.
 
 #### Examples: 
 
-``` cpp
+```cpp
 int function(int i){
     int j;
     j = i;
 }
 ```
 
-``` 
+```yaml
+name: Set
 entities:
     items:
         -   id: 0
             name: function
-            kind: Function
+            category: Function
         -   id: 1
             name: i
-            kind: Object
+            category: Object
         -   id: 2
             name: j
-            kind: Object
+            category: Object
 dependencies:
     items:
-        -   kind: Set
+        -   category: Set
             src: 0
             dest: 2
-        -   kind: Use
+        -   category: Use
             src: 0
             dest: 1
 ```

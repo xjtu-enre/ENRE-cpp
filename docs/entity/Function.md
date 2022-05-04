@@ -1,11 +1,11 @@
 # Classes
 
 ## Supported pattern
-```
+```yaml
 name: FunctionDeclaration
 ```
 ### Syntax
-``` cpp
+```cpp
 noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) attr(optional)	(1)	
 noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) attr(optional) -> trailing	(2)	(since C++11)
 ```
@@ -14,22 +14,22 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
 #### Examples: 
 
 - Example1
-    ``` cpp
+```cpp
     int max(int a, int b, int c)
     {
         int m = (a > b) ? a : b;
         return (m > c) ? m : c;
     }
-    ```
+```
 
-    ``` 
+```yaml
+    name: Function
     entities:
         filter: Function
         items:
             -   name: max
                 loc: [ 1, 7 ]
-                kind:Function
-    ```
+```
 
 
 ### Syntax
@@ -47,19 +47,20 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
 #### Examples: 
 
 - Example1
-    ``` cpp
+``` cpp
     auto glambda = [](auto a, auto&& b) { return a < b; };
     bool b = glambda(3, 3.14); 
-    ```
+```
 
-    ``` 
+```yaml
+    name: Lambda Function
     entities:
         filter: Function
         items:
             -   name: glambda
                 loc: [ 1, 7 ]
                 kind: Function
-    ```
+```
 
 
 ### Syntax
@@ -72,7 +73,7 @@ operator type	(2)
 #### Examples: 
 
 - Example1
-    ``` cpp
+``` cpp
     struct Linear {
         double a, b;
  
@@ -80,16 +81,17 @@ operator type	(2)
             return a*x + b;
         }
     };
-    ```
+```
 
-    ``` json
+```yaml
+    name: Struct Method
     entities:
         filter: Function
         items:
             -   name: operator()
                 loc: [ 1, 7 ]
                 kind: Function
-    ```
+```
 
 
 # Reference

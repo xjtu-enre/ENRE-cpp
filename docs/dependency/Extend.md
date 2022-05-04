@@ -1,7 +1,7 @@
 # Extend
 
 ## Supported pattern
-```
+```yaml
 name: Extend Declaration
 ```
 ### Syntax: 
@@ -11,7 +11,7 @@ attr(optional) access-specifier(optional) virtual-specifier(optional) class-or-d
 
 #### Examples: 
 
-``` cpp
+```cpp
 struct Base {
     int a, b, c;
 };
@@ -23,24 +23,25 @@ struct Derived2 : Derived {
 };
 ```
 
-``` 
+```yaml
+name: Struct Extend 
 entities:
     items:
         -   id: 0
             name: Base
-            kind: Struct
+            category: Struct
         -   id: 1
-            name: Derived : Base
-            kind: Struct
+            name: Derived::Base
+            category: Struct
         -   id: 2
-            name: Derived2 : Derived
-            kind: Struct
+            name: Derived2::Derived
+            category: Struct
 dependencies:
     items:
-        -   kind: Extend
+        -   category: Extend
             src: 1
             dest: 0
-        -   kind: Extend
+        -   category: Extend
             src: 2
             dest: 1
 ```

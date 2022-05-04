@@ -1,7 +1,7 @@
 # Modify
 
 ## Supported pattern
-```
+```yaml
 name: Modify Declaration
 ```
 A modify indicates a reference where a variable is modified without an explicit assignment statement. The variable is both used and set at the same reference location.
@@ -10,25 +10,26 @@ A modify indicates a reference where a variable is modified without an explicit 
 
 #### Examples: 
 
-``` cpp
+```cpp
 int function(){
     int i = 0;
     i++;
 }
 ```
 
-``` 
+```yaml
+name: Modify
 entities:
     items:
         -   id: 0
             name: function
-            kind: Function
+            category: Function
         -   id: 1
             name: i
-            kind: Object
+            category: Object
 dependencies:
     items:
-        -   kind: Modify
+        -   category: Modify
             src: 0
             dest: 1
 ```

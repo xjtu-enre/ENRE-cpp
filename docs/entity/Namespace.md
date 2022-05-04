@@ -1,7 +1,7 @@
 # Namespace
 
 ## Supported pattern
-```
+```yaml
 name: Namespace Declaration
 ```
 ### Syntax
@@ -21,7 +21,7 @@ namespace ns-name :: inline member-name { declarations }	(9)	(since C++20)
 #### Examples: 
 
 - Example1
-    ``` cpp
+```cpp
     namespace Lib
     {
         inline namespace Lib_1
@@ -30,33 +30,35 @@ namespace ns-name :: inline member-name { declarations }	(9)	(since C++20)
         }
         template <typename T> void g(T) { /* ... */ }
     }
-    ```
+```
 
-    ``` 
+```yaml
+    name: Namespace
     entities:
         filter: Namespace
         items:
             -   name: Lib
                 loc: [ 1, 7 ]
                 kind: Namespace
-    ```
+```
 
 - Example2
-    ``` cpp
+```cpp
     namespace
     {
         int i; 
     }
-    ```
+```
 
-    ``` 
+```yaml
+    name: Unnamed Namespace
     entities:
         filter: Namespace
         items:
             -   name: [unnamed namespace]
                 loc: [ 1, 7 ]
                 kind: Namespace
-    ```
+```
 
 # Reference
 - https://en.cppreference.com/w/cpp/language/namespace

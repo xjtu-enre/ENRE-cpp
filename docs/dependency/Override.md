@@ -1,7 +1,7 @@
 # Overrides
 
 ## Supported pattern
-```
+```yaml
 name: Overrides Declaration
 ```
 These reference kids indicate when a method in one class overrides a virtual method in a base class.
@@ -10,7 +10,7 @@ These reference kids indicate when a method in one class overrides a virtual met
 
 #### Examples: 
 
-``` cpp
+```cpp
 class A{
     public: virtual void func();
 }
@@ -19,27 +19,28 @@ class B : public A{
 }
 ```
 
-``` 
+```yaml
+name: Override
 entities:
     items:
         -   id: 0
             name: A
-            kind: Class 
+            category: Class 
         -   id: 1
             name: A::func
-            kind: Function
+            category: Function
         -   id: 2
             name: B
-            kind: Class
+            category: Class
         -   id: 3
             name: B::func
-            kind: Function
+            category: Function
 dependencies:
     items:
-        -   kind: Extend
+        -   category: Extend
             src: 2
             dest: 0
-        -   kind: Overrides
+        -   category: Overrides
             src: 3
             dest: 1
 ```
