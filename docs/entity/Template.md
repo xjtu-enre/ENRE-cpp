@@ -5,7 +5,7 @@
 name: Template Declaration
 ```
 ### Syntax
-```cpp
+```text
 template < parameter-list > requires-clause(optional) declaration	(1)	
 export template < parameter-list > declaration	(2)	(until C++11)
 template < parameter-list > concept concept-name = constraint-expression ;	(3)	(since C++20)
@@ -23,7 +23,7 @@ template < parameter-list > concept concept-name = constraint-expression ;	(3)	(
 
 ```yaml
     name: Class Template
-    entities:
+    entity:
         filter: Template
         items:
             -   name: S1
@@ -41,7 +41,7 @@ template < parameter-list > concept concept-name = constraint-expression ;	(3)	(
 
 ```yaml
     name: Struct Template
-    entities:
+    entity:
         filter: Struct Template
         items:
             -   name: flags

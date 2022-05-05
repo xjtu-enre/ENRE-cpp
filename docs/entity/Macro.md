@@ -5,7 +5,7 @@
 name: Macro Declaration
 ```
 ### Syntax
-``` cpp
+```text
 #define identifier replacement-list(optional)	(1)	
 #define identifier( parameters ) replacement-list(optional)	(2)	
 #define identifier( parameters, ... ) replacement-list(optional)	(3)	(since C++11)
@@ -23,7 +23,7 @@ name: Macro Declaration
 
 ```yaml
     name: Macro
-    entities:
+    entity:
         filter:  Macro
         items:
             -   name: F

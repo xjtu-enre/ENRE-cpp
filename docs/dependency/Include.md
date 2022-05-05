@@ -5,7 +5,7 @@
 name: Include Declaration
 ```
 ### Syntax: 
-``` cpp
+```text
 #include < h-char-sequence > new-line	(1)	
 #include " q-char-sequence " new-line	(2)	
 #include pp-tokens new-line	(3)	
@@ -19,6 +19,7 @@ __has_include ( < h-pp-tokens > )	(5)	(since C++17)
 
 #### Examples: 
 
+- Example1
 ```cpp
 //fileA.cpp
 
@@ -38,7 +39,7 @@ int main(）{
 
 ```yaml
 name: Include 
-entities:
+entity:
     items:
         -   id: 0
             name: fileA.cpp
@@ -52,7 +53,7 @@ entities:
         -   id: 3
             name: utility.h
             category: File
-dependencies:
+relation:
     items:
         -   category: Include
             src: 0

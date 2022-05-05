@@ -14,7 +14,7 @@ file.cpp
 ```
 ```yaml
     name: File
-    entities:
+    entity:
         filter: File
         items:
             -   name: filename.cpp

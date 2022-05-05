@@ -5,7 +5,7 @@
 name: Typedef Declaration
 ```
 ### Syntax
-``` cpp
+```text
 typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;	
 ```
 
@@ -21,7 +21,7 @@ typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;
 
 ```yaml
     name: typedef built-in type
-    entities:
+    entity:
         filter:  Typedef
         items:
             -   name: int_t
@@ -37,7 +37,7 @@ typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;
 
 ```yaml
     name: typedef struct
-    entities:
+    entity:
         filter:  Typedef
         items:
             -   name:  range

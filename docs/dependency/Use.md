@@ -14,6 +14,7 @@ name: Use Declaration
 
 #### Examples: 
 
+- Example1
 ```cpp
 extern int var1;
 int func() {
@@ -24,7 +25,7 @@ int func() {
 
 ```yaml
 name: Use
-entities:
+entity:
     items:
         -   id: 0
             name: var1
@@ -35,7 +36,7 @@ entities:
         -   id: 2
             name: func::local_var
             category: Object
-dependencies:
+relation:
     items:
         -   category: Use
             src: 1
@@ -49,6 +50,7 @@ dependencies:
 Use Macrodefine and Useby Macrodefine indicate a reference to a known entity in a macro definition.
 #### Examples: 
 
+- Example2
 ```cpp
 // in fileA.cpp
 int func1();
@@ -57,7 +59,7 @@ int func1();
 
 ```yaml
 name: Use MacroDefine
-entities:
+entity:
     items:
         -   id: 0
             name: fileA.cpp
@@ -68,7 +70,7 @@ entities:
         -   id: 2
             name: MACRO
             category: Macro
-dependencies:
+relation:
     items:
         -   category: Use Macrodefine
             src: 0

@@ -5,7 +5,7 @@
 name: FunctionDeclaration
 ```
 ### Syntax
-```cpp
+```text
 noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) attr(optional)	(1)	
 noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) attr(optional) -> trailing	(2)	(since C++11)
 ```
@@ -24,7 +24,7 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
 
 ```yaml
     name: Function
-    entities:
+    entity:
         filter: Function
         items:
             -   name: max
@@ -33,7 +33,7 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
 
 
 ### Syntax
-``` cpp
+```text
 [ captures ] ( params ) specs requires(optional) { body }	(1)	
 [ captures ] { body }	(2)	(until C++23)
 [ captures ] specs { body }	(2)	(since C++23)
@@ -47,14 +47,14 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
 #### Examples: 
 
 - Example1
-``` cpp
+```cpp
     auto glambda = [](auto a, auto&& b) { return a < b; };
     bool b = glambda(3, 3.14); 
 ```
 
 ```yaml
     name: Lambda Function
-    entities:
+    entity:
         filter: Function
         items:
             -   name: glambda
@@ -64,7 +64,7 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
 
 
 ### Syntax
-``` cpp
+```text
 operator op	(1)	
 operator type	(2)	
 ```
@@ -73,7 +73,7 @@ operator type	(2)
 #### Examples: 
 
 - Example1
-``` cpp
+```cpp
     struct Linear {
         double a, b;
  
@@ -85,7 +85,7 @@ operator type	(2)
 
 ```yaml
     name: Struct Method
-    entities:
+    entity:
         filter: Function
         items:
             -   name: operator()

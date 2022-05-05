@@ -5,7 +5,7 @@
 name: Enumeration Declaration
 ```
 ### Syntax
-``` cpp
+```text
 enum-key attr(optional) enum-head-name(optional) enum-base(optional) {enumerator-list(optional)	(1)	
 enum-key attr(optional) enum-head-name enum-base(optional) ;	(2)	
 ```
@@ -16,7 +16,7 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
 #### Examples: 
 
 - Example1: 
-``` cpp
+```cpp
     enum Color { 
         red, 
         green, 
@@ -26,7 +26,7 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
 
 ```yaml
     name: Enum
-    entities:
+    entity:
         filter: Enum
         items:
             -   name: Color
@@ -41,7 +41,7 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
 ```
 
 ### Syntax: Scoped enumerations
-``` cpp
+```text
 enum struct|class name { enumerator = constexpr , enumerator = constexpr , ... }	(1)	
 enum struct|class name : type { enumerator = constexpr , enumerator = constexpr , ... }	(2)	
 enum struct|class name ;	(3)	
@@ -59,7 +59,7 @@ enum class Handle {
 
 ```yaml
     name: Enum Class
-    entities:
+    entity:
         filter: Enum Class
         items:
             -   name: Handle

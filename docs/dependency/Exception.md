@@ -8,6 +8,7 @@ name: Exception Declaration
 
 #### Examples: 
 
+- Example1
 ```cpp
 class DbNotFoundError : public std::exception
 {
@@ -26,7 +27,7 @@ std::optional<bilingual_str> LoadAddrman()
 
 ```yaml
 name: Exception
-entities:
+entity:
     items:
         -   id: 0
             name: DbNotFoundError
@@ -36,7 +37,7 @@ entities:
             name: LoadAddrman
             loc: [ 6, 30 ]
             category: Function
-dependencies:
+relation:
     items:
         -   category: Catch Exception
             src: 0
@@ -49,6 +50,7 @@ dependencies:
 
 #### Examples: 
 
+- Example2
 ```cpp
 class CConnectionFailed : public std::runtime_error{};
 static UniValue CallRPC()
@@ -62,7 +64,7 @@ static UniValue CallRPC()
 
 ```yaml
 name: Throw Exception
-entities:
+entity:
     items:
         -   id: 0
             name: CConnectionFailed
@@ -70,7 +72,7 @@ entities:
         -   id: 1
             name: CallRPC
             category: Function
-dependencies:
+relation:
     items:
         -   category: Throw Exception
             src: 0

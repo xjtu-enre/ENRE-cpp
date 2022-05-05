@@ -5,7 +5,7 @@
 name: ClassDeclaration
 ```
 ### Syntax
-```cpp
+```text
 class-key attr class-head-name { member-specification }	(1)	
 class-key attr class-head-name : base-specifier-list { member-specification }	(2)	
 ```
@@ -22,13 +22,14 @@ class Matrix {
 
 ```yaml
 name: Class
-entities:
+entity:
     filter: classes
     items:
         -   name:  Matrix
             loc: [ 1, 7 ]
             kind: Class
 ```
+- Example2
 ```cpp
 struct MyStruct {
     int value;
@@ -36,7 +37,7 @@ struct MyStruct {
 ```
 ```yaml
 name: Struct
-entities:
+entity:
     filter: classes
     items:
         -   name: MyStruct
@@ -47,7 +48,7 @@ entities:
             kind: Object
 ```
 
-- Example2
+- Example3
 ```cpp
 class Vector final {
 };
@@ -55,7 +56,7 @@ class Vector final {
 
 ```yaml
     name: Class Vector
-    entities:
+    entity:
         filter: classes
         items:
             -   name: Vector
@@ -64,15 +65,15 @@ class Vector final {
 ```
 
 ### Syntax: Type alias
-``` cpp
+```text
 union attr class-head-name { member-specification }		
 ```
 
 
 #### Examples: 
 
-- Example1:
-``` cpp
+- Example4:
+```cpp
 union month
 {
     std::uint16_t s[2]; // occupies 4 bytes
@@ -82,7 +83,7 @@ union month
 
 ```yaml
 name: Union
-entities:
+entity:
     filter: Classes
     items:
         -   name: month

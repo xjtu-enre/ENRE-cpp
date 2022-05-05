@@ -11,6 +11,7 @@ A set dependency indicates any explicit assignment of a variable.
 
 #### Examples: 
 
+- Example1
 ```cpp
 int function(int i){
     int j;
@@ -20,7 +21,7 @@ int function(int i){
 
 ```yaml
 name: Set
-entities:
+entity:
     items:
         -   id: 0
             name: function
@@ -31,7 +32,7 @@ entities:
         -   id: 2
             name: j
             category: Object
-dependencies:
+relation:
     items:
         -   category: Set
             src: 0

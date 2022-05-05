@@ -9,6 +9,7 @@ name: Define Declaration
 
 #### Examples: 
 
+- Example1
 ```cpp
 //file.h
 class Units{
@@ -17,7 +18,7 @@ class Units{
 
 ```yaml
 name: Define
-entities:
+entity:
     items:
         -   id: 0
             name: file.h
@@ -27,7 +28,7 @@ entities:
             name: Units
             loc: [ 1, 7]
             category: Class
-dependencies:
+relation:
     items:
         -   category: Define
             src: 0

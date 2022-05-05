@@ -10,6 +10,7 @@ A modify indicates a reference where a variable is modified without an explicit 
 
 #### Examples: 
 
+- Example1
 ```cpp
 int function(){
     int i = 0;
@@ -19,7 +20,7 @@ int function(){
 
 ```yaml
 name: Modify
-entities:
+entity:
     items:
         -   id: 0
             name: function
@@ -27,7 +28,7 @@ entities:
         -   id: 1
             name: i
             category: Object
-dependencies:
+relation:
     items:
         -   category: Modify
             src: 0

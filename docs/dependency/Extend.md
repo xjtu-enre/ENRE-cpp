@@ -5,12 +5,13 @@
 name: Extend Declaration
 ```
 ### Syntax: 
-```cpp
+```text
 attr(optional) access-specifier(optional) virtual-specifier(optional) class-or-decltype		
 ```
 
 #### Examples: 
 
+- Example1
 ```cpp
 struct Base {
     int a, b, c;
@@ -25,7 +26,7 @@ struct Derived2 : Derived {
 
 ```yaml
 name: Struct Extend 
-entities:
+entity:
     items:
         -   id: 0
             name: Base
@@ -36,7 +37,7 @@ entities:
         -   id: 2
             name: Derived2::Derived
             category: Struct
-dependencies:
+relation:
     items:
         -   category: Extend
             src: 1

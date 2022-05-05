@@ -10,6 +10,7 @@ These reference kids indicate when a method in one class overrides a virtual met
 
 #### Examples: 
 
+- Example1
 ```cpp
 class A{
     public: virtual void func();
@@ -21,7 +22,7 @@ class B : public A{
 
 ```yaml
 name: Override
-entities:
+entity:
     items:
         -   id: 0
             name: A
@@ -35,7 +36,7 @@ entities:
         -   id: 3
             name: B::func
             category: Function
-dependencies:
+relation:
     items:
         -   category: Extend
             src: 2

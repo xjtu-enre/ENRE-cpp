@@ -40,7 +40,7 @@ Objects of implicit-lifetime types can also be implicitly created by
 
 ```yaml
     name: Object
-    entities:
+    entity:
         filter: Object
         items:
             -   name: flags
@@ -69,7 +69,7 @@ Objects of implicit-lifetime types can also be implicitly created by
 
 ```yaml
     name: Object 2
-    entities:
+    entity:
         filter: Object
         items:
             -   name: flags

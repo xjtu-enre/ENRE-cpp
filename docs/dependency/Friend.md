@@ -6,7 +6,7 @@ The friend declaration appears in a class body and grants a function or another 
 name: Friend Declaration
 ```
 ### Syntax: 
-```cpp
+```text
 friend function-declaration	(1)	
 friend function-definition	(2)	
 friend elaborated-class-specifier ;	(3)
@@ -18,6 +18,7 @@ Type alias is a name that refers to a previously defined type (similar to typede
 
 #### Examples: 
 
+- Example1
 ```cpp
 class Y {
     int data; // private member
@@ -33,7 +34,7 @@ std::ostream& operator<<(std::ostream& out, const Y& y){
 
 ```yaml
 name: Friend Function
-entities:
+entity:
     items:
         -   id: 0
             name: Y
@@ -50,7 +51,7 @@ entities:
         -   id: 4
             name: X::~X
             category: Function
-dependencies:
+relation:
     items:
         -   category: Friend
             src: 0
@@ -70,6 +71,7 @@ dependencies:
 
 #### Examples: 
 
+- Example2
 ```cpp
 template<class T> class A {}; // primary
 template<> class A<int> {}; // full
@@ -80,7 +82,7 @@ class X {
 
 ```yaml
 name: Friend Class
-entities:
+entity:
     items:
         -   id: 0
             name: A
@@ -91,7 +93,7 @@ entities:
         -   id: 2
             name: X
             category: Class
-dependencies:
+relation:
     items:
         -   category: Template Specialization
             src: 0

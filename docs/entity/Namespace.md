@@ -5,7 +5,7 @@
 name: Namespace Declaration
 ```
 ### Syntax
-``` cpp
+```text
 namespace ns-name { declarations }	(1)	
 inline namespace ns-name { declarations }	(2)	(since C++11)
 namespace { declarations }	(3)	
@@ -34,7 +34,7 @@ namespace ns-name :: inline member-name { declarations }	(9)	(since C++20)
 
 ```yaml
     name: Namespace
-    entities:
+    entity:
         filter: Namespace
         items:
             -   name: Lib
@@ -52,7 +52,7 @@ namespace ns-name :: inline member-name { declarations }	(9)	(since C++20)
 
 ```yaml
     name: Unnamed Namespace
-    entities:
+    entity:
         filter: Namespace
         items:
             -   name: [unnamed namespace]

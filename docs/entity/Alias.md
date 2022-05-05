@@ -5,20 +5,22 @@
 name: AliasDeclaration
 ```
 ### Syntax: Type alias(since C++11)
-``` cpp
+```text
 using identifier attr(optional) = type-id;
 ```
 Type alias is a name that refers to a previously defined type (similar to typedef).
 
 #### Examples: 
 
+- Example:
 ```cpp
+using namespace std;
 using flags = std::ios_base::fmtflags;
 ```
 
 ```yaml
 name: Using Alias
-entities:
+entitiy:
     filter: Alias
     items:
         -   name: flags
@@ -27,14 +29,15 @@ entities:
 ```
 
 ### Syntax: alias template(since C++11)
-``` cpp
+```text
 template < template-parameter-list >
 using identifier attr(optional) = type-id ;
 ```
 Alias template is a name that refers to a family of types.
 #### Examples: 
 
-``` cpp
+- Example:
+```cpp
 template<class T>
 using ptr = T*; 
 ptr<int> x;
@@ -42,7 +45,7 @@ ptr<int> x;
 
 ```yaml
 name: Template Alias
-entities:
+entity:
     filter: Alias
     items:
         -   name: ptr
@@ -54,7 +57,7 @@ entities:
 
 
 
-``` cpp
+```text
 namespace alias_name = ns_name;	(1)	
 namespace alias_name = ::ns_name;	(2)	
 namespace alias_name = nested_name::ns_name;	(3)
@@ -63,7 +66,9 @@ namespace alias_name = nested_name::ns_name;	(3)
 alias_name must be a name not previously used. alias_name is valid for the duration of the scope in which it is introduced.
 
 #### Examples: 
-``` cpp
+
+- Example:
+```cpp
 namespace foo {
     namespace bar {
          namespace baz {
@@ -76,7 +81,7 @@ namespace fbz = foo::bar::baz;
 
 ```yaml
 name: Namespace Alias
-entities:
+entity:
     filter: Namespace Alias
     items:
         -   name: foo
