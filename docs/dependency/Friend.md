@@ -20,16 +20,22 @@ Type alias is a name that refers to a previously defined type (similar to typede
 
 - Example1
 ```cpp
-class Y {
-    int data; // private member
-    // the non-member function operator<< will have access to Y's private members
-    friend std::ostream& operator<<(std::ostream& out, const Y& o);
-    friend char* X::foo(int); // members of other classes can be friends too
-    friend X::X(char), X::~X(); // constructors and destructors can be friends
+class classA
+{
+public:
+    void funcA(){
+        printf("base class function!");
+    }
 };
-std::ostream& operator<<(std::ostream& out, const Y& y){
-    return out << y.data; // can access private member Y::data
-}
+
+class classB : classA
+{
+};
+
+class classC{
+    friend void classA::funcA();
+    friend classB;
+};
 ```
 
 ```yaml
@@ -37,39 +43,43 @@ name: Friend Function
 entity:
     items:
         -   id: 0
-            name: Y
+            name: classA
             category: Class
         -   id: 1
-            name: Y::operator<<
+            name: classA::funcA
             category: Function
         -   id: 2
-            name: X::foo
-            category: Function
+            name: classA::classB
+            category: Class
         -   id: 3
-            name: X::X
-            category: Function
-        -   id: 4
-            name: X::~X
-            category: Function
+            name: classC
+            category: Class
 relation:
-    r:
-        d: x
-        e: x
-        s: _
-        u: _
     items:
         -   category: Friend
-            src: 0
-            dest: 1
-        -   category: Friend
-            src: 0
+            src: 3
             dest: 2
+            r:
+                d: x
+                e: .
+                s: x
+                u: .
         -   category: Friend
-            src: 0
-            dest: 3
-        -   category: Friend
-            src: 0
-            dest: 4
+            src: 3
+            dest: 1
+            r:
+                d: x
+                e: .
+                s: x
+                u: x
+        -   category: Extend
+            src: 2
+            dest: 0
+            r:
+                d: x
+                e: .
+                s: Inheritance
+                u: Public Base
 ```
 
 ### Syntax: Template friends
@@ -107,7 +117,7 @@ relation:
                 d: x
                 e: x
                 s: .
-                u: _
+                u: x
         -   category: Friend
             src: 2
             dest: 1
@@ -115,7 +125,7 @@ relation:
                 d: x
                 e: x
                 s: r/type use
-                u: _
+                u: .
 ```
 
 # Reference

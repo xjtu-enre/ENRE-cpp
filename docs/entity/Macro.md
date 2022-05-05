@@ -33,7 +33,7 @@ name: Macro Declaration
                     d: e/Function
                     e: .
                     s: .
-                    u: _
+                    u: .
 ```
 
 

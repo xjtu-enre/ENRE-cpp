@@ -59,7 +59,7 @@ relation:
         d: .
         e: .
         s: .
-        u: _
+        u: .
     items:
         -   category: Include
             src: 0

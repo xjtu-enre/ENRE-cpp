@@ -37,7 +37,7 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
                     d: e/Type
                     e: .
                     s: .
-                    u: _
+                    u: .
             -   name: Color::red
                 loc: [ 1, 7 ]
                 kind: Enumerator
@@ -45,7 +45,7 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
                     d: e/Var
                     e: .
                     s: enum constant
-                    u: _
+                    u: .
             -   name: Color::green
                 loc: [ 1, 7 ]
                 kind: Enumerator
@@ -53,5 +53,5 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
                     d: e/Var
                     e: .
                     s: enum constant
-                    u: _
+                    u: .
 ```

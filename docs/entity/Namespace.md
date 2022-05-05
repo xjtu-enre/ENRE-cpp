@@ -44,7 +44,7 @@ namespace ns-name :: inline member-name { declarations }	(9)	(since C++20)
                     d: Package
                     e: .
                     s: .
-                    u: _
+                    u: .
 ```
 
 - Example2
@@ -67,7 +67,7 @@ namespace ns-name :: inline member-name { declarations }	(9)	(since C++20)
                     d: Package
                     e: x
                     s: anonymous namespace
-                    u: _
+                    u: .
 ```
 
 # Reference

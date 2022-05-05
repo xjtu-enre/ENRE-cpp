@@ -45,7 +45,7 @@ relation:
                 d: .
                 e: .
                 s: inheritance
-                u: _
+                u: public base
         -   category: Overrides
             src: 3
             dest: 1
@@ -53,5 +53,5 @@ relation:
                 d: x
                 e: .
                 s: .
-                u: _
+                u: .
 ```

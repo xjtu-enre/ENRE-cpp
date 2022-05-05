@@ -47,7 +47,7 @@ relation:
                 d: x
                 e: x
                 s: r/type use
-                u: _
+                u: .
 
 ```
 
@@ -86,6 +86,6 @@ relation:
             r:
                 d: r/Call
                 e: r/Call
-                s: _
-                u: _
+                s: x
+                u: .
 ```

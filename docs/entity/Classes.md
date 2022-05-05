@@ -28,7 +28,7 @@ entity:
         d: Type
         e: .
         s: .
-        u: _
+        u: .
     items:
         -   name:  Matrix
             loc: [ 1, 7 ]
@@ -49,10 +49,10 @@ entity:
             loc: [ 1, 7 ]
             kind: Struct
             r:
-                d: .
+                d: Type
                 e: .
                 s: .
-                u: _
+                u: .
         -   name: MyStruct::value
             loc: [ 1, 7 ]
             kind: Variable
@@ -60,7 +60,7 @@ entity:
                 d: Var
                 e: .
                 s: public field
-                u: _
+                u: public Object
 ```
 
 - Example3
@@ -81,7 +81,7 @@ class Vector final {
                     d: Type
                     e: .
                     s: .
-                    u: _
+                    u: .
 ```
 
 ### Syntax: Type alias
@@ -96,8 +96,8 @@ union attr class-head-name { member-specification }
 ```cpp
 union month
 {
-    std::uint16_t s[2]; // occupies 4 bytes
-    std::uint8_t c;     // occupies 1 byte
+    int s[2]; 
+    float c;    
 };  
 ```
 
@@ -112,22 +112,22 @@ entity:
             r:
                 d: e/Type
                 e: .
-                s: _
-                u: _
+                s: .
+                u: .
         -   name: month::s
             loc: [ 1, 7 ]
             kind: Variable
             r:
                 d: Var
                 e: .
-                s: _
-                u: _
+                s: Public Field
+                u: Public Member Object
         -   name: month::c
             loc: [ 1, 7 ]
             kind: Variable
             r:
                 d: Var
                 e: .
-                s: _
-                u: _
+                s: Public Field
+                u: Public Member Object
 ```

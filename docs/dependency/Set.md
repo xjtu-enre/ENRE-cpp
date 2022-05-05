@@ -41,7 +41,7 @@ relation:
                 d: r/Use
                 e: .
                 s: x
-                u: _
+                u: .
         -   category: Use
             src: 0
             dest: 1
@@ -49,5 +49,5 @@ relation:
                 d: .
                 e: .
                 s: x
-                u: _
+                u: .
 ```

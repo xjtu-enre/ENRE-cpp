@@ -33,7 +33,7 @@ template < parameter-list > concept concept-name = constraint-expression ;	(3)	(
                     d: e/Type
                     e: .
                     s: e/class
-                    u: _
+                    u: .
 ```
 
 - Example2
@@ -56,7 +56,7 @@ template < parameter-list > concept concept-name = constraint-expression ;	(3)	(
                     d: e/Type
                     e: .
                     s: e/struct
-                    u: _
+                    u: .
 ```
 
 # Reference

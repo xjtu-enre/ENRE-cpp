@@ -30,8 +30,8 @@ entitiy:
     r:
         d: .
         e: o/nameError
-        s: _
-        u: _
+        s: x
+        u: Namespace Alias
     items:
         -   name: flags
             loc: [ 1, 7 ]
@@ -61,7 +61,7 @@ entity:
         d: .
         e: o/nameError
         s: e/typedef
-        u: _
+        u: Type Alias Template
     items:
         -   name: ptr
             loc: [ 1, 7 ]
@@ -102,7 +102,7 @@ entity:
         d: Package
         e: .
         s: .
-        u: _
+        u: .
     items:
         -   name: foo
             loc: [ 0, 11 ]
@@ -120,7 +120,7 @@ entity:
                 d: Var
                 e: .
                 s: global varibale
-                u: _
+                u: Object
         -   name: fbz
             loc: [ 7, 11 ]
             kind: Namespace Alias
@@ -128,5 +128,5 @@ entity:
               d: Alias
               e: .
               s: e/namespace
-              u: _
+              u: .
 ```

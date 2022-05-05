@@ -45,7 +45,7 @@ relation:
                 d: .
                 e: .
                 s: .
-                u: _
+                u: .
         -   category: Set
             src: 1
             dest: 2
@@ -53,41 +53,5 @@ relation:
                 d: r/Use
                 e: .
                 s: x
-                u: _
-```
-
-### Use Macrodefine
-Use Macrodefine and Useby Macrodefine indicate a reference to a known entity in a macro definition.
-#### Examples: 
-
-- Example2
-```cpp
-// in fileA.cpp
-int func1();
-#define MACRO (func1())
-```
-
-```yaml
-name: Use MacroDefine
-entity:
-    items:
-        -   id: 0
-            name: fileA.cpp
-            category: File
-        -   id: 1
-            name: func1
-            category: Function
-        -   id: 2
-            name: MACRO
-            category: Macro
-relation:
-    items:
-        -   category: Use Macrodefine
-            src: 0
-            dest: 1
-            r:
-                d: x
-                e: x
-                s: x
-                u: _
+                u: .
 ```

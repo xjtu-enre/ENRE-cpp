@@ -41,8 +41,8 @@ relation:
     r:
         d: .
         e: .
-        s: inheritance
-        u: _
+        s: Inheritance
+        u: .
     items:
         -   category: Extend
             src: 1

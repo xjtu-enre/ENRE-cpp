@@ -12,10 +12,10 @@ Call dependency can be from 'File', 'Namespace', 'Function', 'Struct', 'Template
 
 - Example1
 ```cpp
+void run_benchmark() {}
 void epoll(){
     run_benchmark();
 }
-void run_benchmark() {}
 ```
 
 ```yaml
@@ -38,8 +38,8 @@ relation:
             r:
                 d: .
                 e: .
-                s: _
-                u: _
+                s: .
+                u: .
 ```
 
 
@@ -80,6 +80,6 @@ relation:
             r:
                 d: x
                 e: x
-                s: _
-                u: _
+                s: x
+                u: x
 ```

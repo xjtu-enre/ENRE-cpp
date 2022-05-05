@@ -31,7 +31,7 @@ typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;
                     d: e/Alias
                     e: .
                     s: .
-                    u: _
+                    u: .
 ```
 
 - Example2
@@ -51,7 +51,7 @@ typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;
                     d: e/Alias
                     e: .
                     s: e/struct
-                    u: _
+                    u: .
 ```
 
 # Reference

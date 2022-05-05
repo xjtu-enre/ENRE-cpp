@@ -33,7 +33,7 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
                     d: FunctionImpl
                     e: .
                     s: .
-                    u: _
+                    u: .
 ```
 
 
@@ -47,31 +47,6 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
 (until C++23)
 [ captures ] < tparams > requires(optional) specs { body }	(4)	(since C++23)
 ```
-
-
-#### Examples: 
-
-- Example1
-```cpp
-    auto glambda = [](auto a, auto&& b) { return a < b; };
-    bool b = glambda(3, 3.14); 
-```
-
-```yaml
-    name: Lambda Function
-    entity:
-        filter: Function
-        items:
-            -   name: glambda
-                loc: [ 1, 7 ]
-                kind: Function
-                r:
-                    d: e/Var
-                    e: e/Variable
-                    s: e/global variable
-                    u: _
-```
-
 
 ### Syntax
 ```text
@@ -105,7 +80,7 @@ operator type	(2)
                     d: FunctionImpl
                     e: .
                     s: public method
-                    u: _
+                    u: Public Const Function
 ```
 
 

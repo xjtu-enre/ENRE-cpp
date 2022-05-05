@@ -37,5 +37,5 @@ relation:
                 d: x
                 e: .
                 s: x
-                u: _
+                u: .
 ```
