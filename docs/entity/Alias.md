@@ -27,6 +27,11 @@ using flags = base::flags::child;
 name: Using Alias
 entitiy:
     filter: Alias
+    r:
+        d: .
+        e: o/nameError
+        s:
+        u:
     items:
         -   name: flags
             loc: [ 1, 7 ]
@@ -52,6 +57,11 @@ ptr<int> x;
 name: Template Alias
 entity:
     filter: Alias
+    r:
+        d: .
+        e: o/nameError
+        s:
+        u:
     items:
         -   name: ptr
             loc: [ 1, 7 ]
@@ -88,6 +98,11 @@ namespace fbz = foo::bar::baz;
 name: Namespace Alias
 entity:
     filter: Namespace Alias
+    r:
+        d: Package
+        e: .
+        s:
+        u:
     items:
         -   name: foo
             loc: [ 0, 11 ]
@@ -100,8 +115,18 @@ entity:
             kind: Namespace
         -   name: foo::bar::baz::qux
             loc: [ 3, 18 ]
-            kind: Object
+            kind: Variable
+            r:
+                d: Var
+                e: .
+                s:
+                u:
         -   name: fbz
             loc: [ 7, 11 ]
             kind: Namespace Alias
+            r:
+              d: Alias
+              e: .
+              s:
+              u:
 ```
