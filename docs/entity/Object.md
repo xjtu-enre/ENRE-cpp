@@ -39,42 +39,26 @@ Objects of implicit-lifetime types can also be implicitly created by
 ```
 
 ```yaml
-    name: Object
+    name: Variable
     entity:
-        filter: Object
+        filter: Variable
         items:
-            -   name: flags
-                loc: [ 1, 7 ]
-                kind: Alias
+            -   name: p
+                kind: Variable
 ```
 
 - Example2
 ```cpp
-    struct S {
-        char c;  
-        float f; 
-        bool operator==(const S& arg) const { 
-            return c == arg.c && f == arg.f;
-        }
-    };
- 
-    void f() {
-        assert(sizeof(S) == 8);
-        S s1 = {'a', 3.14};
-        S s2 = s1;
-        reinterpret_cast<unsigned char*>(&s1)[2] = 'b'; 
-        assert(s1 == s2); 
-    }
+    int x;
 ```
 
 ```yaml
-    name: Object 2
+    name: Variable
     entity:
-        filter: Object
+        filter: Variable
         items:
-            -   name: flags
-                loc: [ 1, 7 ]
-                kind: Alias
+            -   name: x
+                kind: Variable
 ```
 
 # Reference
