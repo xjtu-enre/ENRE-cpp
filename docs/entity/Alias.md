@@ -14,8 +14,13 @@ Type alias is a name that refers to a previously defined type (similar to typede
 
 - Example:
 ```cpp
-using namespace std;
-using flags = std::ios_base::fmtflags;
+namespace base{
+    namespace flags{
+        namespace child{
+        }
+    }
+}
+using flags = base::flags::child;
 ```
 
 ```yaml
