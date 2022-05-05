@@ -51,3 +51,36 @@ relation:
                 s: x
                 u: .
 ```
+
+- Example2
+```cpp
+int function(int i){
+    int *a,b=0;
+    *a = b; 
+}
+```
+
+```yaml
+name: Deref Set
+entity:
+    items:
+        -   id: 0
+            name: function
+            category: Function
+        -   id: 1
+            name: a
+            category: Variable
+        -   id: 2
+            name: b
+            category: Variable
+relation:
+    items:
+        -   category: Set
+            src: 0
+            dest: 2
+            r:
+                d: r/Use
+                e: .
+                s: x
+                u: Deref Set
+```

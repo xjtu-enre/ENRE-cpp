@@ -53,5 +53,46 @@ relation:
 ```
 
 
+#### Examples: 
+
+- Example2
+```cpp
+class Collection {
+
+};
+class Book {};
+class CollectionOfBook : public Book, public Collection {
+    
+};
+```
+
+```yaml
+name: Multi Extend
+entity:
+    items:
+        -   id: 0
+            name: Collection
+            category: Class
+        -   id: 1
+            name: Book
+            category: Class
+        -   id: 2
+            name: CollectionOfBook
+            category: Class
+relation:
+    r:
+        d: .
+        e: .
+        s: Inheritance
+        u: .
+    items:
+        -   category: Extend
+            src: 2
+            dest: 0
+        -   category: Extend
+            src: 2
+            dest: 1
+```
+
 # Reference
 - https://en.cppreference.com/w/cpp/language/derived_class

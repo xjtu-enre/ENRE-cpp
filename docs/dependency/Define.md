@@ -13,6 +13,7 @@ name: Define Declaration
 ```cpp
 //file.h
 class Units{
+    int x;
 };
 ```
 
@@ -22,22 +23,29 @@ entity:
     items:
         -   id: 0
             name: file.h
-            loc: [ -1, -1 ]
             category: File
         -   id: 1
             name: Units
-            loc: [ 1, 7]
             category: Class
+        -   id: 2
+            name: Units::x
+            category: Variable
 relation:
     items:
         -   category: Define
             src: 0
             dest: 1
-            loc: [1, 7]
             r:
                 d: x
                 e: x
                 s: x
                 u: .
-
+        -   category: Define
+            src: 1
+            dest: 2
+            r:
+                d: x
+                e: .
+                s: x
+                u: .
 ```

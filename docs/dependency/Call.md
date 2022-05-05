@@ -83,3 +83,126 @@ relation:
                 s: x
                 u: x
 ```
+
+- Example3
+```cpp
+int funcA(){
+    return -1;
+}
+int funcB(int i){
+    return 0;
+}
+void run_benchmark(){
+    funcB(funcA());
+}
+    
+```
+
+```yaml
+name: Function Continuous Call
+entity:
+    items:
+        -   id: 0
+            name: funcA
+            category: Function
+        -   id: 1
+            name: funcB
+            category: Function
+        -   id: 2
+            name: run_benchmark
+            category: Function
+relation:
+    items:
+        -   category: Call
+            src: 2
+            dest: 1
+            r:
+                d: .
+                e: .
+                s: .
+                u: .
+        -   category: Call
+            src: 2
+            dest: 0
+            r:
+                d: .
+                e: .
+                s: .
+                u: .
+```
+
+
+
+- Example4
+```cpp
+extern int func1(void);
+int func() {
+    func1();
+}
+    
+```
+
+```yaml
+name: Function Extern Call
+entity:
+    items:
+        -   id: 0
+            name: func1
+            category: Function
+        -   id: 1
+            name: func
+            category: Function
+relation:
+    items:
+        -   category: Call
+            src: 1
+            dest: 0
+            r:
+                d: .
+                e: .
+                s: .
+                u: .
+```
+
+
+- Example5
+```cpp
+class A{
+public:
+    int func(){
+        printf("Print test");
+    }
+}
+int main(){
+    A test = new A();
+    test.func();
+}
+```
+
+```yaml
+name: Call Class Method
+entity:
+    items:
+        -   id: 0
+            name: A
+            category: Class
+        -   id: 1
+            name: A::func
+            category: Function
+        -   id: 2
+            name: main
+            category: Function
+        -   id: 3
+            name: main::test
+            category: Variable
+relation:
+    items:
+        -   category: Call
+            src: 1
+            dest: 2
+            r:
+                d: .
+                e: .
+                s: .
+                u: .
+```
