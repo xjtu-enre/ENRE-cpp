@@ -40,6 +40,11 @@ namespace ns-name :: inline member-name { declarations }	(9)	(since C++20)
             -   name: Lib
                 loc: [ 1, 7 ]
                 kind: Namespace
+                r:
+                    d: Package
+                    e: .
+                    s: .
+                    u: _
 ```
 
 - Example2
@@ -58,6 +63,11 @@ namespace ns-name :: inline member-name { declarations }	(9)	(since C++20)
             -   name: [unnamed namespace]
                 loc: [ 1, 7 ]
                 kind: Namespace
+                r:
+                    d: Package
+                    e: x
+                    s: anonymous namespace
+                    u: _
 ```
 
 # Reference

@@ -38,6 +38,11 @@ entity:
             name: Derived2::Derived
             category: Struct
 relation:
+    r:
+        d: .
+        e: .
+        s: inheritance
+        u: _
     items:
         -   category: Extend
             src: 1

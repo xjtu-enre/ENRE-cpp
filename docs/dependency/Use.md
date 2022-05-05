@@ -35,15 +35,25 @@ entity:
             category: Function
         -   id: 2
             name: func::local_var
-            category: Object
+            category: Variable
 relation:
     items:
         -   category: Use
             src: 1
             dest: 0
+            r:
+                d: .
+                e: .
+                s: .
+                u: _
         -   category: Set
             src: 1
             dest: 2
+            r:
+                d: r/Use
+                e: .
+                s: x
+                u: _
 ```
 
 ### Use Macrodefine
@@ -75,4 +85,9 @@ relation:
         -   category: Use Macrodefine
             src: 0
             dest: 1
+            r:
+                d: x
+                e: x
+                s: x
+                u: _
 ```

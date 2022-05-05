@@ -20,4 +20,9 @@ file.cpp
             -   name: filename.cpp
                 loc: [ -1, -1 ]
                 kind: File
+                r:
+                    d: .
+                    e: .
+                    s: _
+                    u: _
 ```

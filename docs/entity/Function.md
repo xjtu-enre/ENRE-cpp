@@ -29,6 +29,11 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
         items:
             -   name: max
                 loc: [ 1, 7 ]
+                r:
+                    d: FunctionImpl
+                    e: .
+                    s: .
+                    u: _
 ```
 
 
@@ -60,6 +65,11 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
             -   name: glambda
                 loc: [ 1, 7 ]
                 kind: Function
+                r:
+                    d: e/Var
+                    e: e/Variable
+                    s: e/global variable
+                    u: _
 ```
 
 
@@ -91,6 +101,11 @@ operator type	(2)
             -   name: operator()
                 loc: [ 1, 7 ]
                 kind: Function
+                r:
+                    d: FunctionImpl
+                    e: .
+                    s: public method
+                    u: _
 ```
 
 

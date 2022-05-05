@@ -52,6 +52,11 @@ entity:
             name: X::~X
             category: Function
 relation:
+    r:
+        d: x
+        e: x
+        s: _
+        u: _
     items:
         -   category: Friend
             src: 0
@@ -98,9 +103,19 @@ relation:
         -   category: Template Specialization
             src: 0
             dest: 1
+            r:
+                d: x
+                e: x
+                s: .
+                u: _
         -   category: Friend
             src: 2
             dest: 1
+            r:
+                d: x
+                e: x
+                s: r/type use
+                u: _
 ```
 
 # Reference

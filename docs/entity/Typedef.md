@@ -27,6 +27,11 @@ typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;
             -   name: int_t
                 loc: [ 1, 7 ]
                 kind:  Typedef
+                r:
+                    d: e/Alias
+                    e: .
+                    s: .
+                    u: _
 ```
 
 - Example2
@@ -42,6 +47,11 @@ typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;
         items:
             -   name:  range
                 loc: [ 1, 7 ]
+                r:
+                    d: e/Alias
+                    e: .
+                    s: e/struct
+                    u: _
 ```
 
 # Reference

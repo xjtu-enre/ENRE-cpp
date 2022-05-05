@@ -35,6 +35,11 @@ relation:
         -   category: Call
             src: 0
             dest: 1
+            r:
+                d: .
+                e: .
+                s: _
+                u: _
 ```
 
 
@@ -72,4 +77,9 @@ relation:
         -   category: Deref Call
             src: 0
             dest: 1
+            r:
+                d: x
+                e: x
+                s: _
+                u: _
 ```

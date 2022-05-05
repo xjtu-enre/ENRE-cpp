@@ -34,5 +34,10 @@ relation:
             src: 0
             dest: 1
             loc: [1, 7]
+            r:
+                d: x
+                e: x
+                s: _
+                u: _
 
 ```

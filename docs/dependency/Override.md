@@ -41,7 +41,17 @@ relation:
         -   category: Extend
             src: 2
             dest: 0
+            r:
+                d: .
+                e: .
+                s: inheritance
+                u: _
         -   category: Overrides
             src: 3
             dest: 1
+            r:
+                d: x
+                e: .
+                s: .
+                u: _
 ```

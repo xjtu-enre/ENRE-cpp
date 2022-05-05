@@ -29,6 +29,11 @@ template < parameter-list > concept concept-name = constraint-expression ;	(3)	(
             -   name: S1
                 loc: [ 1, 7 ]
                 kind: Template
+                r:
+                    d: e/Type
+                    e: .
+                    s: e/class
+                    u: _
 ```
 
 - Example2
@@ -44,9 +49,14 @@ template < parameter-list > concept concept-name = constraint-expression ;	(3)	(
     entity:
         filter: Struct Template
         items:
-            -   name: flags
+            -   name: A
                 loc: [ 1, 7 ]
                 kind: Template
+                r:
+                    d: e/Type
+                    e: .
+                    s: e/struct
+                    u: _
 ```
 
 # Reference

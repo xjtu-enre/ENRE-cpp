@@ -29,6 +29,11 @@ name: Macro Declaration
             -   name: F
                 loc: [ 1, 7 ]
                 kind:  Macro
+                r:
+                    d: e/Function
+                    e: .
+                    s: .
+                    u: _
 ```
 
 

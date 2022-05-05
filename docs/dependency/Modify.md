@@ -27,10 +27,15 @@ entity:
             category: Function
         -   id: 1
             name: i
-            category: Object
+            category: Variable
 relation:
     items:
         -   category: Modify
             src: 0
             dest: 1
+            r:
+                d: x
+                e: .
+                s: x
+                u: _
 ```

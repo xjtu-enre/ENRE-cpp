@@ -33,10 +33,25 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
             -   name: Color
                 loc: [ 1, 7 ]
                 kind: Enum
+                r:
+                    d: e/Type
+                    e: .
+                    s: .
+                    u: _
             -   name: Color::red
                 loc: [ 1, 7 ]
                 kind: Enumerator
+                r:
+                    d: e/Var
+                    e: .
+                    s: enum constant
+                    u: _
             -   name: Color::green
                 loc: [ 1, 7 ]
                 kind: Enumerator
+                r:
+                    d: e/Var
+                    e: .
+                    s: enum constant
+                    u: _
 ```

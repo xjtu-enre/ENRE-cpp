@@ -24,6 +24,11 @@ class Matrix {
 name: Class
 entity:
     filter: classes
+    r:
+        d: Type
+        e: .
+        s: .
+        u: _
     items:
         -   name:  Matrix
             loc: [ 1, 7 ]
@@ -43,9 +48,19 @@ entity:
         -   name: MyStruct
             loc: [ 1, 7 ]
             kind: Struct
+            r:
+                d: .
+                e: .
+                s: .
+                u: _
         -   name: MyStruct::value
             loc: [ 1, 7 ]
-            kind: Object
+            kind: Variable
+            r:
+                d: Var
+                e: .
+                s: public field
+                u: _
 ```
 
 - Example3
@@ -62,6 +77,11 @@ class Vector final {
             -   name: Vector
                 loc: [ 1, 7 ]
                 kind: Class
+                r:
+                    d: Type
+                    e: .
+                    s: .
+                    u: _
 ```
 
 ### Syntax: Type alias
@@ -89,10 +109,25 @@ entity:
         -   name: month
             loc: [ 1, 7 ]
             kind: Union
+            r:
+                d: e/Type
+                e: .
+                s: _
+                u: _
         -   name: month::s
             loc: [ 1, 7 ]
-            kind: Object
+            kind: Variable
+            r:
+                d: Var
+                e: .
+                s: _
+                u: _
         -   name: month::c
             loc: [ 1, 7 ]
-            kind: Object
+            kind: Variable
+            r:
+                d: Var
+                e: .
+                s: _
+                u: _
 ```

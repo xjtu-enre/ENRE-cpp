@@ -43,6 +43,11 @@ relation:
             src: 0
             dest: 1
             loc: [8, 20]
+            r:
+                d: x
+                e: x
+                s: r/type use
+                u: _
 
 ```
 
@@ -78,4 +83,9 @@ relation:
             src: 0
             dest: 1
             loc: [5, 15]
+            r:
+                d: r/Call
+                e: r/Call
+                s: _
+                u: _
 ```
