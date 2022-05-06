@@ -23,7 +23,6 @@ class Matrix {
 ```yaml
 name: Class
 entity:
-    filter: classes
     r:
         d: Type
         e: .
@@ -32,7 +31,7 @@ entity:
     items:
         -   name:  Matrix
             loc: [ 1, 7 ]
-            kind: Class
+            category: Class
 ```
 - Example2
 ```cpp
@@ -43,11 +42,10 @@ struct MyStruct {
 ```yaml
 name: Struct
 entity:
-    filter: classes
     items:
         -   name: MyStruct
             loc: [ 1, 7 ]
-            kind: Struct
+            category: Struct
             r:
                 d: Type
                 e: .
@@ -55,7 +53,7 @@ entity:
                 u: .
         -   name: MyStruct::value
             loc: [ 1, 7 ]
-            kind: Variable
+            category: Variable
             r:
                 d: Var
                 e: .
@@ -72,11 +70,10 @@ class Vector final {
 ```yaml
     name: Class Vector
     entity:
-        filter: classes
         items:
             -   name: Vector
                 loc: [ 1, 7 ]
-                kind: Class
+                category: Class
                 r:
                     d: Type
                     e: .
@@ -104,19 +101,18 @@ union month
 ```yaml
 name: Union
 entity:
-    filter: Classes
     items:
         -   name: month
             loc: [ 1, 7 ]
-            kind: Union
+            category: Union
             r:
-                d: xType
+                d: Type
                 e: .
                 s: .
                 u: .
         -   name: month::s
             loc: [ 1, 7 ]
-            kind: Variable
+            category: Variable
             r:
                 d: Var
                 e: .
@@ -124,7 +120,7 @@ entity:
                 u: Public Member Object
         -   name: month::c
             loc: [ 1, 7 ]
-            kind: Variable
+            category: Variable
             r:
                 d: Var
                 e: .

@@ -24,11 +24,10 @@ name: Macro Declaration
 ```yaml
     name: Macro
     entity:
-        filter:  Macro
         items:
             -   name: F
                 loc: [ 1, 7 ]
-                kind:  Macro
+                category:  Macro
                 r:
                     d: xFunction
                     e: .

@@ -124,7 +124,7 @@ relation:
             r:
                 d: x
                 e: x
-                s: xtype use
+                s: xtypeuse
                 u: .
 ```
 

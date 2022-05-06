@@ -41,10 +41,9 @@ Objects of implicit-lifetime types can also be implicitly created by
 ```yaml
     name: Variable 1
     entity:
-        filter: Variable
         items:
             -   name: p
-                kind: Variable
+                category: Variable
                 r:
                     d: Type
                     e: .
@@ -60,10 +59,9 @@ Objects of implicit-lifetime types can also be implicitly created by
 ```yaml
     name: Variable 2
     entity:
-        filter: Variable
         items:
             -   name: x
-                kind: Variable
+                category: Variable
                 r:
                     d: Var
                     e: .

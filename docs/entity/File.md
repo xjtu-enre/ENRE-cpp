@@ -15,11 +15,10 @@ file.cpp
 ```yaml
     name: File
     entity:
-        filter: File
         items:
             -   name: filename.cpp
                 loc: [ -1, -1 ]
-                kind: File
+                category: File
                 r:
                     d: .
                     e: .

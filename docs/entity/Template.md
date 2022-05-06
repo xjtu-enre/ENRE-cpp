@@ -24,15 +24,14 @@ template < parameter-list > concept concept-name = constraint-expression ;	(3)	(
 ```yaml
     name: Class Template
     entity:
-        filter: Template
         items:
             -   name: S1
                 loc: [ 1, 7 ]
-                kind: Template
+                category: Template
                 r:
-                    d: xType
+                    d: Type
                     e: .
-                    s: xclass
+                    s: Class
                     u: .
 ```
 
@@ -47,15 +46,14 @@ template < parameter-list > concept concept-name = constraint-expression ;	(3)	(
 ```yaml
     name: Struct Template
     entity:
-        filter: Struct Template
         items:
             -   name: A
                 loc: [ 1, 7 ]
-                kind: Template
+                category: Template
                 r:
-                    d: xType
+                    d: Type
                     e: .
-                    s: xstruct
+                    s: xStruct
                     u: .
 ```
 

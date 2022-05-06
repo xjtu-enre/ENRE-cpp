@@ -22,13 +22,12 @@ typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;
 ```yaml
     name: typedef built-in type
     entity:
-        filter:  Typedef
         items:
             -   name: int_t
                 loc: [ 1, 7 ]
-                kind:  Typedef
+                category:  Typedef
                 r:
-                    d: xAlias
+                    d: e/Alias
                     e: .
                     s: .
                     u: .
@@ -43,14 +42,14 @@ typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;
 ```yaml
     name: typedef struct
     entity:
-        filter:  Typedef
         items:
             -   name:  range
+                category: typedef
                 loc: [ 1, 7 ]
                 r:
-                    d: xAlias
+                    d: Alias
                     e: .
-                    s: xstruct
+                    s: xStruct
                     u: .
 ```
 

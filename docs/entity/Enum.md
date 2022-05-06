@@ -27,29 +27,28 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
 ```yaml
     name: Enum
     entity:
-        filter: Enum
         items:
             -   name: Color
                 loc: [ 1, 7 ]
-                kind: Enum
+                category: Enum
                 r:
-                    d: xType
+                    d: Type
                     e: .
                     s: .
                     u: .
             -   name: Color::red
                 loc: [ 1, 7 ]
-                kind: Enumerator
+                category: Enumerator
                 r:
-                    d: xVar
+                    d: Var
                     e: .
                     s: enum constant
                     u: .
             -   name: Color::green
                 loc: [ 1, 7 ]
-                kind: Enumerator
+                category: Enumerator
                 r:
-                    d: xVar
+                    d: Var
                     e: .
                     s: enum constant
                     u: .
@@ -75,11 +74,10 @@ enum class Handle {
 ```yaml
     name: Enum Class
     entity:
-        filter: Enum Class
         items:
             -   name: Handle
                 loc: [ 1, 7 ]
-                kind: Enum
+                category: Enum
                 r:
                     d: Type
                     e: .
@@ -87,9 +85,9 @@ enum class Handle {
                     u: .
             -   name: Handle::Invalid
                 loc: [ 1, 7 ]
-                kind: Enumerator
+                category: Enumerator
                 r:
-                    d: xVar
+                    d: Var
                     e: .
                     s: enum constant
                     u: .

@@ -25,10 +25,10 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
 ```yaml
     name: Function
     entity:
-        filter: Function
         items:
             -   name: max
                 loc: [ 1, 7 ]
+                category: Function
                 r:
                     d: FunctionImpl
                     e: .
@@ -71,7 +71,6 @@ operator type	(2)
 ```yaml
     name: Struct Method
     entity:
-        filter: Function
         items:
             -   name: operator()
                 loc: [ 1, 7 ]

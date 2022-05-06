@@ -35,11 +35,10 @@ namespace ns-name :: inline member-name { declarations }	(9)	(since C++20)
 ```yaml
     name: Namespace
     entity:
-        filter: Namespace
         items:
             -   name: Lib
                 loc: [ 1, 7 ]
-                kind: Namespace
+                category: Namespace
                 r:
                     d: Package
                     e: .
@@ -58,11 +57,10 @@ namespace ns-name :: inline member-name { declarations }	(9)	(since C++20)
 ```yaml
     name: Unnamed Namespace
     entity:
-        filter: Namespace
         items:
             -   name: [unnamed namespace]
                 loc: [ 1, 7 ]
-                kind: Namespace
+                category: Namespace
                 r:
                     d: Package
                     e: x

@@ -97,6 +97,7 @@ namespace fbz = foo::bar::baz;
 ```yaml
 name: Namespace Alias
 entity:
+    filter: Namespace Alias
     r:
         d: Package
         e: .
@@ -126,6 +127,6 @@ entity:
             r:
               d: Alias
               e: .
-              s: xnamespace
+              s: xNamespace
               u: .
 ```
