@@ -38,7 +38,7 @@ relation:
             src: 0
             dest: 2
             r:
-                d: r/Use
+                d: xUse
                 e: .
                 s: x
                 u: .
@@ -79,7 +79,7 @@ relation:
             src: 0
             dest: 2
             r:
-                d: r/Use
+                d: xUse
                 e: .
                 s: x
                 u: Deref Set

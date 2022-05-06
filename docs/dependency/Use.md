@@ -50,7 +50,7 @@ relation:
             src: 1
             dest: 2
             r:
-                d: r/Use
+                d: xUse
                 e: .
                 s: x
                 u: .

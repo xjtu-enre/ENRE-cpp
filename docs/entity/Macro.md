@@ -30,7 +30,7 @@ name: Macro Declaration
                 loc: [ 1, 7 ]
                 kind:  Macro
                 r:
-                    d: e/Function
+                    d: xFunction
                     e: .
                     s: .
                     u: .

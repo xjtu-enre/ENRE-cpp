@@ -33,7 +33,7 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
                 loc: [ 1, 7 ]
                 kind: Enum
                 r:
-                    d: e/Type
+                    d: xType
                     e: .
                     s: .
                     u: .
@@ -41,7 +41,7 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
                 loc: [ 1, 7 ]
                 kind: Enumerator
                 r:
-                    d: e/Var
+                    d: xVar
                     e: .
                     s: enum constant
                     u: .
@@ -49,7 +49,7 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
                 loc: [ 1, 7 ]
                 kind: Enumerator
                 r:
-                    d: e/Var
+                    d: xVar
                     e: .
                     s: enum constant
                     u: .
@@ -89,7 +89,7 @@ enum class Handle {
                 loc: [ 1, 7 ]
                 kind: Enumerator
                 r:
-                    d: e/Var
+                    d: xVar
                     e: .
                     s: enum constant
                     u: .

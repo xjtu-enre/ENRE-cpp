@@ -46,7 +46,7 @@ relation:
             r:
                 d: x
                 e: x
-                s: r/type use
+                s: xtype use
                 u: .
 
 ```
@@ -80,12 +80,12 @@ entity:
 relation:
     items:
         -   category: Throw Exception
-            src: 0
-            dest: 1
+            src: 1
+            dest: 0
             loc: [5, 15]
             r:
-                d: r/Call
-                e: r/Call
+                d: xCall
+                e: xCall
                 s: x
                 u: .
 ```

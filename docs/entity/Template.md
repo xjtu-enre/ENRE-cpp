@@ -30,9 +30,9 @@ template < parameter-list > concept concept-name = constraint-expression ;	(3)	(
                 loc: [ 1, 7 ]
                 kind: Template
                 r:
-                    d: e/Type
+                    d: xType
                     e: .
-                    s: e/class
+                    s: xclass
                     u: .
 ```
 
@@ -53,9 +53,9 @@ template < parameter-list > concept concept-name = constraint-expression ;	(3)	(
                 loc: [ 1, 7 ]
                 kind: Template
                 r:
-                    d: e/Type
+                    d: xType
                     e: .
-                    s: e/struct
+                    s: xstruct
                     u: .
 ```
 

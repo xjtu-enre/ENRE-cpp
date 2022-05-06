@@ -35,7 +35,7 @@ entitiy:
     items:
         -   name: flags
             loc: [ 1, 7 ]
-            kind: Alias
+            category: Alias
 ```
 
 ### Syntax: alias template(since C++11)
@@ -60,12 +60,12 @@ entity:
     r:
         d: .
         e: o/nameError
-        s: e/typedef
+        s: xtypedef
         u: Type Alias Template
     items:
         -   name: ptr
             loc: [ 1, 7 ]
-            kind: Alias Template
+            category: Alias Template
 ```
 
 ### Syntax: Namespace aliases
@@ -97,7 +97,6 @@ namespace fbz = foo::bar::baz;
 ```yaml
 name: Namespace Alias
 entity:
-    filter: Namespace Alias
     r:
         d: Package
         e: .
@@ -106,16 +105,16 @@ entity:
     items:
         -   name: foo
             loc: [ 0, 11 ]
-            kind: Namespace
+            category: Namespace
         -   name: foo::bar
             loc: [ 1, 15 ]
-            kind: Namespace
+            category: Namespace
         -   name: foo::bar::baz
             loc: [ 2, 20 ]
-            kind: Namespace
+            category: Namespace
         -   name: foo::bar::baz::qux
             loc: [ 3, 18 ]
-            kind: Variable
+            category: Variable
             r:
                 d: Var
                 e: .
@@ -123,10 +122,10 @@ entity:
                 u: Object
         -   name: fbz
             loc: [ 7, 11 ]
-            kind: Namespace Alias
+            category: Namespace Alias
             r:
               d: Alias
               e: .
-              s: e/namespace
+              s: xnamespace
               u: .
 ```

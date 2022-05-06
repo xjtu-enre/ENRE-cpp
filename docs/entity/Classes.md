@@ -110,7 +110,7 @@ entity:
             loc: [ 1, 7 ]
             kind: Union
             r:
-                d: e/Type
+                d: xType
                 e: .
                 s: .
                 u: .

@@ -28,7 +28,7 @@ typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;
                 loc: [ 1, 7 ]
                 kind:  Typedef
                 r:
-                    d: e/Alias
+                    d: xAlias
                     e: .
                     s: .
                     u: .
@@ -48,9 +48,9 @@ typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;
             -   name:  range
                 loc: [ 1, 7 ]
                 r:
-                    d: e/Alias
+                    d: xAlias
                     e: .
-                    s: e/struct
+                    s: xstruct
                     u: .
 ```
 
