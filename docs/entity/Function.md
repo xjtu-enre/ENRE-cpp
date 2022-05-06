@@ -74,7 +74,7 @@ operator type	(2)
         items:
             -   name: operator()
                 loc: [ 1, 7 ]
-                kind: Function
+                category: Function
                 r:
                     d: FunctionImpl
                     e: .

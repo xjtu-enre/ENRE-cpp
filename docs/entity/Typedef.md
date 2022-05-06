@@ -27,7 +27,7 @@ typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;
                 loc: [ 1, 7 ]
                 category:  Typedef
                 r:
-                    d: e/Alias
+                    d: Alias
                     e: .
                     s: .
                     u: .
