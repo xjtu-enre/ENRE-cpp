@@ -223,20 +223,20 @@ public class FileParser {
 				checkPath =  uniformPath(checkPath);
 				if(exitFile(checkPath)) {
 					includeFile.add(checkPath);
-					if(checkPath.endsWith(".h")) {
-						checkPath = checkPath.replace(".h", ".cpp");
-						if(exitFile(checkPath)&& !checkPath.equals(this.filepath)) {
-							includeFile.add(checkPath);
-							fileEntity.addinclude(checkPath);
-						}
-					}
-					else if(checkPath.endsWith(".hpp")) {
-						checkPath = checkPath.replace(".hpp", ".cpp");
-						if(exitFile(checkPath)) {
-							includeFile.add(checkPath);
-
-						}
-					}
+//					if(checkPath.endsWith(".h")) {
+//						checkPath = checkPath.replace(".h", ".cpp");
+//						if(exitFile(checkPath)&& !checkPath.equals(this.filepath)) {
+//							includeFile.add(checkPath);
+//							fileEntity.addinclude(checkPath);
+//						}
+//					}
+//					else if(checkPath.endsWith(".hpp")) {
+//						checkPath = checkPath.replace(".hpp", ".cpp");
+//						if(exitFile(checkPath)) {
+//							includeFile.add(checkPath);
+//
+//						}
+//					}
 					continue;
 				}
 

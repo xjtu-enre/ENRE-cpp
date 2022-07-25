@@ -2,7 +2,7 @@ package entity;
 
 import java.util.HashMap;
 
-import org.antlr.symtab.BaseScope;
+import symtab.BaseScope;
 
 public class NamespaceEntity extends DataAggregateEntity{
 	

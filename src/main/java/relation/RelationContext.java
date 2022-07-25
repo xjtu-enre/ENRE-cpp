@@ -2,9 +2,10 @@ package relation;
 
 import entity.*;
 import entity.Entity.BindingRelation;
+import util.Configure;
 import util.Tuple;
-import org.antlr.symtab.BaseScope;
-import org.antlr.symtab.Scope;
+import symtab.BaseScope;
+import symtab.Scope;
 
 import java.util.Iterator;
 import java.util.List;
@@ -206,8 +207,10 @@ public class RelationContext {
 			if (child instanceof FunctionEntity) {
 				if (((BaseScope) entity.getScope()).getSymbol(child.getName()+"_method") != null) {
 					Entity OverrideEntity = entityrepo.getEntityByName(entity.getQualifiedName() + "::" + child.getName());
-					Relation re = new Relation(child, OverrideEntity, "Override");
-					relationrepo.addRelation(re);
+					if(OverrideEntity != null){
+						Relation re = new Relation(child, OverrideEntity, "Override");
+						relationrepo.addRelation(re);
+					}
 				}
 			}
 		}
@@ -266,11 +269,11 @@ public class RelationContext {
 					Relation re = new Relation(entity, returnEntity, "Return");
 					relationrepo.addRelation(re);
 				}
-				if (entity instanceof FunctionEntityDecl) {
+				if (entity instanceof FunctionEntity) {
 					Iterator<Entity> iteratorFunction = entityrepo.entityIterator();
 					while (iteratorFunction.hasNext()) {
 						Entity entityfunc = iteratorFunction.next();
-						if (entityfunc instanceof FunctionEntityDefine) {
+						if (entityfunc instanceof FunctionEntity) {
 							if (entityfunc.getName().equals(entity.getName())) {
 								Relation redefine = new Relation(entityfunc, entity, "Define");
 								relationrepo.addRelation(redefine);
@@ -307,7 +310,7 @@ public class RelationContext {
 	public Entity getEntity(Entity entity, String methodName) {
 		String pureName = methodName;
 
-		if (((BaseScope) entity.getScope()).getMembers().get(pureName) != null) {
+		if (((BaseScope) entity.getScope()).getSymbol(pureName) != null) {
 			for (Entity en : entity.getParent().getChild()) {
 				if (en instanceof FunctionEntity && en.getName().equals(pureName))
 					return en;
@@ -316,7 +319,7 @@ public class RelationContext {
 			// (2)
 			while (entity.getParent() != null) {
 				entity = entity.getParent();
-				if (((BaseScope) entity.getScope()).getMembers().get(pureName) != null) {
+				if (((BaseScope) entity.getScope()).getSymbol(pureName) != null) {
 					for (Entity en : entity.getChild()) {
 						if (en instanceof FunctionEntity && en.getName().equals(pureName))
 							return en;
@@ -328,7 +331,7 @@ public class RelationContext {
 				if (((FileEntity) entity).getIncludeEntity() == null)
 					return null;
 				for (FileEntity file : ((FileEntity) entity).getIncludeEntity()) {
-					if (file.getScope().resolve(pureName) != null) {
+					if (file.getScope().resolve(pureName, Configure.File) != null) {
 						for (Entity en : file.getChild()) {
 							if (en instanceof FunctionEntity && en.getName().equals(pureName))
 								return en;
@@ -338,36 +341,6 @@ public class RelationContext {
 			}
 		}
 		return null;
-	}
-	
-	/**
-	* @methodsName: getEntity()
-	* @description: get entity by methodName and scope
-	* @param: Scope scope, String functionName
-	* @return: boolean
-	* @throws: 
-	*/
-	public boolean foundEntity(Scope scope, String functionName) {
-		if (functionName.contains("::")) {
-			String[] splitName = functionName.split("::");
-			if (scope.resolve(splitName[0]) != null) {
-
-			}
-		} else {
-			if (scope != null) {
-				if (scope.resolve(functionName) != null)
-					return true;
-				else {
-					while (scope.getEnclosingScope() != null) {
-						scope = scope.getEnclosingScope();
-						if (scope.resolve(functionName) != null)
-							return true;
-					}
-				}
-			}
-
-		}
-		return false;
 	}
 
 	public RelationRepo getRelationRepo() {

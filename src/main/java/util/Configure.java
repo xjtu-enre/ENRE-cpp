@@ -80,4 +80,26 @@ public class Configure {
     public String getProjectName() {
         return projectName;
     }
+
+    public static final int ENTITY_KIND_NUM = 15;
+    public static final int File = 1;
+    public static final int Class = 2;
+    public static final int Struct = 3;
+    public static final int Union = 4;
+    public static final int Function = 5;
+    public static final int Macro = 6;
+    public static final int Enum = 7;
+    public static final int Enumerator = 8;
+    public static final int Typedef = 9;
+    public static final int Alias = 10;
+    public static final int Namespace = 11;
+    public static final int Variable = 12;
+    public static final int Label = 13;
+    public static final int Virtual = 14;
+
+
+
+    public static final int NOTFOUNDENTITY = -1;
+    public static final int FOUNDENTITY = 0;
+    public static final int FOUNDENTITYINCLUDE = 1;
 }

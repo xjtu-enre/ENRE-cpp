@@ -1,7 +1,7 @@
 package entity;
 
 import util.Tuple;
-import org.antlr.symtab.Scope;
+import symtab.Scope;
 
 import java.util.*;
 

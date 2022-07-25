@@ -1,6 +1,6 @@
 package entity;
 
-import org.antlr.symtab.BaseScope;
+import symtab.BaseScope;
 
 
 public class UnionEntity extends DataAggregateEntity{

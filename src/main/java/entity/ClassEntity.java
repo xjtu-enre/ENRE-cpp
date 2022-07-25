@@ -1,6 +1,6 @@
 package entity;
 
-import org.antlr.symtab.BaseScope;
+import symtab.BaseScope;
 
 import java.util.ArrayList;
 import java.util.List;

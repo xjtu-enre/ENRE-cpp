@@ -46,7 +46,7 @@ relation:
             r:
                 d: x
                 e: x
-                s: xtypeuse
+                s: r/type use
                 u: .
 
 ```
@@ -84,8 +84,8 @@ relation:
             dest: 1
             loc: [5, 15]
             r:
-                d: xCall
-                e: xCall
+                d: r/Call
+                e: r/Call
                 s: x
                 u: .
 ```

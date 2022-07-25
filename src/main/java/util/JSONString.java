@@ -34,7 +34,7 @@ public class JSONString {
 		case "class entity.FunctionEntityDefine":
 			resolvedName = "Function";
 			break;
-		case "class entity.FunctionEntityDecl":
+		case "class entity.FunctionEntity":
 			resolvedName = "Function";
 			break;
 		case "class entity.ClassEntity":

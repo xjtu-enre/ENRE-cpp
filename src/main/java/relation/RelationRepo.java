@@ -26,6 +26,7 @@ public class RelationRepo {
 	public void addRelation(Relation re) {
 		String type = re.getType();
 		Integer from = re.getFromEntity().getId();
+
 		Integer to = re.getToEntity().getId();
 		if(!dep.containsKey(re.getType())) {
 			List<Tuple<Integer,Integer>> listNew = new ArrayList<Tuple<Integer,Integer>>();

@@ -1,4 +1,4 @@
-# Classes
+# Function
 
 ## Supported pattern
 ```yaml
@@ -82,6 +82,70 @@ operator type	(2)
                     u: Public Const Function
 ```
 
+- Example2
+```cpp
+    int overloadFunction(){
+        /* empty */
+    }
+    int overloadFunction(int i){
+         /* empty */
+    }
+    int overloadFunction(char i){
+         /* empty */
+    }
+```
+
+```yaml
+    name: Overload Function
+    entity:
+        items:
+            -   name: overloadFunction
+                category: Function
+            -   name: overloadFunction
+                category: Function
+            -   name: overloadFunction
+                category: Function
+```
+
+- Example3
+- 'const' didn't 
+```cpp
+    int overloadFunction();
+    int overloadFunction(int i);
+    int overloadFunction(const int i);
+```
+
+```yaml
+    name: Overload Function
+    entity:
+        items:
+            -   name: overloadFunction
+                category: Function
+            -   name: overloadFunction
+                category: Function
+```
+
+- Example4
+```cpp
+class foo{
+public:
+    int overloadFunction();
+    int overloadFunction(int i);
+    int overloadFunction(char i);
+}
+```
+
+```yaml
+    name: Overload Function
+    entity:
+        items:
+            -   name: foo::overloadFunction
+                category: Method
+            -   name: foo::overloadFunction
+                category: Method
+            -   name: foo::overloadFunction
+                category: Method
+```
 
 # Reference
 - https://en.cppreference.com/w/cpp/language/operators
