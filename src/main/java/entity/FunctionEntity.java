@@ -29,10 +29,11 @@ public class FunctionEntity extends DataAggregateEntity{
 	}
 
 	public boolean equals(String name, List<String> parameterLists){
+		this.nameWithSignature = this.getNameWithSignature();
 		String nameWithSignatureB = name;
 		if(parameterLists.size() != this.parameter.size()) return false;
 		for(int i=0;i<parameterLists.size();i++){
-			nameWithSignatureB = name + parameterLists.get(i);
+			nameWithSignatureB = nameWithSignatureB + "_" +parameterLists.get(i);
 		}
 		if(nameWithSignatureB.equals(this.nameWithSignature)) return true;
 		return false;

@@ -51,21 +51,18 @@ public class RelationContext {
 		Iterator<Entity> iterator = entityrepo.entityIterator();
 		while (iterator.hasNext()) {
 			Entity entity = iterator.next();
-			
 			for(BindingRelation bindingre :entity.getRelationListByBinding()) {
-				//System.out.println(bindingre.getLocationInfor());
 				Entity toEntity = entityrepo.getEntityByLocation(bindingre.getLocationInfor());
 				if(toEntity == null) {
 					continue; 
 				}
-				
 				Relation re = new Relation(entity, toEntity, bindingre.getRelationType());
 				relationrepo.addRelation(re);				
 			}
 			for(Tuple scopere :entity.getRelationListByScope()) {
-				Entity toEntity = entityrepo.getEntityByName((String)scopere.getFirst());
+				Entity toEntity = entityrepo.getEntityByName((String)scopere.getSecond());
 				if(toEntity == null) continue; 
-				Relation re = new Relation(entity, toEntity,(String)scopere.getSecond());
+				Relation re = new Relation(entity, toEntity,(String)scopere.getFirst());
 				relationrepo.addRelation(re);				
 			}
 		}
@@ -81,11 +78,9 @@ public class RelationContext {
 	* @throws: 
 	*/
 	public void getIncludeRelation(FileEntity fromEntity) {
-
 		List<String> includeFile = fromEntity.getInclude();
 		if (includeFile != null) {
 			for (String file : includeFile) {
-				// System.out.println(file);
 				if (getToFile(file) != null) {
 					Relation re = new Relation(fromEntity, getToFile(file), "Include");
 					fromEntity.addincludeEntity(getToFile(file));

@@ -116,12 +116,6 @@ public class CppVisitor extends ASTVisitor {
 		if(statement instanceof CPPASTDeclarationStatement){
 //			CPPASTDeclarationStatement declarationStatement = (CPPASTDeclarationStatement)statement;
 		}
-		if (statement instanceof CPPASTExpressionStatement) {
-			CPPASTExpressionStatement expressionStatement = (CPPASTExpressionStatement) statement;
-			IASTExpression expression = expressionStatement.getExpression();
-			context.dealExpression(expression);
-		}
-
 		if (statement instanceof IASTForStatement || statement instanceof IASTIfStatement
 				|| statement instanceof IASTWhileStatement || statement instanceof IASTSwitchStatement) {
 			context.foundCodeScope(statement);
@@ -180,7 +174,6 @@ public class CppVisitor extends ASTVisitor {
 					}
 					for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
 						if(declarator instanceof CPPASTFunctionDeclarator){
-							System.out.println(declaration.getRawSignature());
 							this.FoundFunctionDeclaration((CPPASTFunctionDeclarator) declarator, declSpecifier);
 						}else if(declarator instanceof CPPASTDeclarator){
 
@@ -400,14 +393,13 @@ public class CppVisitor extends ASTVisitor {
 			String returnType = getType(declSpeci);
 			List<ParameterEntity> parameterLists = new ArrayList<ParameterEntity>();
 			for(IASTNode node:declarator.getChildren()){
-				if(node instanceof  IASTParameterDeclaration){
-					ParameterEntity parameter = foundParameterDeclaration(((IASTParameterDeclaration) node).copy());
+				if(node instanceof IASTParameterDeclaration){
+					ParameterEntity parameter = foundParameterDeclaration(((IASTParameterDeclaration) node));
 					if (parameter != null) {
 						parameterLists.add(parameter);
 					}
 				}
 			}
-
 			functionEntity = context.foundFunctionDefine(rawName, returnType, getLocation(decl.getDeclarator()), parameterLists);
 			if (declaration.getParent() instanceof CPPASTTemplateDeclaration) {
 				functionEntity.setTemplate(true);
@@ -453,7 +445,7 @@ public class CppVisitor extends ASTVisitor {
 		List<ParameterEntity> parameterLists = new ArrayList<ParameterEntity>();
 		for(IASTNode node:declarator.getChildren()){
 			if(node instanceof  IASTParameterDeclaration){
-				ParameterEntity parameter = foundParameterDeclaration(((IASTParameterDeclaration) node).copy());
+				ParameterEntity parameter = foundParameterDeclaration(((IASTParameterDeclaration) node));
 				if (parameter != null) {
 					parameterLists.add(parameter);
 				}
@@ -519,6 +511,9 @@ public class CppVisitor extends ASTVisitor {
 		if(expression instanceof CPPASTLambdaExpression){
 			CPPASTLambdaExpression lambdaExpression = (CPPASTLambdaExpression) expression;
 		}
+		else{
+			context.dealExpression(expression);
+		}
 		return PROCESS_CONTINUE;
 	}
 
@@ -556,16 +551,20 @@ public class CppVisitor extends ASTVisitor {
 								var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
 										null,  null, context.entityRepo.generateId(),
 										getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
-
 							}
 							break;
-						}
-						if (node instanceof CPPASTReferenceOperator) {
+						} else if (node instanceof CPPASTReferenceOperator) {
 							var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
 									null,  null, context.entityRepo.generateId(),
 									getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
-
 							break;
+						}else if(node instanceof CPPASTName){
+							var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
+									parameterDeclaration.getDeclarator().getName().toString(),
+									null, context.entityRepo.generateId(),
+									getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
+						}else{
+							System.err.println("NOT RESOLVE TYPE: " + node.getRawSignature());
 						}
 					}
 				}
@@ -606,6 +605,7 @@ public class CppVisitor extends ASTVisitor {
 
 	public String getType(IASTDeclSpecifier declSpeci) {
 		String type = null;
+
 		if (declSpeci instanceof IASTCompositeTypeSpecifier) {
 			final IASTCompositeTypeSpecifier compositeTypeSpec = (IASTCompositeTypeSpecifier) declSpeci;
 		} else if (declSpeci instanceof IASTElaboratedTypeSpecifier) {
@@ -618,7 +618,6 @@ public class CppVisitor extends ASTVisitor {
 			// No return value or the return value is built-in
 			final IASTSimpleDeclSpecifier simple = (IASTSimpleDeclSpecifier) declSpeci;
 			type = simple.getRawSignature();
-
 		} else if (declSpeci instanceof IASTNamedTypeSpecifier) {
 			final IASTNamedTypeSpecifier namedTypeSpec = (IASTNamedTypeSpecifier) declSpeci;
 			type = namedTypeSpec.getName().toString();
