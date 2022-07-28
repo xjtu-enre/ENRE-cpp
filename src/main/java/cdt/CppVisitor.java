@@ -22,7 +22,6 @@ import java.util.List;
 
 
 public class CppVisitor extends ASTVisitor {
-	//private static final Logger LOGGER = LogManager.getLogger(CppVisitor.class);
 	private EntityRepo entityrepo;
 	private FileEntity currentfile;
 	private HandlerContext context;
@@ -80,7 +79,7 @@ public class CppVisitor extends ASTVisitor {
 	@Override
 	public int visit(ICPPASTNamespaceDefinition namespaceDefinition) {
 		String namespaceName = namespaceDefinition.getName().toString();
-		Entity ns = context.foundNamespace(namespaceName);
+		context.foundNamespace(namespaceName);
 		return super.visit(namespaceDefinition);
 	}
 
@@ -149,11 +148,6 @@ public class CppVisitor extends ASTVisitor {
 
 	@Override
 	public int visit(IASTDeclaration declaration) {
-
-		if(declaration instanceof IASTParameterDeclaration){
-			System.out.println(declaration.getRawSignature());
-			System.out.println("test");
-		}
 		if (declaration instanceof ICPPASTUsingDeclaration) {
 			String ns = ASTStringUtil.getName((ICPPASTUsingDeclaration) declaration);
 			context.foundUsingImport(ns);

@@ -241,14 +241,23 @@ public class HandlerContext {
 			if(this.latestValidContainer() instanceof ClassEntity){
 				((ClassEntity) this.latestValidContainer()).addContainEntity(id);
 			}
-			if(!isDefine) this.latestValidContainer().addRelation(
-					new Relation(this.latestValidContainer(), functionEntity, "Declare"));
+			if(!isDefine){
+				this.latestValidContainer().addRelation(
+						new Relation(this.latestValidContainer(), functionEntity, "Declare"));
+			}
 			functionEntity.setReturn(returnType);
 			entityRepo.add(functionEntity);
 		}
-
 		pushScope(symbol);
 		entityStack.push(functionEntity);
+		if(isDefine){
+			functionEntity.clearParamter();
+			for(ParameterEntity entity:parameterList) {
+				functionEntity.addParameter(entity);
+				entity.setQualifiedName(this.resolveName(entity.getName()));
+				entityRepo.add(entity);
+			}
+		}
 		return functionEntity;
 	}
 	

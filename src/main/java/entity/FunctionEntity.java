@@ -21,6 +21,9 @@ public class FunctionEntity extends DataAggregateEntity{
 		parameter =  new ArrayList();
 		this.nameWithSignature = null;
 	}
+	public void clearParamter(){
+		parameter = new ArrayList();
+	}
 	public void addParameter(ParameterEntity var) {
 		parameter.add(var);
 	}

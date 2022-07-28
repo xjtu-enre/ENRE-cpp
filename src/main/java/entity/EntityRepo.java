@@ -78,7 +78,6 @@ public class EntityRepo {
 		}
 		if (allEntieisByName.containsKey(Qualifiedname)) {
 			Entity existedEntity = allEntieisByName.get(Qualifiedname);
-
 		} else {
 			allEntieisByName.put(Qualifiedname, entity);
 		}
