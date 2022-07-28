@@ -5,19 +5,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
 
-import entity.DataAggregateEntity;
-import entity.Entity;
-import entity.EntityRepo;
-import entity.FileEntity;
+import entity.*;
 
 import org.json.JSONObject;
+import symtab.FunctionSymbol;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class JSONString {
@@ -69,6 +65,9 @@ public class JSONString {
 			break;
 		case "class entity.NamespaceAliasEntity":
 			resolvedName = "Namespace Alias";
+			break;
+		case "class entity.ParameterEntity":
+			resolvedName = "Parameter";
 			break;
 		default:
 			System.out.println("Unmapped entity type:"+ typeName);
@@ -213,16 +212,37 @@ public class JSONString {
 		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
 		writer.setIndent("  ");
 		writer.beginArray();
-
 		GsonBuilder builder = new GsonBuilder();
 		Gson gson = builder.create();
 		List<EntityTemp> entityTempList = new ArrayList<EntityTemp>();
+		Map<String, List<Integer>> overload = new HashMap<String, List<Integer>>();
+
 		for (Integer en:entityList.keySet()) {
         	Entity entity = entityList.get(en);
 			builder.setPrettyPrinting();
 			entityTempList.add(this.resolveEntity(entity));
+			if(entity instanceof FunctionEntity){
+				if(entity.getScope() instanceof FunctionSymbol){
+					FunctionSymbol symbol = (FunctionSymbol)(entity.getScope());
+					if(symbol.isOverload()){
+						if(overload.get(entity.getQualifiedName())!=null){
+							overload.get(entity.getQualifiedName()).add(entity.getId());
+						}else{
+							List<Integer> list = new ArrayList<Integer>();
+							list.add(entity.getId());
+							overload.put(entity.getQualifiedName(), list);
+						}
+					}
+				}
+			}
 		}
-
+		System.out.println("Overload Function Lists:");
+		for(List<Integer> list: overload.values()){
+			System.out.print("{");
+			System.out.print(Arrays.toString(list.toArray()));
+			System.out.print("}, ");
+		}
+		System.out.println();
 
 		List<RelationTemp> relationTempList = new ArrayList<RelationTemp>();
 		for (String Type: relationList.keySet()) {

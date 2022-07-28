@@ -248,6 +248,7 @@ public class HandlerContext {
 			functionEntity.setReturn(returnType);
 			entityRepo.add(functionEntity);
 		}
+		functionEntity.setScope(symbol);
 		pushScope(symbol);
 		entityStack.push(functionEntity);
 		if(isDefine){
