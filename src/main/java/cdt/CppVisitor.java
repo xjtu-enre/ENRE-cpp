@@ -400,7 +400,7 @@ public class CppVisitor extends ASTVisitor {
 					}
 				}
 			}
-			functionEntity = context.foundFunctionDefine(rawName, returnType, getLocation(decl.getDeclarator()), parameterLists);
+			functionEntity = context.foundFunctionDefine(rawName, returnType, getLocation(decl.getDeclarator()), parameterLists, true);
 			if (declaration.getParent() instanceof CPPASTTemplateDeclaration) {
 				functionEntity.setTemplate(true);
 			}
@@ -467,7 +467,7 @@ public class CppVisitor extends ASTVisitor {
 				}
 			}
 //			context.foundFunctionDeclaration(rawName, returnType, getLocation(declarator), parameterLists);
-			context.foundFunctionDefine(rawName, returnType, getLocation(declarator), parameterLists);
+			context.foundFunctionDefine(rawName, returnType, getLocation(declarator), parameterLists, false);
 		}
 	}
 
@@ -564,6 +564,7 @@ public class CppVisitor extends ASTVisitor {
 									null, context.entityRepo.generateId(),
 									getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
 						}else{
+							System.out.println(parameterDeclaration.getRawSignature());
 							System.err.println("NOT RESOLVE TYPE: " + node.getRawSignature());
 						}
 					}

@@ -1,5 +1,6 @@
 package entity;
 
+import relation.Relation;
 import util.Tuple;
 import symtab.Scope;
 
@@ -16,24 +17,20 @@ public abstract class Entity {
 	String name;
 	Entity parent;
 	Set<Entity> children;
-
 	private Location location;
 
 	public class BindingRelation {
 		String RelationType;
 		String EntityType;
 		String EntityLocationInfor;
-
 		public BindingRelation(String retype, String entype, String eninfor) {
 			this.RelationType = retype;
 			this.EntityType = entype;
 			this.EntityLocationInfor = eninfor;
 		}
-		
 		public String getLocationInfor() {
 			return this.EntityLocationInfor;
 		}
-		
 		public String getRelationType() {
 			return this.RelationType;
 		}
@@ -47,8 +44,7 @@ public abstract class Entity {
 	int visibilityLabel = 1;
 
 
-	public Entity(String name, String qualifiedName, Entity parent, Integer id, Location location) {// GenericName
-																									// rawName,
+	public Entity(String name, String qualifiedName, Entity parent, Integer id, Location location) {
 		this.name = name;
 		this.qualifiedName = qualifiedName;
 		this.parent = parent;
@@ -60,15 +56,13 @@ public abstract class Entity {
 	}
 
 	private Set<Entity> children() {
-		if (children == null)
-			children = new HashSet<>();
+		if (children == null) children = new HashSet<>();
 		return children;
 	}
 
 	public Scope getScope() {
 		return scope;
 	}
-
 	public Integer getId() {
 		return id;
 	}
@@ -110,26 +104,21 @@ public abstract class Entity {
 	public void setQualifiedName(String qualifiedName) {
 		this.qualifiedName = qualifiedName;
 	}
-
 	public final String getName() {
 		return name;
 	}
-
 	public final String getQualifiedName() {
 		return qualifiedName;
 	}
-
 	public String getQualifiedName(boolean overrideFileWithPackage) {
 		return qualifiedName;
 	}
+	public void setLocation(Location location) {this.location = location;}
 
 	@Override
 	public String toString() {
 		if (parent == null)
 			return "Entity [id=" + id + ", qualifiedName=" + qualifiedName + "]";
-		// if(this.getStartLine() == null) return "Entity [id=" + id + ", Name=" + name
-		// +", qualifiedName=" + qualifiedName +",class="+this.getClass().toString()+
-		// ",parent="+ parent.qualifiedName+"]"; //+ ", rawName=" + rawName
 		return "Entity [id=" + id + ", Name=" + name + ", qualifiedName=" + qualifiedName + ",class="
 				+ this.getClass().toString() + ",parent=" + parent.qualifiedName + "]" + ",startline="
 				+ location.getStartLine(); // + ", rawName=" + rawName

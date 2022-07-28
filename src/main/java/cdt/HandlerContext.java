@@ -1,5 +1,6 @@
 package cdt;
 import entity.*;
+import relation.Relation;
 import util.Configure;
 import util.Tuple;
 import symtab.*;
@@ -145,19 +146,15 @@ public class HandlerContext {
 				resolveName(namespaceName), currentFileEntity, id, symbol);
 		entityRepo.add(nsEntity);
 		entityStack.push(nsEntity);
-		
-		
 		return nsEntity;
 	}
-	
 
-	
 	/**
 	* @methodsName: foundMethodDeclaratorDeclaration
 	* @param:  String methodName, String returnType, Location location
 	* @return: FunctionEntity
 	*/
-	public FunctionEntity foundFunctionDefine(String name, String returnType, Location location, List<ParameterEntity> parameterList){
+	public FunctionEntity foundFunctionDefine(String name, String returnType, Location location, List<ParameterEntity> parameterList, boolean isDefine){
 		// TODO 需要明确当前的function entity 是哪一个（不需要知道其虚 overload base scope）
 		// TODO 这里的symbol是明确的对应于function entity的作用域， 但是它根据实际情况指向上层作用域或者是Overload base作用域
 		// TODO 需要给定functionEntity一个函数签名
@@ -178,6 +175,7 @@ public class HandlerContext {
 		if(findFunctionID[0] != Configure.NOTFOUNDENTITY){
 			// TODO 情况1 存在完全一致的实体
 			functionEntity = (FunctionEntity) entityRepo.getEntity(findFunctionID[1]);
+			if(isDefine) functionEntity.setLocation(location);
 			if(this.currentScope.getSymbolByKind(functionEntity.getName(), Configure.Function) == null){
 				// TODO 情况1.1 存在完全一致的实体且当前作用域无相同名称实体
 				// TODO 这里需要替换成作用域解析符 处理过后的方法内容 这里直接用了API返回的名字 很有可能是ASTObject::ASTObject这种类型的
@@ -243,7 +241,8 @@ public class HandlerContext {
 			if(this.latestValidContainer() instanceof ClassEntity){
 				((ClassEntity) this.latestValidContainer()).addContainEntity(id);
 			}
-
+			if(!isDefine) this.latestValidContainer().addRelation(
+					new Relation(this.latestValidContainer(), functionEntity, "Declare"));
 			functionEntity.setReturn(returnType);
 			entityRepo.add(functionEntity);
 		}

@@ -65,6 +65,9 @@ public class RelationContext {
 				Relation re = new Relation(entity, toEntity,(String)scopere.getFirst());
 				relationrepo.addRelation(re);				
 			}
+			for(Relation relation :entity.getRelations()) {
+				relationrepo.addRelation(relation);
+			}
 		}
 	}
 	
