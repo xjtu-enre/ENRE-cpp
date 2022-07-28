@@ -1,2 +1,6 @@
 # exclude everything except directory foo/bar
 *.class
+*_node.json
+*_edge.json
+*_out.json
+.DS_Store
