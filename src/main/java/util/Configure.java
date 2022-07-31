@@ -38,10 +38,16 @@ public class Configure {
     private String usageSrcPath;
 
     public void dealWithInputSrcPath() throws IOException{
-        File a = new File(System.getProperty("user.dir"));
-        File parentFolder = new File(a.getParent());
-        File b = new File(parentFolder, this.inputSrcPath);
-        this.inputSrcPath = b.getCanonicalPath(); // may throw IOException
+        System.out.println(this.inputSrcPath);
+        File folder = new File(this.inputSrcPath);
+        if (!folder.exists()) {
+            File a = new File(System.getProperty("user.dir"));
+            File parentFolder = new File(a.getParent());
+            File b = new File(parentFolder, this.inputSrcPath);
+            this.inputSrcPath = b.getCanonicalPath();
+        }else{
+            this.inputSrcPath = folder.getCanonicalPath();
+        }
     }
 
     public String getInputSrcPath() {
