@@ -2,6 +2,7 @@ package util;
 import picocli.CommandLine;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,8 +37,16 @@ public class Configure {
     @CommandLine.Parameters(index = "3", arity = "1", description = "The output path", paramLabel = "outputPath")
     private String usageSrcPath;
 
+    public void dealWithInputSrcPath() throws IOException{
+        File a = new File(System.getProperty("user.dir"));
+        File parentFolder = new File(a.getParent());
+        File b = new File(parentFolder, this.inputSrcPath);
+        this.inputSrcPath = b.getCanonicalPath(); // may throw IOException
+    }
 
-    public String getInputSrcPath(){ return this.inputSrcPath; }
+    public String getInputSrcPath() {
+        return this.inputSrcPath;
+    }
     public String getLang(){ return this.lang; }
     public String getUsageSrcPath() { return this.usageSrcPath; }
     public Set<String> getProgram_environment() { return this.Program_environment; }

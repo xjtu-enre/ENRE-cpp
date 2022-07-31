@@ -59,29 +59,8 @@ public class DataAggregateEntity extends Entity{
 	public boolean getIsSpecializationTemplate() {
 		return this.isTemplate & this.isSpecializationTemplate;
 	}
-	
-	
-	public Scope foundTrueScope(Scope scope, String name) {
-		if(isScopeTrue) return scope;
-		String scopeName = name.split("::")[0];
-		String methodName = name.split("::")[1];
-//		if(scope instanceof GloScopeWithSymtab) {
-//			GloScopeWithSymtab global = (GloScopeWithSymtab)scope;
-//			if(global.getSymtab().contains(methodName)) return global;
-//			for(Scope includeScope:global.getincludeScopeList()) {
-//				Scope includeResult = foundTrueScope(includeScope, scopeName);
-//				if(includeResult!=null && ((GloScopeWithSymtab)includeResult).getSymtab().contains(methodName)) {
-//					return includeResult;
-//				}
-//			}
-//		}
-//		if(scope instanceof LocScopeWithSymtab) {
-//			LocScopeWithSymtab local = (LocScopeWithSymtab)scope;
-//			if(local.getSymtab().contains(methodName)) return local;
-//			return foundTrueScope(local.getEnclosingScope(),name);
-//		}
-		return null;
-	}
+	public void setScope(Scope symbol){this.scope = symbol;}
+
 
 	public void setUsing(String using) {
 		if(using != null) this.usingImport.add(using);

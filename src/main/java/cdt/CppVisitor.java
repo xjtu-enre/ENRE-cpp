@@ -558,8 +558,8 @@ public class CppVisitor extends ASTVisitor {
 									null, context.entityRepo.generateId(),
 									getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
 						}else{
-							System.out.println(parameterDeclaration.getRawSignature());
-							System.err.println("NOT RESOLVE TYPE: " + node.getRawSignature());
+//							System.out.println(parameterDeclaration.getRawSignature());
+//							System.err.println("NOT RESOLVE TYPE: " + node.getRawSignature());
 						}
 					}
 				}

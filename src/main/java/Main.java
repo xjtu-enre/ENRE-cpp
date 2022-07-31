@@ -14,6 +14,7 @@ public class Main {
 		Configure configure = CommandLine.populateCommand(Configure.getConfigureInstance(),args);
 
 		String lang = configure.getLang();
+		configure.dealWithInputSrcPath();
 		String inputDir = configure.getInputSrcPath();
 		String projectName = configure.getProjectName();
 		Set<String> Program_environment = configure.getProgram_environment();
