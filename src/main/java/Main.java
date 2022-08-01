@@ -26,7 +26,7 @@ public class Main {
 			System.out.println("Entity found finish!");
 			processor.dependencyBuild();
 			processor.outputFile(projectName);
-//			System.out.println("Process finish!");
+			System.out.println("Process finish!");
 		}
 		long endTime = System.currentTimeMillis();
 		System.out.println("Consumed time: " + (float) ((endTime - startTime) / 1000.00) + " s,  or "

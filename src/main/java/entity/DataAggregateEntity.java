@@ -60,6 +60,7 @@ public class DataAggregateEntity extends Entity{
 		return this.isTemplate & this.isSpecializationTemplate;
 	}
 	public void setScope(Scope symbol){this.scope = symbol;}
+	public Scope getScope(){return this.scope;}
 
 
 	public void setUsing(String using) {

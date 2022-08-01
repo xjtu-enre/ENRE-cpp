@@ -92,6 +92,7 @@ public class HandlerContext {
 				if(scope.getSymbol(name) != null){
 					if(i == names.length - 1){
 						FunctionSymbol symbol = (FunctionSymbol)scope.getSymbolByKind(name, Configure.Function);
+						if(symbol == null) continue;
 						if(symbol.isOverload()){
 							for(Integer id:symbol.getOverload_list()){
 								FunctionEntity getEntity = (FunctionEntity) entityRepo.getEntity(id);
@@ -179,7 +180,7 @@ public class HandlerContext {
 			if(this.currentScope.getSymbolByKind(functionEntity.getName(), Configure.Function) == null){
 				// TODO 情况1.1 存在完全一致的实体且当前作用域无相同名称实体
 				// TODO 这里需要替换成作用域解析符 处理过后的方法内容 这里直接用了API返回的名字 很有可能是ASTObject::ASTObject这种类型的
-				symbol = new FunctionSymbol(name, findFunctionID[1]);
+				symbol = new FunctionSymbol(functionEntity.getName(), findFunctionID[1]);
 				this.currentScope.define(symbol, Configure.Function);
 			}else{
 				// TODO 情况1.2 存在完全一致的实体 当前作用域内存在相同名称的函数，检测是否为Overload基类
@@ -187,11 +188,11 @@ public class HandlerContext {
 				if(functionSymbol.isBaseOverload()){
 					// TODO 情况1.2.1 存在完全一致的实体 当前作用域内存在相同名称的函数, 是Overload基类
 					// TODO 检查是否有完全一致的函数实体存在
-					for(int overloadID:functionSymbol.getOverload_list()){
-						if(overloadID == findFunctionID[1]){
-							// TODO 存在完全一致的实体 需要使用该作用域
-							symbol = (FunctionSymbol) functionSymbol.getSymbolByKind(functionEntity.getNameWithSignature(), Configure.Function);
-						}
+					symbol = (FunctionSymbol) functionSymbol.getSymbolByKind(functionEntity.getNameWithSignature(), Configure.Function);
+					if(symbol == null){
+						symbol = new FunctionSymbol(functionEntity.getNameWithSignature(), findFunctionID[1]);
+						functionSymbol.define(symbol, Configure.Function);
+						functionSymbol.addOverload(findFunctionID[1]);
 					}
 				}else{
 					// TODO 情况1.2.2 存在完全一致的实体 当前作用域内存在相同名称的函数, 非overload基类，检测是否为同一个函数
@@ -206,15 +207,26 @@ public class HandlerContext {
 						// TODO 需要在出栈的时候确定一下 是否为baseOverload，
 						// TODO baseOverload function和Overload function可以被视作是一个整体 绑定起来
 						functionSymbol.setBaseOverload();
+						if(entityRepo.getEntity(functionSymbol.getEntityID()) instanceof FunctionEntity){
+							FunctionEntity baseOverload = (FunctionEntity)(entityRepo.getEntity((functionSymbol.getEntityID())));
+							FunctionSymbol baseOverloadSymbol = new FunctionSymbol(baseOverload.getNameWithSignature(),
+									baseOverload.getId());
+							functionSymbol.define(baseOverloadSymbol, Configure.Function);
+							baseOverload.setScope(baseOverloadSymbol);
+						}
 						symbol = new FunctionSymbol(functionEntity.getNameWithSignature(), findFunctionID[1]);
 						symbol.setOverload();
-						functionSymbol.define(symbol, Configure.Function);
-						functionSymbol.addOverload(findFunctionID[1]);
+						if(functionSymbol.getSymbolByKind(symbol.getName(), Configure.Function) == null){
+							functionSymbol.define(symbol, Configure.Function);
+							functionSymbol.addOverload(findFunctionID[1]);
+						}else{
+							symbol = (FunctionSymbol) functionSymbol.getSymbolByKind(symbol.getName(), Configure.Function);
+						}
 					}
 				}
 			}
-
-		}else{
+		}
+		else{
 			// 不存在已被声明过的函数实体
 			int id = entityRepo.generateId();
 			symbol = new FunctionSymbol(name, id);
@@ -232,10 +244,21 @@ public class HandlerContext {
 				FunctionSymbol functionSymbol = (FunctionSymbol) this.currentScope.getSymbolByKind(functionEntity.getName(), Configure.Function);
 				if(!functionSymbol.isBaseOverload()){
 					functionSymbol.setBaseOverload();
+					if(entityRepo.getEntity(functionSymbol.getEntityID()) instanceof FunctionEntity){
+						FunctionEntity baseOverload = (FunctionEntity)(entityRepo.getEntity((functionSymbol.getEntityID())));
+						FunctionSymbol baseOverloadSymbol = new FunctionSymbol(baseOverload.getNameWithSignature(),
+								baseOverload.getId());
+						functionSymbol.define(baseOverloadSymbol, Configure.Function);
+						baseOverload.setScope(baseOverloadSymbol);
+					}
 				}
 				symbol = new FunctionSymbol(functionEntity.getNameWithSignature(), findFunctionID[1]);
 				symbol.setOverload();
-				functionSymbol.define(symbol, Configure.Function);
+				if(functionSymbol.getSymbolByKind(symbol.getName(), Configure.Function) == null){
+					functionSymbol.define(symbol, Configure.Function);
+				}else{
+					symbol = (FunctionSymbol) functionSymbol.getSymbolByKind(symbol.getName(), Configure.Function);
+				}
 				functionSymbol.addOverload(id);
 			}
 			if(this.latestValidContainer() instanceof ClassEntity){
@@ -710,8 +733,9 @@ public class HandlerContext {
 	* @return: void
 	*/
 	private void pushScope(Scope s) {
-//		if(s != null) System.out.println("push scope: " + s.getClass().toString() + " " + s.getName()+ " in " +this.currentFileEntity.getQualifiedName());
-		this.currentScope = s;
+		if(s != null){
+			this.currentScope = s;
+		}
 	}
 	
 	
@@ -731,7 +755,7 @@ public class HandlerContext {
 		}
 	}
 	
-	public void showASTNode(IASTNode node,int i) {
+	public void showASTNode(IASTNode node, int i) {
 		if(node.getChildren()==null) {
 			return;
 		}

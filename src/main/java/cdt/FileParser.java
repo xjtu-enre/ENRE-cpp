@@ -44,6 +44,7 @@ public class FileParser {
 	 * @throws:
 	 */
 	public void parse( ) throws Exception {
+		System.out.println("Parse file path: " + this.filepath);
 		if(exitFile(filepath)) {
 			if(isFileParse(filepath)) {
 				return ;

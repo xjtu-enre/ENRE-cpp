@@ -467,12 +467,10 @@ public class CppVisitor extends ASTVisitor {
 
 	@Override
 	public int leave(IASTDeclaration declaration) {
-
 		if (declaration instanceof IASTSimpleDeclaration) {
 			IASTSimpleDeclaration simpleDeclaration = (IASTSimpleDeclaration) declaration;
 			IASTDeclSpecifier declSpec = simpleDeclaration.getDeclSpecifier();
 			if (declSpec instanceof CPPASTCompositeTypeSpecifier) {
-
 				int type = ((CPPASTCompositeTypeSpecifier) declSpec).getKey();
 				if (type == 1 || type == 2 || type == 3) {
 					context.popScope();

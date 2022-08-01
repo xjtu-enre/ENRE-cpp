@@ -37,12 +37,12 @@
             <artifactId>json</artifactId>
             <version>20210307</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.github.mhoffrog.attached/org.eclipse.cdt.core -->
-        <dependency>
-            <groupId>com.github.mhoffrog.attached</groupId>
-            <artifactId>org.eclipse.cdt.core</artifactId>
-            <version>5.11.0</version>
-        </dependency>
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.github.mhoffrog.attached/org.eclipse.cdt.core &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.github.mhoffrog.attached</groupId>-->
+<!--            <artifactId>org.eclipse.cdt.core</artifactId>-->
+<!--            <version>5.11.0</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
