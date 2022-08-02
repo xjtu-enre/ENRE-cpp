@@ -31,7 +31,7 @@ public class HandlerContext {
 	* @return: FileEntity
 	*/
 	public FileEntity makeFile(String filefullpath) {
-		String[] name = filefullpath.split(File.separator);
+		String[] name = filefullpath.split("[/|\\\\]");
 		GlobalScope scope = new GlobalScope(null);
 		currentFileEntity = new FileEntity(name[name.length-1], filefullpath, 
 				null, entityRepo.generateId(),filefullpath, scope, new Location(filefullpath));
