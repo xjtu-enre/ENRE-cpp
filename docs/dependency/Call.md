@@ -1,16 +1,25 @@
-# Call
+## Relation: Call
+
+Descriptions: `Call Relation` can be from 'File', 'Namespace', 'Function', 'Struct', 'Template',  'Class' entity and terminate at 'Function', 'Parameter',  'Object', 'Template', 'Class' entity.
 
 
-## Supported pattern
+### Supported Patterns 
+
 ```yaml
-name: Call Declaration
+name: Call
 ```
-### Syntax: 
-Call dependency can be from 'File', 'Namespace', 'Function', 'Struct', 'Template',  'Class' entity and terminate at 'Function', 'Parameter',  'Object', 'Template', 'Class' entity.
 
-#### Examples: 
+#### Syntax: Call declaration
 
-- Example1
+```text
+CallDeclaration :
+    postfix-expression ( argument-expression-list opt )
+```
+
+##### Examples
+
+###### Function Call
+
 ```cpp
 void run_benchmark() {}
 void epoll(){
@@ -22,33 +31,23 @@ void epoll(){
 name: Function Call
 entity:
     items:
-        -   id: 0
-            name: epoll
+        -   name: epoll
             loc: [ 1, 6 ]
-            category: Function
-        -   id: 1
-            name: run_benchmark
+            type: Function
+        -   name: run_benchmark
             loc: [ 4, 6 ]
-            category: Function
+            type: Function
 relation:
     items:
-        -   category: Call
-            src: 0
-            dest: 1
-            r:
-                d: .
-                e: .
-                s: .
-                u: .
+        -   from: Function:'epoll'
+            to: Function:'run_benchmark'
+            loc: file0:3:5
+            type: Call
 ```
 
-
-### Syntax: Deref Call
+###### Deref Call
 If an object can deref as a function, there maybe a deref call.
 
-#### Examples: 
-
-- Example2
 ```cpp
 void run_benchmark(void (*setup)(void*), void* data) {
     int i;
@@ -64,27 +63,21 @@ void run_benchmark(void (*setup)(void*), void* data) {
 name: Function Deref Call
 entity:
     items:
-        -   id: 0
-            name: run_benchmark
+        -   name: run_benchmark
             loc: [ 0, 11 ]
-            category: Function
-        -   id: 1
-            name: setup
+            type: Function
+        -   name: setup
             loc: [ 1, 15 ]
-            category: Object
+            type: Object
 relation:
     items:
-        -   category: Deref Call
-            src: 0
-            dest: 1
-            r:
-                d: x
-                e: x
-                s: x
-                u: x
+        -   from: Function:run_benchmark
+            to: Object:setup
+            loc: file0:5:13
+            type: Call
 ```
 
-- Example3
+###### Function Continuous Call
 ```cpp
 int funcA(){
     return -1;
@@ -95,77 +88,57 @@ int funcB(int i){
 void run_benchmark(){
     funcB(funcA());
 }
-    
 ```
 
 ```yaml
 name: Function Continuous Call
 entity:
-    items:
-        -   id: 0
-            name: funcA
-            category: Function
-        -   id: 1
-            name: funcB
-            category: Function
-        -   id: 2
-            name: run_benchmark
-            category: Function
+  items:
+    -   name: funcA
+        type: Function
+    -   name: funcB
+        type: Function
+    -   name: run_benchmark
+        type: Function
 relation:
-    items:
-        -   category: Call
-            src: 2
-            dest: 1
-            r:
-                d: .
-                e: .
-                s: .
-                u: .
-        -   category: Call
-            src: 2
-            dest: 0
-            r:
-                d: .
-                e: .
-                s: .
-                u: .
+  items:
+    -   from: Function:funcB
+        to: Function:funcA
+        loc: file0:8:11
+        type: Call
+    -   from: Function:run_benchmark
+        to: Function:funcB
+        loc: file0:8:5
+        type: Call
 ```
 
 
+###### Function Extern Call
 
-- Example4
 ```cpp
 extern int func1(void);
 int func() {
     func1();
 }
-    
 ```
 
 ```yaml
 name: Function Extern Call
 entity:
-    items:
-        -   id: 0
-            name: func1
-            category: Function
-        -   id: 1
-            name: func
-            category: Function
+  items:
+    -   name: func1
+        type: Function
+    -   name: func
+        type: Function
 relation:
-    items:
-        -   category: Call
-            src: 1
-            dest: 0
-            r:
-                d: .
-                e: .
-                s: .
-                u: .
+  items:
+    -   from: Function:func
+        to: Function:func1
+        loc: file0:3:5
+        type: Call
 ```
 
-
-- Example5
+###### Call Class Method Call
 ```cpp
 class A{
 public:
@@ -180,29 +153,21 @@ int main(){
 ```
 
 ```yaml
-name: Call Class Method
+name: Call Class Method Call
 entity:
     items:
-        -   id: 0
-            name: A
-            category: Class
-        -   id: 1
-            name: A::func
-            category: Function
-        -   id: 2
-            name: main
-            category: Function
-        -   id: 3
-            name: main::test
-            category: Variable
+        -   name: A
+            type: Class
+        -   name: A::func
+            type: Function
+        -   name: main
+            type: Function
+        -   name: main::test
+            type: Variable
 relation:
     items:
-        -   category: Call
-            src: 1
-            dest: 2
-            r:
-                d: .
-                e: .
-                s: .
-                u: .
+      -   from: Function:main
+          to: Function:func
+          loc: file0:9:10
+          type: Call
 ```
