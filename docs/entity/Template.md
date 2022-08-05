@@ -1,64 +1,49 @@
-# Template
+## Entity: Template
 
-## Supported pattern
+Description: `Template Entity` is the basis for generic programming in C++. Templates enable to define the operations of a class or function, and let the user specify what concrete types those operations should work on.
+
+### Supported Patterns
+
 ```yaml
-name: Template Declaration
+name: Template
 ```
-### Syntax
+
+#### Syntax:Template Declaration
 ```text
 template < parameter-list > requires-clause(optional) declaration	(1)	
 export template < parameter-list > declaration	(2)	(until C++11)
 template < parameter-list > concept concept-name = constraint-expression ;	(3)	(since C++20)
 ```
+##### Examples
 
-
-#### Examples: 
-
-- Example1
+###### Class Template
 
 ```cpp
-    template<C1 T>
-    class S1 {};
+template<typename T>
+class S{};
 ```
 
 ```yaml
     name: Class Template
     entity:
         items:
-            -   name: S1
-                loc: [ 1, 7 ]
-                category: Template
-                r:
-                    d: Type
-                    e: .
-                    s: Class
-                    u: .
+            -   name: S
+                loc: 2:7:2:7
+                type: Class Template
 ```
 
-- Example2
+###### Struct Template
 ```cpp
-    template<typename T>
-    struct A{
-        void f() {}
-    };
+template<typename T>
+struct S{};
 ```
 
 ```yaml
     name: Struct Template
     entity:
         items:
-            -   name: A
-                loc: [ 1, 7 ]
-                category: Template
-                r:
-                    d: Type
-                    e: .
-                    s: xStruct
-                    u: .
+            -   name: S
+                loc: 2:8:2:8
+                type: Struct Template
 ```
-
-# Reference
-- https://en.cppreference.com/w/cpp/language/templates
-- https://en.cppreference.com/w/cpp/language/class_template
-- https://en.cppreference.com/w/cpp/language/function_template
 

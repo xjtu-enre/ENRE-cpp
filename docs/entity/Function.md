@@ -1,44 +1,18 @@
-# Function
+## Entity: Function
 
-## Supported pattern
+Description: A `Function Entity` is a block of code that performs some operation. A function can optionally define input parameters that enable callers to pass arguments into the function. A function can optionally return a value as output.
+
+### Supported Patterns
+
 ```yaml
-name: FunctionDeclaration
+name: Function
 ```
-### Syntax
+#### Syntax:Function Declaration
+
 ```text
 noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) attr(optional)	(1)	
 noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) attr(optional) -> trailing	(2)	(since C++11)
-```
 
-
-#### Examples: 
-
-- Example1
-```cpp
-    int max(int a, int b, int c)
-    {
-        int m = (a > b) ? a : b;
-        return (m > c) ? m : c;
-    }
-```
-
-```yaml
-    name: Function
-    entity:
-        items:
-            -   name: max
-                loc: [ 1, 7 ]
-                category: Function
-                r:
-                    d: FunctionImpl
-                    e: .
-                    s: .
-                    u: .
-```
-
-
-### Syntax
-```text
 [ captures ] ( params ) specs requires(optional) { body }	(1)	
 [ captures ] { body }	(2)	(until C++23)
 [ captures ] specs { body }	(2)	(since C++23)
@@ -46,53 +20,56 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
 [ captures ] < tparams > requires(optional) { body }	(4)	(since C++20)
 (until C++23)
 [ captures ] < tparams > requires(optional) specs { body }	(4)	(since C++23)
+
 ```
 
-### Syntax
-```text
-operator op	(1)	
-operator type	(2)	
-```
+##### Examples
 
-
-#### Examples: 
-
-- Example1
+###### Function
 ```cpp
-    struct Linear {
-        double a, b;
- 
-        double operator()(double x) const {
-            return a*x + b;
-        }
-    };
+int func(){
+    return 0;
+}
+```
+
+```yaml
+name: Function
+entity:
+  items:
+      -   name: func
+          loc: 1:5:1:8
+          type: Function
+```
+
+###### Struct Method
+```cpp
+struct Linear {
+    int func() {
+        return 0;
+    }
+};
 ```
 
 ```yaml
     name: Struct Method
     entity:
         items:
-            -   name: operator()
-                loc: [ 1, 7 ]
-                category: Function
-                r:
-                    d: FunctionImpl
-                    e: .
-                    s: public method
-                    u: Public Const Function
+            -   name: func
+                loc: 2:9:9:12
+                type: Function
 ```
 
-- Example2
+###### Overload Function
 ```cpp
-    int overloadFunction(){
-        /* empty */
-    }
-    int overloadFunction(int i){
-         /* empty */
-    }
-    int overloadFunction(char i){
-         /* empty */
-    }
+int overloadFunction(){
+    /* empty */
+}
+int overloadFunction(int i){
+    /* empty */
+}
+int overloadFunction(char i){
+    /* empty */
+}
 ```
 
 ```yaml
@@ -100,19 +77,22 @@ operator type	(2)
     entity:
         items:
             -   name: overloadFunction
-                category: Function
+                type: Function
+                loc: 1:5:1:20
             -   name: overloadFunction
-                category: Function
+                type: Function
+                loc: 4:5:4:20
             -   name: overloadFunction
-                category: Function
+                type: Function
+                loc: 7:5:7:20
 ```
 
-- Example3
-- 'const' didn't 
+###### Overload Function Declaration
+
 ```cpp
-    int overloadFunction();
-    int overloadFunction(int i);
-    int overloadFunction(const int i);
+int overloadFunction();
+int overloadFunction(int i);
+int overloadFunction(const int i);
 ```
 
 ```yaml
@@ -120,12 +100,14 @@ operator type	(2)
     entity:
         items:
             -   name: overloadFunction
-                category: Function
+                type: Function
+                loc: 1:5:1:20
             -   name: overloadFunction
-                category: Function
+                type: Function
+                loc: 2:5:2:20
 ```
 
-- Example4
+###### Overload Class Method
 ```cpp
 class foo{
 public:
@@ -140,15 +122,12 @@ public:
     entity:
         items:
             -   name: foo::overloadFunction
-                category: Method
+                type: Method
+                loc: 3:9:3:24
             -   name: foo::overloadFunction
-                category: Method
+                type: Method
+                loc: 4:9:4:24
             -   name: foo::overloadFunction
-                category: Method
+                type: Method
+                loc: 5:9:5:24
 ```
-
-# Reference
-- https://en.cppreference.com/w/cpp/language/operators
-- https://en.cppreference.com/w/cpp/language/lambda
-- https://en.cppreference.com/w/cpp/language/function
-- https://en.cppreference.com/w/cpp/language/functions

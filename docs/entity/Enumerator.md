@@ -1,21 +1,23 @@
-# Classes
+## Entity:  Enumerator
 
-## Supported pattern
+Description: Enumeration consist of a set of named integral constants that are known as `enumerators`.
+
+### Supported Patterns
+
 ```yaml
-name: Enumerator Declaration
+name: Enumerator 
 ```
-### Syntax
+#### Syntax: Enumerator Declaration
+
 ```text
 enum-key attr(optional) enum-head-name(optional) enum-base(optional) {enumerator-list(optional)	(1)	
 enum-key attr(optional) enum-head-name enum-base(optional) ;	(2)	
-```
 enum-key can be one of enum, enum class, or enum struct (since C++11).
+```
 
+##### Examples
 
-
-#### Examples: 
-
-- Example1: 
+###### Enumerator
 
 ```cpp
     enum Color { 
@@ -30,27 +32,12 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
     entity:
         items:
             -   name: Color
-                loc: [ 1, 7 ]
-                category: Enum
-                r:
-                    d: Type
-                    e: .
-                    s: .
-                    u: .
+                loc: 1:10:1:14
+                type: Enum
             -   name: Color::red
-                loc: [ 1, 7 ]
-                category: Enumerator
-                r:
-                    d: Var
-                    e: .
-                    s: enum constant
-                    u: .
+                loc: 2:9:2:11
+                type: Enumerator
             -   name: Color::green
-                loc: [ 1, 7 ]
-                category: Enumerator
-                r:
-                    d: Var
-                    e: .
-                    s: enum constant
-                    u: .
+                loc: 2:9:2:12
+                type: Enumerator
 ```

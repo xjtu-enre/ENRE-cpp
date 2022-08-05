@@ -1,5 +1,5 @@
 ## Relation: Extend
-Descriptions:
+Descriptions: New classes can be derived from existing classes using a mechanism called `Inheritance/Extend Relation`. Classes that are used for derivation are called `base classes` of a particular derived class. 
 
 ### Supported Patterns
 ```yaml

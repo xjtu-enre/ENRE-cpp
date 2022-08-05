@@ -1,7 +1,6 @@
 ## Relation: Call
 
-Descriptions: `Call Relation` can be from 'File', 'Namespace', 'Function', 'Struct', 'Template',  'Class' entity and terminate at 'Function', 'Parameter',  'Object', 'Template', 'Class' entity.
-
+Descriptions: `Call Relation` is a kind of postfix-expression, formed by an expression that evaluates to a function or callable object followed by the function-call operator, ().
 
 ### Supported Patterns 
 

@@ -1,6 +1,5 @@
 ## Relation: Use
-Descriptions: `Use Relation` can be divided into following kinds:
-A Use dependency indicates a reference in an active region of code to a known C/C++ variable.
+Descriptions: A `Use Relation`indicates a reference in an active region of code to a known C/C++ variable.
 
 ### Supported Patterns
 ```yaml

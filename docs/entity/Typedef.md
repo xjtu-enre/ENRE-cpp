@@ -1,22 +1,22 @@
-# Typedef
+## Entity: Typedef
 
-## Supported pattern
+Description: A `Typedef Entity` introduces a name that, within its scope, becomes a synonym for the type given by the type-declaration portion of the declaration.
+
+### Supported Patterns
+
 ```yaml
-name: Typedef Declaration
+name: Typedef
 ```
-### Syntax
+
+#### Syntax: Typedef Declaration
 ```text
 typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;	
 ```
+##### Examples
 
-
-#### Examples: 
-
-- Example1
+###### typedef built-in type
 ```cpp
-    typedef int int_t;
-    typedef int A[]; 
-    A a = {1, 2}, b = {3,4,5}; 
+typedef int int_t;
 ```
 
 ```yaml
@@ -24,37 +24,21 @@ typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;
     entity:
         items:
             -   name: int_t
-                loc: [ 1, 7 ]
-                category:  Typedef
-                r:
-                    d: Alias
-                    e: .
-                    s: .
-                    u: .
+                loc: 1:13:1:17
+                type:  Typedef
 ```
 
-- Example2
+###### struct typdef 
 ```cpp
-    typedef struct { double hi, lo; } range;
-    range z, *zp;
+typedef struct{ double hi, lo; } range;
 ```
 
 ```yaml
     name: typedef struct
     entity:
         items:
-            -   name:  range
-                category: typedef
-                loc: [ 1, 7 ]
-                r:
-                    d: Alias
-                    e: .
-                    s: xStruct
-                    u: .
+            -   name: range
+                type: typedef
+                loc: 1:34:1:38
 ```
-
-# Reference
-- https://en.cppreference.com/w/cpp/language/typedef
-- https://en.cppreference.com/w/c/language/typedef
-- https://en.cppreference.com/w/c/language/declarations
 

@@ -1,10 +1,13 @@
-# Namespace
+## Entity: Namespace
 
-## Supported pattern
+Description: A `Namespace Entity` is a declarative region that provides a scope to the identifiers (the names of types, functions, variables, etc) inside it. Namespaces are used to organize code into logical groups and to prevent name collisions that can occur especially when your code base includes multiple libraries.
+
+### Supported Patterns
+
 ```yaml
-name: Namespace Declaration
+name: Namespace
 ```
-### Syntax
+#### Syntax: Namespace Declaration
 ```text
 namespace ns-name { declarations }	(1)	
 inline namespace ns-name { declarations }	(2)	(since C++11)
@@ -17,57 +20,34 @@ namespace ns-name :: member-name { declarations }	(8)	(since C++17)
 namespace ns-name :: inline member-name { declarations }	(9)	(since C++20)
 ```
 
+##### Examples
 
-#### Examples: 
-
-- Example1
+###### Namespace
 ```cpp
-    namespace Lib
-    {
-        inline namespace Lib_1
-        {
-            template <typename T> class A; 
-        }
-        template <typename T> void g(T) { /* ... */ }
-    }
+namespace ns{}
 ```
 
 ```yaml
     name: Namespace
     entity:
         items:
-            -   name: Lib
-                loc: [ 1, 7 ]
-                category: Namespace
-                r:
-                    d: Package
-                    e: .
-                    s: .
-                    u: .
+            -   name: ns
+                loc: 1:11:1:12
+                type: Namespace
 ```
 
-- Example2
+###### Unnamed Namespace
 ```cpp
-    namespace
-    {
-        int i; 
-    }
+namespace{
+    int i; 
+}
 ```
 
 ```yaml
     name: Unnamed Namespace
     entity:
         items:
-            -   name: [unnamed namespace]
-                loc: [ 1, 7 ]
-                category: Namespace
-                r:
-                    d: Package
-                    e: x
-                    s: anonymous namespace
-                    u: .
+            -   name: (unnamed namespace)
+                loc: 1:0:1:0
+                type: Namespace
 ```
-
-# Reference
-- https://en.cppreference.com/w/cpp/language/namespace
-

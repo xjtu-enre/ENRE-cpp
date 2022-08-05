@@ -1,5 +1,6 @@
 ## Relation: Define
-Descriptions:
+
+Descriptions: `Define Relation` occurs when a  `data aggregation entity` defines its internal entities.
 
 ### Supported patterns
 

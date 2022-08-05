@@ -1,5 +1,5 @@
 ## Include
-Descriptions:
+Descriptions: `Include Relation` means include other source file into current source file at the line immediately after the directive.
 
 ### Supported Patterns
 ```yaml

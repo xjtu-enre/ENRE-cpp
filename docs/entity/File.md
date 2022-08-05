@@ -1,27 +1,30 @@
-# Classes
+## Entity:  File
 
-## Supported pattern
+Description: A `File Entity` is mostly a source file.
+
+### Supported Patterns
+
 ```yaml
-name: FileDeclaration
+name: File
 ```
+
+#### Syntax: File Declaration
+
+```text
 .h,.cpp,.cxx etc
+```
 
-#### Examples: 
+##### Examples
 
-- Example1:
+###### File
 ```cpp
-file.cpp
+// file.cpp
 ```
 ```yaml
     name: File
     entity:
         items:
             -   name: filename.cpp
-                loc: [ -1, -1 ]
-                category: File
-                r:
-                    d: .
-                    e: .
-                    s: .
-                    u: .
+                loc: -1:-1:-1:-1
+                type: File
 ```

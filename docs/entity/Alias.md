@@ -1,18 +1,30 @@
-# Alias
+## Entity: Alias
 
-## Supported pattern
+Description: `Alias` is a name that refers to a previously defined type (similar to typedef) or a family of types.
+
+### Supported Patterns
+
 ```yaml
-name: AliasDeclaration
+name: Alias 
 ```
-### Syntax: Type alias(since C++11)
+#### Syntax: Alias Declaration
+
 ```text
+(1) using alias
 using identifier attr(optional) = type-id;
+(2) template alias 
+template < template-parameter-list >
+using identifier attr(optional) = type-id ;
+(3) namespace alias
+namespace alias_name = ns_name;	(1)	
+namespace alias_name = ::ns_name;	(2)	
+namespace alias_name = nested_name::ns_name;	(3)
+
 ```
-Type alias is a name that refers to a previously defined type (similar to typedef).
 
-#### Examples: 
+##### Examples
 
-- Example:
+###### Using Alias
 ```cpp
 namespace base{
     namespace flags{
@@ -25,64 +37,28 @@ using flags = base::flags::child;
 
 ```yaml
 name: Using Alias
-entitiy:
-    filter: Alias
-    r:
-        d: .
-        e: o/nameError
-        s: x
-        u: Namespace Alias
+entity:
     items:
         -   name: flags
-            loc: [ 1, 7 ]
-            category: Alias
+            loc: 7:7:7:11
+            type: Alias
 ```
-
-### Syntax: alias template(since C++11)
-```text
-template < template-parameter-list >
-using identifier attr(optional) = type-id ;
-```
-Alias template is a name that refers to a family of types.
-#### Examples: 
-
-- Example:
+###### alias template(since C++11)
 ```cpp
 template<class T>
 using ptr = T*; 
-ptr<int> x;
 ```
 
 ```yaml
 name: Template Alias
 entity:
-    filter: Alias
-    r:
-        d: .
-        e: o/nameError
-        s: xtypedef
-        u: Type Alias Template
     items:
         -   name: ptr
-            loc: [ 1, 7 ]
-            category: Alias Template
+            loc: 2:7:2:9
+            type: Alias Template
 ```
 
-### Syntax: Namespace aliases
-
-
-
-```text
-namespace alias_name = ns_name;	(1)	
-namespace alias_name = ::ns_name;	(2)	
-namespace alias_name = nested_name::ns_name;	(3)
-```
-
-alias_name must be a name not previously used. alias_name is valid for the duration of the scope in which it is introduced.
-
-#### Examples: 
-
-- Example:
+###### Namespace aliases
 ```cpp
 namespace foo {
     namespace bar {
@@ -97,36 +73,20 @@ namespace fbz = foo::bar::baz;
 ```yaml
 name: Namespace Alias
 entity:
-    filter: Namespace Alias
-    r:
-        d: Package
-        e: .
-        s: .
-        u: .
     items:
         -   name: foo
-            loc: [ 0, 11 ]
-            category: Namespace
+            loc: 1:11:1:13
+            type: Namespace
         -   name: foo::bar
-            loc: [ 1, 15 ]
-            category: Namespace
+            loc: 2:15:2:17
+            type: Namespace
         -   name: foo::bar::baz
-            loc: [ 2, 20 ]
-            category: Namespace
+            loc: 3:20:3:22
+            type: Namespace
         -   name: foo::bar::baz::qux
-            loc: [ 3, 18 ]
-            category: Variable
-            r:
-                d: Var
-                e: .
-                s: global varibale
-                u: Object
+            loc: 4:18:4:20
+            type: Variable
         -   name: fbz
-            loc: [ 7, 11 ]
-            category: Namespace Alias
-            r:
-              d: Alias
-              e: .
-              s: xNamespace
-              u: .
+            loc: 8:11:8:13
+            type: Namespace Alias
 ```

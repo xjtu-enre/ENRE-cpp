@@ -1,15 +1,14 @@
-# Object
+## Entity: Object
 
-## Supported pattern
+Description: `Object Entity` can be explicitly created by definitions, new-expressions, throw-expressions, changing the active member of a union and evaluating expressions that require temporary objects. The created object is uniquely defined in explicit object creation.
+### Supported Patterns
+
 ```yaml
-name: Object Declaration
+name: Object
 ```
-### Syntax
-Objects can be explicitly created by definitions, new-expressions, throw-expressions, changing the active member of a union and evaluating expressions that require temporary objects. The created object is uniquely defined in explicit object creation.
 
-Objects of implicit-lifetime types can also be implicitly created by
-
-- operations that begin lifetime of an array of type char, unsigned char, or std::byte, (since C++17) in which case such objects are created in the array,
+#### Syntax: Object Declaration
+```text
 - call to following allocating functions, in which case such objects are created in the allocated storage:
   - operator new
   - operator new[]
@@ -21,39 +20,28 @@ Objects of implicit-lifetime types can also be implicitly created by
   - std::memcpy
   - std::memmove
   - std::bit_cast(since C++20)
+```
 
+##### Examples
 
-
-#### Examples: 
-
-- Example1
+###### Point Variable
 ```cpp
-    struct X { int a, b; };
-    X *MakeX()
-    {
-        X *p = static_cast<X*>(std::malloc(sizeof(X)));
-        p->a = 1;
-        p->b = 2;
-        return p;
-    }
+int a = 0;
+int *p = &a;
 ```
 
 ```yaml
-    name: Variable 1
+    name: Point Variable
     entity:
         items:
             -   name: p
-                category: Variable
-                r:
-                    d: Type
-                    e: .
-                    s: x
-                    u: Local Object
+                type: Variable
+                loc: 2:6:2:6
 ```
 
-- Example2
+###### Variable
 ```cpp
-    int x;
+int x;
 ```
 
 ```yaml
@@ -61,14 +49,7 @@ Objects of implicit-lifetime types can also be implicitly created by
     entity:
         items:
             -   name: x
-                category: Variable
-                r:
-                    d: Var
-                    e: .
-                    s: Global Variable
-                    u: Global Object
+                type: Variable
+                loc: 1:5:1:5
 ```
-
-# Reference
-- https://en.cppreference.com/w/cpp/language/object
 
