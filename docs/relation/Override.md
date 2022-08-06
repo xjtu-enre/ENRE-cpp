@@ -27,7 +27,7 @@ name: Override
 relation:
     items:
         -   type: Override
-            from: Function:func
-            to: Function:func
+            from: Function:'func'
+            to: Function:'func'
             loc: file0:5:18
 ```

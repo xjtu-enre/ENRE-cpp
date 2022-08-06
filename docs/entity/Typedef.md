@@ -25,7 +25,7 @@ typedef int int_t;
         items:
             -   name: int_t
                 loc: 1:13:1:17
-                type:  Typedef
+                type: Typedef
 ```
 
 ###### struct typdef 
@@ -38,7 +38,7 @@ typedef struct{ double hi, lo; } range;
     entity:
         items:
             -   name: range
-                type: typedef
+                type: Typedef
                 loc: 1:34:1:38
 ```
 

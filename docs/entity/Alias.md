@@ -74,18 +74,6 @@ namespace fbz = foo::bar::baz;
 name: Namespace Alias
 entity:
     items:
-        -   name: foo
-            loc: 1:11:1:13
-            type: Namespace
-        -   name: foo::bar
-            loc: 2:15:2:17
-            type: Namespace
-        -   name: foo::bar::baz
-            loc: 3:20:3:22
-            type: Namespace
-        -   name: foo::bar::baz::qux
-            loc: 4:18:4:20
-            type: Variable
         -   name: fbz
             loc: 8:11:8:13
             type: Namespace Alias

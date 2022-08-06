@@ -29,11 +29,11 @@ name: Struct Extend
 relation:
     type: Extend
     items:
-        -   from: Struct:Derived
-            to: Struct:Base
+        -   from: Struct:'Derived'
+            to: Struct:'Base'
             loc: file0:4:19
-        -   from: Struct:Derived2
-            to: Struct:Derived
+        -   from: Struct:'Derived2'
+            to: Struct:'Derived'
             loc: file0:7:19
 ```
 
@@ -52,10 +52,10 @@ name: Multi Extend
 relation:
   type: Extend
   items:
-    -   from: Class:CollectionOfBook
-        to: Class:Book
+    -   from: Class:'CollectionOfBook'
+        to: Class:'Book'
         loc: file0:3:7
-    -   from: Class:CollectionOfBook
-        to: Class:Collection
+    -   from: Class:'CollectionOfBook'
+        to: Class:'Collection'
         loc: file0:3:7
 ```

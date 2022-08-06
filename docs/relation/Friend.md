@@ -40,11 +40,11 @@ name: Friend Function
 relation:
     type: Friend
     items:
-        -   from: Class:classC
-            to: Function:funcA
+        -   from: Class:'classC'
+            to: Function:'funcA'
             loc: file0:9:17
-        -   from: Class:classC
-            to: Class:classB
+        -   from: Class:'classC'
+            to: Class:'classB'
             loc: file0:10:12
 ```
 
@@ -63,8 +63,8 @@ name: Friend Class
 relation:
     type: Friend
     items:
-        -   from: Class:X
-            to: Template Class:A
+        -   from: Class:'X'
+            to: Template:'A'
             loc: file0:4:18
 
 ```

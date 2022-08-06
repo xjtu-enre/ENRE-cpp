@@ -8,7 +8,7 @@ Description: `Template Entity` is the basis for generic programming in C++. Temp
 name: Template
 ```
 
-#### Syntax:Template Declaration
+#### Syntax: Template Declaration
 ```text
 template < parameter-list > requires-clause(optional) declaration	(1)	
 export template < parameter-list > declaration	(2)	(until C++11)
@@ -29,7 +29,8 @@ class S{};
         items:
             -   name: S
                 loc: 2:7:2:7
-                type: Class Template
+                kind: Class Template
+                type: Template
 ```
 
 ###### Struct Template
@@ -44,6 +45,7 @@ struct S{};
         items:
             -   name: S
                 loc: 2:8:2:8
-                type: Struct Template
+                kind: Struct Template
+                type: Template
 ```
 

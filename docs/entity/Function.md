@@ -7,7 +7,7 @@ Description: A `Function Entity` is a block of code that performs some operation
 ```yaml
 name: Function
 ```
-#### Syntax:Function Declaration
+#### Syntax: Function Declaration
 
 ```text
 noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) attr(optional)	(1)	
@@ -122,12 +122,15 @@ public:
     entity:
         items:
             -   name: foo::overloadFunction
-                type: Method
+                type: Function
+                kind: Method
                 loc: 3:9:3:24
             -   name: foo::overloadFunction
-                type: Method
+                type: Function
+                kind: Method
                 loc: 4:9:4:24
             -   name: foo::overloadFunction
-                type: Method
+                type: Function
+                kind: Method
                 loc: 5:9:5:24
 ```

@@ -26,8 +26,8 @@ name: Use
 relation:
     items:
         -   type: Use
-            from: Function:func
-            to: Object:var1
+            from: Function:'func'
+            to: Object:'var1'
             loc: file0:3:21
 ```
 ###### Deref Use
@@ -44,8 +44,8 @@ relation:
     items:
         -   type: Use
             loc: file0:3:10
-            from: Function:func
-            to: Variable:b
+            from: Function:'func'
+            to: Object:'b'
 ```
 ###### Class Member Use
 ```cpp
@@ -64,6 +64,6 @@ relation:
     items:
         -   type: Use
             loc: file0:5:16
-            from: Function:func
-            to: Variable:x
+            from: Function:'func'
+            to: Object:'x'
 ```

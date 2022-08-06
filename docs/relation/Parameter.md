@@ -26,8 +26,8 @@ relation:
     items:
         -   type: Parameter
             loc: file0:1:14
-            from: Function:func
-            to: Variable:i
+            from: Function:'func'
+            to: Object:'i'
 ```
 
 ###### Array Parameter
@@ -43,6 +43,6 @@ relation:
     items:
         -   type: Parameter
             loc: file0:1:14
-            from: Function:func
-            to: Variable:array
+            from: Function:'func'
+            to: Object:'array'
 ```

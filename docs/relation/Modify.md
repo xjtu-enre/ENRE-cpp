@@ -26,8 +26,8 @@ name: Increment Modify
 relation:
     items:
         -   type: Modify
-            from: Function:func
-            to: Variable:i
+            from: Function:'func'
+            to: Object:'i'
             loc: file0:3:5
 ```
 
@@ -44,8 +44,8 @@ name: One’s Compliment Modify
 relation:
     items:
         -   type: Modify
-            from: Function:func
-            to: Variable:i
+            from: Function:'func'
+            to: Object:'i'
             loc: file0:3:6
 ```
 
@@ -56,7 +56,6 @@ int main(){
     int *a,*b=0;
     ++*a; // deref modify of a
 }
-
 ```
 
 ```yaml
@@ -64,7 +63,7 @@ name: Increment Deref Modify
 relation:
     items:
         -   type: Modify
-            from: Function:main
-            to: Variable:a
+            from: Function:'main'
+            to: Object:'a'
             loc: file0:3:8
 ```

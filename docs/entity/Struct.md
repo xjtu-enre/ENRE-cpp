@@ -28,7 +28,4 @@ entity:
         -   name: MyStruct
             loc: 1:8:1:15
             type: Struct
-        -   name: MyStruct::value
-            loc: 2:9:2:13
-            type: Variable
 ```

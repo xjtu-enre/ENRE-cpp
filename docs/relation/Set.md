@@ -28,8 +28,8 @@ relation:
     items:
         -   type: Set
             loc: file0:3:5
-            from: Function:func
-            to: Variable:j
+            from: Function:'func'
+            to: Object:'j'
 ```
 
 ###### Deref Set
@@ -45,7 +45,7 @@ name: Deref Set
 relation:
     items:
         -   type: Set
-            from: Function:func
-            to: Variable:a
+            from: Function:'func'
+            to: Object:'a'
             loc: file0:3:6
 ```

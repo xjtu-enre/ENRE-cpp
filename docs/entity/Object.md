@@ -35,7 +35,7 @@ int *p = &a;
     entity:
         items:
             -   name: p
-                type: Variable
+                type: Object
                 loc: 2:6:2:6
 ```
 
@@ -49,7 +49,7 @@ int x;
     entity:
         items:
             -   name: x
-                type: Variable
+                type: Object
                 loc: 1:5:1:5
 ```
 

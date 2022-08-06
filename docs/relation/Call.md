@@ -31,8 +31,8 @@ name: Function Call
 relation:
   type: Call
   items:
-    -   from: Function:epoll
-        to: Function:run_benchmark
+    -   from: Function:'epoll'
+        to: Function:'run_benchmark'
         loc: file0:3:5
 ```
 
@@ -55,8 +55,8 @@ name: Function Deref Call
 relation:
     type: Call
     items:
-        -   from: Function:run_benchmark
-            to: Object:setup
+        -   from: Function:'run_benchmark'
+            to: Object:'setup'
             loc: file0:5:13
 ```
 
@@ -77,12 +77,12 @@ void run_benchmark(){
 name: Function Continuous Call
 relation:
   items:
-    -   from: Function:funcB
-        to: Function:funcA
+    -   from: Function:'funcB'
+        to: Function:'funcA'
         loc: file0:8:11
         type: Call
-    -   from: Function:run_benchmark
-        to: Function:funcB
+    -   from: Function:'run_benchmark'
+        to: Function:'funcB'
         loc: file0:8:5
         type: Call
 ```
@@ -101,8 +101,8 @@ int func() {
 name: Function Extern Call
 relation:
   items:
-    -   from: Function:func
-        to: Function:func1
+    -   from: Function:'func'
+        to: Function:'func1'
         loc: file0:3:5
         type: Call
 ```
@@ -125,8 +125,8 @@ int main(){
 name: Call Class Method Call
 relation:
     items:
-      -   from: Function:main
-          to: Function:func
+      -   from: Function:'main'
+          to: Function:'func'
           loc: file0:9:10
           type: Call
 ```

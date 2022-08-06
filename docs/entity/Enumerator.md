@@ -31,9 +31,6 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
     name: Enumerator
     entity:
         items:
-            -   name: Color
-                loc: 1:10:1:14
-                type: Enum
             -   name: Color::red
                 loc: 2:9:2:11
                 type: Enumerator
