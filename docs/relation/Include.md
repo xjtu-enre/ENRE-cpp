@@ -20,15 +20,20 @@ __has_include ( < h-pp-tokens > )	(5)	(since C++17)
 ```
 
 ##### Examples 
-
+###### Include
 ```cpp
-//file0.h
-
-//file1.h
-
-//file.cpp
+//// file.cpp
 #include <file0.h>
 #include <file1.h>
+```
+```cpp
+//// file0.h
+int main(){}
+```
+
+```cpp
+//// file1.h
+int main(){}
 ```
 
 ```yaml
@@ -38,8 +43,30 @@ relation:
     items:
         -   from: File:'file.cpp'
             to: File:'file0.h'
-            loc: file:1:11
+            loc: file0:1:11:1:17
         -   from: File:'file.cpp'
             to: File:'file1.h'
-            loc: file:2:11
+            loc: file0:2:11:2:17
+```
+
+###### Include occur in Function Body
+```cpp
+//// file.cpp
+int main(){
+    #include "file0.h"
+}
+```
+```cpp
+//// file0.h
+int main(){}
+```
+
+```yaml
+name: Include occur in Function Body
+relation:
+    type: Include
+    items:
+        -   from: Function:'main'
+            to: File:'file0.h'
+            loc: file0:2:15:2:21
 ```

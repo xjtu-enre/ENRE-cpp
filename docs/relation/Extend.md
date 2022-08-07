@@ -45,8 +45,6 @@ class Collection { };
 class Book {};
 class CollectionOfBook : public Book, public Collection {};
 ```
-
-
 ```yaml
 name: Multi Extend
 relation:
@@ -58,4 +56,39 @@ relation:
     -   from: Class:'CollectionOfBook'
         to: Class:'Collection'
         loc: file0:3:7
+```
+
+###### Template Struct Extend
+
+```cpp
+template<class T>
+struct Base<T>{};
+struct Derived : public Base<std::string>{};
+```
+```yaml
+name: Template Struct Extend
+relation:
+  type: Extend
+  items:
+    -   from: Struct:'Derived'
+        to: Template:'Base'
+        loc: file0:3:8:3:14
+```
+
+
+###### Template Class Extend
+
+```cpp
+template<class T>
+class Base<T>{};
+class Derived : public Base<std::string>{};
+```
+```yaml
+name: Template Class Extend
+relation:
+  type: Extend
+  items:
+    -   from: Class:'Derived'
+        to: Template:'Base'
+        loc: file0:3:8:3:14
 ```

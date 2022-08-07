@@ -48,7 +48,7 @@ relation:
             loc: file0:10:12
 ```
 
-###### Template friends
+###### Template Class friends
 
 ```cpp
 template<class T> class A {}; // primary
@@ -59,12 +59,72 @@ class X {
 ```
 
 ```yaml
-name: Friend Class
+name: Template Class friends
 relation:
     type: Friend
     items:
         -   from: Class:'X'
             to: Template:'A'
             loc: file0:4:18
+```
 
+###### Template Function friends
+
+```cpp
+class classA{
+public:
+    void funcA(){
+        printf("base class function!");
+    }
+};
+template<class T> class A {
+    friend void classA::funcA();
+}; 
+```
+
+```yaml
+name: Template Function friends
+relation:
+    type: Friend
+    items:
+        -   from: Template:'A'
+            to: Function:'funcA'
+            loc: file0:4:18
+```
+
+###### Struct Function Friends
+
+```cpp
+struct X {
+    friend void f() {}
+};
+void f();
+```
+
+```yaml
+name: Struct Function Friends
+relation:
+    type: Friend
+    items:
+        -   from: Struct:'X'
+            to: Function:'f'
+            loc: file0:4:6
+```
+###### Struct Class Friends
+
+```cpp
+class c{};
+struct X {
+    friend class c;
+};
+```
+
+```yaml
+name: Struct Class Friends
+relation:
+    type: Friend
+    items:
+        -   from: Struct:'X'
+            to: Class:'c'
+            loc: file0:3:18
 ```

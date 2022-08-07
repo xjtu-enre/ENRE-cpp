@@ -2,12 +2,12 @@
 
 Descriptions: `Define Relation` occurs when a  `data aggregation entity` defines its internal entities.
 
-### Supported patterns
+### Supported Patterns
 
 ```yaml
 name: Define Declaration
 ```
-#### Syntax: Define
+#### Syntax: Define Declaration
 ```text
 
 ```

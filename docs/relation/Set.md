@@ -6,7 +6,7 @@ Descriptions: A `set dependency` indicates any explicit assignment of a variable
 name: Set
 ```
 
-#### Syntax:Set Declaration
+#### Syntax: Set Declaration
 
 ```text
 

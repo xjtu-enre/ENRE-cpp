@@ -67,3 +67,38 @@ relation:
             to: Object:'a'
             loc: file0:3:8
 ```
+
+######  File Modify
+```cpp
+int i = 0;
+int j = i++;
+```
+
+```yaml
+name: File Modify
+relation:
+    items:
+        -   type: Modify
+            from: File:'file0'
+            to: Object:'i'
+            loc: file0:2:9
+```
+
+######  Template Modify
+```cpp
+template<typename T>
+void func(){
+    int i = 0;
+    i++;
+}
+```
+
+```yaml
+name: Template Modify
+relation:
+    items:
+        -   type: Modify
+            from: Template:'func'
+            to: Object:'i'
+            loc: file0:4:5
+```

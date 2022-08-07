@@ -130,3 +130,68 @@ relation:
           loc: file0:9:10
           type: Call
 ```
+
+###### Template Function Call Function
+```cpp
+int func(){
+    return 0;
+}
+template<typename S>
+void func2(S &s){
+    func();
+}
+```
+
+```yaml
+name: Template Function Call Function
+relation:
+    items:
+      -   from: Template:'func2'
+          to: Function:'func'
+          loc: file0:6:5:6:8
+          type: Call
+```
+
+###### Template Call Template
+```cpp
+template<typename S>
+int func(S &s){
+    return 0;
+}
+template<typename S>
+void func2(S &s){
+    func(s);
+}
+```
+
+```yaml
+name: Template Call Template
+relation:
+    items:
+      -   from: Template:'func2'
+          to: Template:'func'
+          loc: file0:7:5:7:8
+          type: Call
+```
+
+###### Function Call Template
+```cpp
+template<typename S>
+int func(S &s){
+    return 0;
+}
+void func2(){
+    int s = 0;
+    func(s);
+}
+```
+
+```yaml
+name: Template Call Template
+relation:
+    items:
+      -   from: Function:'func2'
+          to: Template:'func'
+          loc: file0:7:5:7:8
+          type: Call
+```
