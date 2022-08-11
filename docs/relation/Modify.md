@@ -27,7 +27,7 @@ relation:
     items:
         -   type: Modify
             from: Function:'func'
-            to: Object:'i'
+            to: Variable:'i'
             loc: file0:3:5
 ```
 
@@ -45,7 +45,7 @@ relation:
     items:
         -   type: Modify
             from: Function:'func'
-            to: Object:'i'
+            to: Variable:'i'
             loc: file0:3:6
 ```
 
@@ -64,7 +64,7 @@ relation:
     items:
         -   type: Modify
             from: Function:'main'
-            to: Object:'a'
+            to: Variable:'a'
             loc: file0:3:8
 ```
 
@@ -80,7 +80,7 @@ relation:
     items:
         -   type: Modify
             from: File:'file0'
-            to: Object:'i'
+            to: Variable:'i'
             loc: file0:2:9
 ```
 
@@ -99,6 +99,6 @@ relation:
     items:
         -   type: Modify
             from: Template:'func'
-            to: Object:'i'
+            to: Variable:'i'
             loc: file0:4:5
 ```

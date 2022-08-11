@@ -94,6 +94,6 @@ relation:
   type: Call
   items:
     -   from: Class:'Derived'
-        to: Object:'value'
+        to: Variable:'value'
         loc: file0:7:17:7:21
 ```

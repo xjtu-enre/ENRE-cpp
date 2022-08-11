@@ -8,34 +8,36 @@
 | [File](entity/File.md)             | TBD                                          |
 | [Namespace](entity/Namespace.md)   | TBD                                          |
 | [Alias](entity/Alias.md)           | TBD                                          |
-| [Class](entity/Classes.md)           | TBD                                          |
-| [Struct](entity/Classes.md)         | TBD                                          |
-| [Union](entity/Classes.md)           | TBD                                          |
+| [Class](entity/Class.md)           | TBD                                          |
+| [Struct](entity/Struct.md)         | TBD                                          |
+| [Union](entity/Union.md)           | TBD                                          |
 | [Macro](entity/Macro.md)           | TBD                                          |
-| [Enum](entity/Enum&Enumerator.md)             | TBD                                          |
-| [Enumerator](entity/Enum&Enumerator.md) | TBD                                          |
-| [Object](entity/Object.md)         | TBD                                          |
+| [Enum](entity/Enum.md)             | TBD                                          |
+| [Enumerator](entity/Enumerator.md) | TBD                                          |
+| [Object](entity/Variable.md)       | TBD                                          |
 | [Function](entity/Function.md)     | TBD                                          |
 | [Template](entity/Template.md)     | TBD                                          |
 | [Typedef](entity/Typedef.md)       | TBD                                          |
 
-## Dependency Categories
+## Relation Categories
 
+| Relation Name                      | Definition                                                                                                  |
+|------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| [Alias](relation/Alias.md)         |                                                                                                             |
+| [Call](relation/Call.md)           | Call relation indicates a reference to a known C/C++ function.                                              |
+| [Define](relation/Define.md)       | Define relation indicates the definition of an entity.                                                      |
+| [Exception](relation/Exception.md) | Exception relation indicates exceptions which may throw from function                                       |
+| [Extend](relation/Extend.md)       | Extend relation indicates the inheritance relation between classes.                                         |
+| [Friend](relation/Friend.md)       | Friend relation indicates the granting of friendship to a class or member function.                         |
+| [Include](relation/Include.md)     | Include relation indicates a reference to an include file.                                                  |
+| [Modify](relation/Modify.md)       | Modify relation indicates a reference which a variable is modified without an explicit assignment statment. |
+| [Override](relation/Override.md)   | Override relation indicates when a method in one class overrides a virtual method in a base class.          |
+| [Parameter](relation/Parameter.md) | TBD.                                                                                                        |
+| [Set](relation/Set.md)             | A Set relation indicates any explicit assignment of a variable.                                             |
+| [Use](relation/Use.md)             | A Use relation indicates a reference in an active region of code to a known C/C++ variable.                 |
+| [Use](relation/Using.md)           | TBD.                                                                                                        |
 
-| Dependency Name                        | Definition                                   |
-|------------------------------------|----------------------------------------------|
-| [Alias](dependency/Alias.md)|                                           |
-| [Call](dependency/Call.md) | Call dependency indicates a reference to a known C/C++ function. |
-| [Define](dependency/Define.md)    | Define dependency indicates the definition of an entity.|
-| [Exception](dependency/Exception.md) | Exception dependency indicates exceptions which may throw from function |
-| [Extend](dependency/Extend.md)| Extend dependency indicates the inheritance relation between classes.|
-| [Friend](dependency/Friend.md) | Friend dependency indicates the granting of friendship to a class or member function.  |
-| [Include](dependency/Include.md)|Include dependency indicates a reference to an include file. |
-| [Modify](dependency/Modify.md)   | Modify dependency indicates a reference which a variable is modified without an explicit assignment statment.|
-| [Override](dependency/Override.md)  | Override dependency indicates when a method in one class overrides a virtual method in a base class.|
-| [Set](dependency/Set.md)  | A Set dependency indicates any explicit assignment of a variable.|
-| [Use](dependency/Use.md)  | A Use dependency indicates a reference in an active region of code to a known C/C++ variable.|
-
+## Other information
 
 | Dependency Name                      | Type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 |--------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -51,4 +53,3 @@
 | [Set](dependency/Set.md)             | FileVariable, FunctionMacro, FunctionStruct, FunctionTemplate, NamespaceFunction, FileStruct, ClassMacro, NamespaceMacro, FileMacro, TemplateVariable, FunctionVariable, FileFunction, StructVariable, FunctionTypedef, TemplateFunction, FunctionFunction, ClassVariable, FunctionClass, NamespaceVariable                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | [Use](dependency/Use.md)             | ``[1]``src: File , Dest:Enumerator, Class, Namespace, Typedef, Struct, Macro, Class, Function, Variable, <br/> ``[2]``src:Function, Dest: Template, Function, Variable, Class, Namespace, Typedef, Enum, Enumerator, Struct <br/> ``[3]``src:Class dest:Macro, Class, Variable, Enumerator, Struct, Typedef,<br/>``[4]``src: Template dest: Struct, Macro, Template, Function, Typedef, Namespace, Enumerator, Class, Variable, Namespace, Enumerator, <br/> ``[5]`` src: Namespace dest: Variable,Enumerator, Template, Class, Namespace,  Alias, Macro, Function<br/> ``[6]`` src: Macro dest: Alias,  Typedef, File, Macro, Namespace, Enumerator, Template, Class, Struct, Variable, Function, <br/>``[7]`` other: Enum-Enumerator,Struct-Enumerator,  Variable-Class, Variable-Class, Struct-Macro,Union-Variable |
 | [Using]()                            | ClassFunction, FunctionNamespace, FileNamespace                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-

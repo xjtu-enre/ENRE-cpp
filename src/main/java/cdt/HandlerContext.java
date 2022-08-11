@@ -159,8 +159,10 @@ public class HandlerContext {
 		// TODO 需要明确当前的function entity 是哪一个（不需要知道其虚 overload base scope）
 		// TODO 这里的symbol是明确的对应于function entity的作用域， 但是它根据实际情况指向上层作用域或者是Overload base作用域
 		// TODO 需要给定functionEntity一个函数签名
+
 		if(name.contains("::")){
 			String[] realName = name.split("::");
+			if(realName.length > 2) System.out.println(name);
 			for(String text:realName){
 				if(this.currentScope.getSymbol(text) != null){
 

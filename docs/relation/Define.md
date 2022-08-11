@@ -28,7 +28,7 @@ relation:
     type: Define
     items:
         -   from: Class:'Units'
-            to: Object:'x'
+            to: Variable:'x'
             loc: file0:2:9
         -   from: File:'file0'
             to: Class:'Units'

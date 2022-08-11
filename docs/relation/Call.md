@@ -1,6 +1,6 @@
 ## Relation: Call
 
-Descriptions: `Call Relation` is a kind of postfix-expression, formed by an expression that evaluates to a function or callable object followed by the function-call operator, ().
+Descriptions: `Call Relation` is a kind of postfix-expression, formed by an expression that evaluates to a function or callable Variable followed by the function-call operator, ().
 
 ### Supported Patterns 
 
@@ -37,7 +37,7 @@ relation:
 ```
 
 ###### Deref Call
-If an object can deref as a function, there maybe a deref call.
+If an Variable can deref as a function, there maybe a deref call.
 
 ```cpp
 void run_benchmark(void (*setup)(void*), void* data) {
@@ -56,7 +56,7 @@ relation:
     type: Call
     items:
         -   from: Function:'run_benchmark'
-            to: Object:'setup'
+            to: Variable:'setup'
             loc: file0:5:13
 ```
 

@@ -82,9 +82,9 @@ public class FileParser {
 		}
 
 		getMacro(filepath);
-		for(String macroInfo:fileEntity.getMacroRepo().keySet()) {
-			definedMacros.remove(macroInfo);
-		}
+//		for(String macroInfo:fileEntity.getMacroRepo().keySet()) {
+//			definedMacros.remove(macroInfo);
+//		}
 
 		if(isIncludePath) {
 			tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
