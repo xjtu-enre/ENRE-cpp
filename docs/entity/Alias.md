@@ -43,20 +43,7 @@ entity:
             loc: 7:7:7:11
             type: Alias
 ```
-###### alias template(since C++11)
-```cpp
-template<class T>
-using ptr = T*; 
-```
 
-```yaml
-name: Template Alias
-entity:
-    items:
-        -   name: ptr
-            loc: 2:7:2:9
-            type: Alias Template
-```
 
 ###### Namespace aliases
 ```cpp

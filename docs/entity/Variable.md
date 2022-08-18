@@ -53,3 +53,33 @@ int x;
                 loc: 1:5:1:5
 ```
 
+###### Parameter
+```cpp
+int func(int x){}
+```
+
+```yaml
+    name: Parameter
+    entity:
+        items:
+            -   name: x
+                type: Variable
+                loc: 1:14:1:14
+```
+
+###### Member Object
+```cpp
+class c{
+private:
+    int member;
+}
+```
+
+```yaml
+    name: Member Object
+    entity:
+        items:
+            -   name: member
+                type: Variable
+                loc: 3:9:3:14
+```

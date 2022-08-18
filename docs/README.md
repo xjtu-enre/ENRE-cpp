@@ -14,7 +14,7 @@
 | [Macro](entity/Macro.md)           | TBD                                          |
 | [Enum](entity/Enum.md)             | TBD                                          |
 | [Enumerator](entity/Enumerator.md) | TBD                                          |
-| [Object](entity/Variable.md)       | TBD                                          |
+| [Variable](entity/Variable.md)     | TBD                                          |
 | [Function](entity/Function.md)     | TBD                                          |
 | [Template](entity/Template.md)     | TBD                                          |
 | [Typedef](entity/Typedef.md)       | TBD                                          |

@@ -49,3 +49,18 @@ struct S{};
                 type: Template
 ```
 
+###### Function Template
+```cpp
+template<class T>
+void func(T x);
+```
+
+```yaml
+    name: Function Template
+    entity:
+        items:
+            -   name: func
+                loc: 2:6:2:8
+                kind: Function Template
+                type: Template
+```
