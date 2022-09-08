@@ -15,10 +15,6 @@ public class Configure {
     private static Configure configure = new Configure();
     private Configure() {}
 
-//    private ImageLoader(){} 
-//    public static ImageLoader getInstance(){  
-//         return instance;  
-//     } 
     public static Configure getConfigureInstance() {
         return configure;
     }
@@ -33,17 +29,14 @@ public class Configure {
             description = "other directory need to analysis.")
     private List<String> dirs;
 
-    @CommandLine.Parameters(index = "0", arity = "1", description = "The language of project files", paramLabel = "language")
-    private String lang;
-    @CommandLine.Parameters(index = "1", arity = "1", description = "The directory to be analyzed", paramLabel = "directory")
+    @CommandLine.Parameters(index = "0", arity = "1", description = "The directory to be analyzed", paramLabel = "directory")
     private String inputSrcPath;
-    @CommandLine.Parameters(index = "2", arity = "1", description = "A short alias name of the anayzed source code project", paramLabel = "projectName")
+    @CommandLine.Parameters(index = "1", arity = "1", description = "A short alias name of the anayzed source code project", paramLabel = "projectName")
     private String projectName;
 //    @CommandLine.Parameters(index = "3", arity = "1", description = "The output path", paramLabel = "outputPath")
 //    private String usageSrcPath;
 
     public void dealWithInputSrcPath() throws IOException{
-        System.out.println(this.inputSrcPath);
         File folder = new File(this.inputSrcPath);
         if (!folder.exists()) {
             File a = new File(System.getProperty("user.dir"));
@@ -58,7 +51,6 @@ public class Configure {
     public String getInputSrcPath() {
         return this.inputSrcPath;
     }
-    public String getLang(){ return this.lang; }
     public Set<String> getProgram_environment() { return this.Program_environment; }
     public List<String> getOtherDirs() { return this.dirs; }
 
@@ -79,13 +71,6 @@ public class Configure {
 
     private List<String> includePath;
 
-    public void setLang(String lang) {
-        this.lang = lang;
-        if(lang.equals(CPP)) {
-            curr_pro_suffix = CPP_PRO_SUFFIX;
-        }
-    }
-
     public void setInputSrcPath(String inputSrcPath) {
         this.inputSrcPath = inputSrcPath;
     }
@@ -94,7 +79,7 @@ public class Configure {
     }
 
     public String getProjectName() {
-        return projectName;
+        return this.projectName;
     }
 
     public static final int ENTITY_KIND_NUM = 15;
@@ -118,13 +103,4 @@ public class Configure {
     public static final int NOTFOUNDENTITY = -1;
     public static final int FOUNDENTITY = 0;
     public static final int FOUNDENTITYINCLUDE = 1;
-
-    public boolean isVersionHelpRequested() {
-        return this.versionRequested;
-    }
-
-    public void printVersionHelp() {
-        System.out.println("1.0.0");
-        return;
-    }
 }

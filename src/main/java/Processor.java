@@ -19,10 +19,6 @@ public class Processor {
 	public Processor(Set<String> Program_environment) {
 		Processor.cdtparser = new CDTParser(Program_environment);
 	}
-	public static void printentity() {
-		cdtparser.testprintentityrepo();
-	}
-
 
 	RelationContext relationcontext ;
 	
@@ -39,10 +35,8 @@ public class Processor {
 			public void visit(File file) throws Exception {
 				String fileFullPath = file.getAbsolutePath();
 				fileFullPath = FileUtil.uniqFilePath(fileFullPath);
-//				System.out.println("parse "+fileFullPath);
 				parseFile(fileFullPath);
 			}
-
 		});
 		fileTrasversal.getFileList(inputSrcPath);
 		fileList = fileTrasversal.getfile();

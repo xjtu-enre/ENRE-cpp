@@ -44,12 +44,12 @@ public class FileParser {
 	 * @throws:
 	 */
 	public void parse( ) throws Exception {
-		System.out.println("Parse file path: " + this.filepath);
 		if(exitFile(filepath)) {
 			if(isFileParse(filepath)) {
 				return ;
 			}
 		}
+		System.out.println("Parse file path: " + this.filepath);
 		fileList.put(filepath,1);
 		final FileContent content = FileContent.createForExternalFileLocation(filepath);
 		IParserLogService log = new DefaultLogService();
@@ -207,62 +207,29 @@ public class FileParser {
 	 * @throws:
 	 */
 	public HashSet<String> getdirectedinclude(IASTTranslationUnit tu) {
-		IASTPreprocessorStatement[] statements = tu.getAllPreprocessorStatements();
+		IASTPreprocessorIncludeStatement[] statements = tu.getIncludeDirectives();
 		HashSet<String> includeFile = new HashSet<String>();
-		for(IASTPreprocessorStatement includefile:statements) {
-			if(includefile instanceof IASTPreprocessorIncludeStatement) {
-				String path = ((IASTPreprocessorIncludeStatement)includefile).toString();
-				int pos = path.indexOf(' ');
-				path = path.substring(pos+1).trim();
-				if (path.startsWith("\"") || path.startsWith("<")){
-					path = path.substring(1);
-					path = path.substring(0,path.length()-1);
-				}
-				File file = new File(includefile.getContainingFilename());
-				String filePath = file.getParent();
-				String checkPath = uniformPath(ScannerUtility.reconcilePath(filePath), ScannerUtility.reconcilePath(path));
-				checkPath =  uniformPath(checkPath);
-				if(exitFile(checkPath)) {
-					includeFile.add(checkPath);
-//					if(checkPath.endsWith(".h")) {
-//						checkPath = checkPath.replace(".h", ".cpp");
-//						if(exitFile(checkPath)&& !checkPath.equals(this.filepath)) {
-//							includeFile.add(checkPath);
-//							fileEntity.addinclude(checkPath);
-//						}
-//					}
-//					else if(checkPath.endsWith(".hpp")) {
-//						checkPath = checkPath.replace(".hpp", ".cpp");
-//						if(exitFile(checkPath)) {
-//							includeFile.add(checkPath);
-//
-//						}
-//					}
-					continue;
-				}
-
-				else {
-					for(String en_path:Program_environment) {
-						checkPath = ScannerUtility.createReconciledPath(en_path, path);
-						checkPath = uniformPath(checkPath);
-						if(exitFile(checkPath)) {
-							includeFile.add(checkPath);
-							if(checkPath.endsWith(".h")) {
-								checkPath = checkPath.replace(".h", ".cpp");
-								if(exitFile(checkPath)) includeFile.add(checkPath);
-								break;
-							}
-							if(checkPath.endsWith(".hpp")) {
-								checkPath = checkPath.replace(".hpp", ".cpp");
-								if(exitFile(checkPath)) includeFile.add(checkPath);
-							}
-							break;
-						}
+		for(IASTPreprocessorIncludeStatement includefile:statements) {
+			String path = includefile.getName().toString();
+			File file = new File(includefile.getContainingFilename());
+			String filePath = file.getParent();
+			String checkPath = uniformPath(ScannerUtility.reconcilePath(filePath), ScannerUtility.reconcilePath(path));
+			checkPath =  uniformPath(checkPath);
+			if(exitFile(checkPath)) {
+				includeFile.add(checkPath);
+				continue;
+			}
+			else {
+				for(String en_path:Program_environment) {
+					checkPath = ScannerUtility.createReconciledPath(en_path, path);
+					checkPath = uniformPath(checkPath);
+					if(exitFile(checkPath)) {
+						includeFile.add(checkPath);
+						break;
 					}
 				}
 			}
 		}
-
 		return includeFile;
 	}
 
