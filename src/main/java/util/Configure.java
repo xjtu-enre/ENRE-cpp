@@ -3,11 +3,13 @@ import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@CommandLine.Command(name = "ENRE-CPP", mixinStandardHelpOptions = true)
+@CommandLine.Command(name = "ENRE-CPP", mixinStandardHelpOptions = true, version = "2022-08-18")
+
 public class Configure {
 
     private static Configure configure = new Configure();
@@ -20,6 +22,9 @@ public class Configure {
     public static Configure getConfigureInstance() {
         return configure;
     }
+    @CommandLine.Option(names = { "-v", "--version" }, versionHelp = true,
+            description = "print version information and exit")
+    boolean versionRequested;
 
     @CommandLine.Option(names = { "-p", "--programEnvironment" },
             description = "the program environment.")
@@ -34,8 +39,8 @@ public class Configure {
     private String inputSrcPath;
     @CommandLine.Parameters(index = "2", arity = "1", description = "A short alias name of the anayzed source code project", paramLabel = "projectName")
     private String projectName;
-    @CommandLine.Parameters(index = "3", arity = "1", description = "The output path", paramLabel = "outputPath")
-    private String usageSrcPath;
+//    @CommandLine.Parameters(index = "3", arity = "1", description = "The output path", paramLabel = "outputPath")
+//    private String usageSrcPath;
 
     public void dealWithInputSrcPath() throws IOException{
         System.out.println(this.inputSrcPath);
@@ -54,7 +59,6 @@ public class Configure {
         return this.inputSrcPath;
     }
     public String getLang(){ return this.lang; }
-    public String getUsageSrcPath() { return this.usageSrcPath; }
     public Set<String> getProgram_environment() { return this.Program_environment; }
     public List<String> getOtherDirs() { return this.dirs; }
 
@@ -85,9 +89,6 @@ public class Configure {
     public void setInputSrcPath(String inputSrcPath) {
         this.inputSrcPath = inputSrcPath;
     }
-    public void setUsageSrcPath(String usageSrcPath) {
-        this.usageSrcPath = usageSrcPath;
-    }
     public void setIncludePath(List<String> includePath) {
         this.includePath = includePath;
     }
@@ -117,4 +118,13 @@ public class Configure {
     public static final int NOTFOUNDENTITY = -1;
     public static final int FOUNDENTITY = 0;
     public static final int FOUNDENTITYINCLUDE = 1;
+
+    public boolean isVersionHelpRequested() {
+        return this.versionRequested;
+    }
+
+    public void printVersionHelp() {
+        System.out.println("1.0.0");
+        return;
+    }
 }
