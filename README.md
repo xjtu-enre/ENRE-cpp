@@ -1,80 +1,54 @@
 # ENRE-cpp
 
-## Run it from command line
+> ENRE-cpp is a tool extracting entities and relations for C++ based on [Eclipse/CDT](https://github.com/eclipse-cdt).
 
-You could run ENRE-CPP in the following ways: ENRE-CPP.sh on Linux/Mac, ENRE-CPP.bat on Microsoft Windows, or java -jar ENRE-CPP.jar.
+## Features
+* 🆕 Designed for the latest C++ standard
+* 👨‍💻 Friendly and easy to use
+* 💪 Input file source code compilation error tolerance, strong robustness
+* ⚙️ The tool part supports C language, with strong scalability
+
+## Supported Language
+
+|  Language  | Maximum Version |
+|:----------:|:---------------:|
+|    C++     |       14        |
 
 
+## Getting Started
 
-# Usage
-###  1)Prepare the executable jar
-The released jar of ENRE is named as **ENRE-CPP.jar**.
-###  2) Set up Java environment 
-To execute ENRE-CPP.jar, you should set up JAVA envionment. Please referer to [Set up JAVA environment](https://docs.oracle.com/javase/7/docs/webnotes/install/). 
-### 3) cmd usage
-Now, everthing is already prepared well. Let's use ENRE to analyze source code. 
-The usage command is:
-```sh
-java -jar <executable> <lang> <dir> <project-name>
+> ENRE-cpp has been tested to be worked with [Java 17]((https://docs.oracle.com/javase/7/docs/webnotes/install/)).
+
+## Usage
+
+Append `-h` or `--help` without any other arguments to see list
+of options:
+```text
+Usage: ENRE-CPP [-hv] [-d=<dirs>]... [-p=<program_environment>]... directory
+                projectName
+      directory      The directory to be analyzed
+      projectName    A short alias name of the anayzed source code project
+  -d, --dir=<dirs>   other directory need to analysis.
+  -h, --help         display help for command
+  -p, --program_environment=<program_environment>
+                     the program environment.
+  -v, --version      print version information and exit
 ```
 
-```sh
-java -jar <executable> <lang> <src> <project-name> [-p=<program_environment>[,<program_environment>...]]...  [-d=<directorys>[,<directorys>...]]... 
+### Examples
 
-      <executable>           The executable jar package of ENRE
-      <lang>                 The language of project files: cpp
-      <src>                  The directory to be analyzed
-      <project-name>         A short alias name of the anayzed source
-
-  -p, --program_environment=<program_environment>[,<program_environment>...]
-                             The path of program_environment
-  -d, --dirs=<dirs>
-                             The project dirs
-  -h, --help                 Display this help and exit
-
-```
-
-#### Example:
 Use ENRE to analyze a demo project "**electron**" written in *C++*: 
-```sh
-#in linux platform 
-$java -jar ENRE-CPP.jar  cpp  demo-projects/electron  electron  -p electron/src
-```
-```sh
-#in windows platform
-$java -jar ENRE-CPP.jar  cpp  demo-projects\electron  electron -p electron\src 
+
+```cmd
+java -jar ENRE-CPP.jar  demo-projects/electron electron -p electron/src 
 ```
 
+## Documentation
+Specifications on which kinds of entities and relations can be
+captured and any other details can be found in [documents](docs/README.md)
 
-
-# The output Format
-
-```json
-[
-  {
-    "variables": [
-      {
-        "qualifiedName": "/Users/dzf/Desktop/code/idea/test-cpp/test.cpp",
-        "id": 0,
-        "entityType": "File"
-      },
-      {
-        "qualifiedName": "/Users/dzf/Desktop/code/idea/test-cpp/test.cpp.main",
-        "id": 1,
-        "entityType": "Function"
-      }
-    ],
-    "relations": [
-      {
-        "type": "Return",
-        "src": 1,
-        "dest": 2
-      }
-    ]
-  }
-]
-```
-
-# Our Tool Support
-
-[document](docs/README.md)
+## References
+- [cpp reference](https://en.cppreference.com/w/)
+- [C++ docs | Microsoft Docs](https://learn.microsoft.com/en-us/cpp/cpp/?view=msvc-170)
+- [IBM XL C/C++ for AIX documentation](https://www.ibm.com/docs/en/xl-c-and-cpp-aix)
+- [LLVM](https://github.com/llvm/llvm-project)
