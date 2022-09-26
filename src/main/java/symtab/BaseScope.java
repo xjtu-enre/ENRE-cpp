@@ -3,6 +3,7 @@ package symtab;
 import util.Configure;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 /** An abstract base class that houses common functionality for scopes. */
 public abstract class BaseScope implements Scope {
@@ -32,6 +33,36 @@ public abstract class BaseScope implements Scope {
 			this.symbols.add(new LinkedHashMap<String,Symbol>());
 		}
 	}
+	@Override
+	public void union(Scope scope){
+		if(scope instanceof BaseScope){
+			for(int i = 0; i< Configure.ENTITY_KIND_NUM; i++){
+				LinkedHashMap<String, Symbol> m1 = this.symbols.get(i);
+				LinkedHashMap<String, Symbol> m2 = ((BaseScope) scope).getSymbols().get(i);
+				Collection res = m2.values();
+				Iterator iterator = res.iterator();
+				while (iterator.hasNext()){
+					Symbol union_scope = (Symbol) iterator.next();
+					if(m1.containsKey(union_scope.getName())){
+						if(union_scope instanceof BaseScope){
+							((BaseScope)(m1.get(union_scope.getName()))).union((Scope) union_scope);
+						}else{
+							System.out.println("TEST TEST TEST TEST");
+						}
+					}else{
+						m1.put(union_scope.getName(), union_scope);
+					}
+				}
+//
+//				LinkedHashMap<String, Object> finalMap = (LinkedHashMap<String, Object>) Stream.concat(scope.get(i).entrySet().stream(), m2.entrySet().stream())
+//						.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue(), (map1, map2) -> {
+//							System.out.println("m1" + m1.getClass());
+//							System.out.println("m2" + m2.getClass());
+//							return map2;
+//						}));
+			}
+		}
+	}
 
 //	public Map<String, ? extends Symbol> getMembers() {
 //		return symbols;
@@ -56,25 +87,20 @@ public abstract class BaseScope implements Scope {
 		this.enclosingScope = enclosingScope;
 	}
 
-	public List<Scope> getAllNestedScopedSymbols() {
-		List<Scope> scopes = new ArrayList<Scope>();
-		Utils.getAllNestedScopedSymbols(this, scopes);
-		return scopes;
-	}
-
-	@Override
-	public List<Scope> getNestedScopedSymbols() {
-		List<? extends Symbol> scopes = Utils.filter(getSymbols(), s -> s instanceof Scope);
-		return (List)scopes; // force it to cast
-	}
-
-	@Override
-	public List<Scope> getNestedScopes() {
-		ArrayList<Scope> all = new ArrayList<>();
-		all.addAll(getNestedScopedSymbols());
-		all.addAll(nestedScopesNotSymbols);
-		return all;
-	}
+//	public List<Scope> getAllNestedScopedSymbols() {
+//		List<Scope> scopes = new ArrayList<Scope>();
+//		Utils.getAllNestedScopedSymbols(this, scopes);
+//		return scopes;
+//	}
+//
+//
+//	@Override
+//	public List<Scope> getNestedScopes() {
+//		ArrayList<Scope> all = new ArrayList<>();
+//		all.addAll(getNestedScopedSymbols());
+//		all.addAll(nestedScopesNotSymbols);
+//		return all;
+//	}
 
 	/** Add a nested scope to this scope; could also be a FunctionSymbol
 	 *  if your language allows nested functions.
@@ -150,33 +176,12 @@ public abstract class BaseScope implements Scope {
 		return scopes;
 	}
 
-	@Override
-	public List<? extends Symbol> getSymbols() {
-		Collection<Symbol> values = null;
-		for(int i=0;i<symbols.size();i++){
-			if(values == null) values = symbols.get(i).values();
-			else values.addAll(symbols.get(i).values());
-		}
-		if ( values instanceof List ) {
-			return (List<Symbol>)values;
-		}
-		return new ArrayList<>(values);
+
+	public List<LinkedHashMap<String, Symbol>> getSymbols() {
+		return this.symbols;
 	}
 
-	public List<? extends Symbol> getAllSymbols() {
-		List<Symbol> syms = new ArrayList<>();
-		syms.addAll(getSymbols());
-		for(LinkedHashMap<String, Symbol> symbolkind:symbols){
-			for (Symbol s : symbolkind.values()) {
-				if ( s instanceof Scope ) {
-					Scope scope = (Scope)s;
-					syms.addAll(scope.getAllSymbols());
-				}
-			}
-		}
 
-		return syms;
-	}
 
 	@Override
 	public int getNumberOfSymbols() {
@@ -202,13 +207,4 @@ public abstract class BaseScope implements Scope {
 		return Utils.toQualifierString(this, separator);
 	}
 
-	public String toTestString() {
-		return toTestString(", ", ".");
-	}
-
-	public String toTestString(String separator, String scopePathSeparator) {
-		List<? extends Symbol> allSymbols = this.getAllSymbols();
-		List<String> syms = Utils.map(allSymbols, s -> s.getScope().getName() + scopePathSeparator + s.getName());
-		return Utils.join(syms, separator);
-	}
 }

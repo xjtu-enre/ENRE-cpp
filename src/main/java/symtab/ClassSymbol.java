@@ -135,11 +135,11 @@ public class ClassSymbol extends DataAggregateSymbol {
 	/** Return the set of all methods defined within this class */
 	public Set<MethodSymbol> getDefinedMethods() {
 		Set<MethodSymbol> methods = new LinkedHashSet<>();
-		for (MemberSymbol s : getSymbols()) {
-			if ( s instanceof MethodSymbol ) {
-				methods.add((MethodSymbol)s);
-			}
-		}
+//		for (MemberSymbol s : getSymbols()) {
+//			if ( s instanceof MethodSymbol ) {
+//				methods.add((MethodSymbol)s);
+//			}
+//		}
 		return methods;
 	}
 
@@ -155,25 +155,25 @@ public class ClassSymbol extends DataAggregateSymbol {
 		return methods;
 	}
 
-	@Override
-	public List<? extends FieldSymbol> getFields() {
-		List<FieldSymbol> fields = new ArrayList<>();
-		ClassSymbol superClassScope = getSuperClassScope();
-		if ( superClassScope!=null ) {
-			fields.addAll( superClassScope.getFields() );
-		}
-		fields.addAll( getDefinedFields() );
-		return fields;
-	}
+//	@Override
+//	public List<? extends FieldSymbol> getFields() {
+//		List<FieldSymbol> fields = new ArrayList<>();
+//		ClassSymbol superClassScope = getSuperClassScope();
+//		if ( superClassScope!=null ) {
+//			fields.addAll( superClassScope.getFields() );
+//		}
+//		fields.addAll( getDefinedFields() );
+//		return fields;
+//	}
 
 	/** get the number of methods defined specifically in this class */
 	public int getNumberOfDefinedMethods() {
 		int n = 0;
-		for (MemberSymbol s : getSymbols()) {
-			if ( s instanceof MethodSymbol ) {
-				n++;
-			}
-		}
+//		for (MemberSymbol s : getSymbols()) {
+//			if ( s instanceof MethodSymbol ) {
+//				n++;
+//			}
+//		}
 		return n;
 	}
 
@@ -188,15 +188,15 @@ public class ClassSymbol extends DataAggregateSymbol {
 		return n;
 	}
 
-	public int getNumberOfFields() {
-		int n = 0;
-		ClassSymbol superClassScope = getSuperClassScope();
-		if ( superClassScope!=null ) {
-			n += superClassScope.getNumberOfFields();
-		}
-		n += getNumberOfDefinedFields();
-		return n;
-	}
+//	public int getNumberOfFields() {
+//		int n = 0;
+//		ClassSymbol superClassScope = getSuperClassScope();
+//		if ( superClassScope!=null ) {
+//			n += superClassScope.getNumberOfFields();
+//		}
+//		n += getNumberOfDefinedFields();
+//		return n;
+//	}
 
 	@Override
 	public String toString() {

@@ -73,25 +73,25 @@ public class Utils {
 		return fields.toArray(new Field[fields.size()]);
 	}
 
-	/** Order of scopes not guaranteed but is currently breadth-first according
-	 *  to nesting depth. Gets ScopedSymbols only.
-	 */
-	public static void getAllNestedScopedSymbols(Scope scope, List<Scope> scopes) {
-		scopes.addAll(scope.getNestedScopedSymbols());
-		for (Scope s : scope.getNestedScopedSymbols()) {
-			getAllNestedScopedSymbols(s, scopes);
-		}
-	}
+//	/** Order of scopes not guaranteed but is currently breadth-first according
+//	 *  to nesting depth. Gets ScopedSymbols only.
+//	 */
+//	public static void getAllNestedScopedSymbols(Scope scope, List<Scope> scopes) {
+//		scopes.addAll(scope.getNestedScopedSymbols());
+//		for (Scope s : scope.getNestedScopedSymbols()) {
+//			getAllNestedScopedSymbols(s, scopes);
+//		}
+//	}
 
 	/** Order of scopes not guaranteed but is currently breadth-first according
 	 *  to nesting depth. Gets ScopedSymbols and non-ScopedSymbols.
 	 */
-	public static void getAllNestedScopes(Scope scope, List<Scope> scopes) {
-		scopes.addAll(scope.getNestedScopes());
-		for (Scope s : scope.getNestedScopes()) {
-			getAllNestedScopes(s, scopes);
-		}
-	}
+//	public static void getAllNestedScopes(Scope scope, List<Scope> scopes) {
+//		scopes.addAll(scope.getNestedScopes());
+//		for (Scope s : scope.getNestedScopes()) {
+//			getAllNestedScopes(s, scopes);
+//		}
+//	}
 
 	/** Return a string of scope names with the "stack" growing to the left
 	 *  E.g., myblock:mymethod:myclass.
@@ -112,29 +112,22 @@ public class Utils {
 		return joinScopeNames(scopes, separator);
 	}
 
-	public static String toString(Scope s, int level) {
-		if ( s==null ) return "";
-		StringBuilder buf = new StringBuilder();
-		buf.append(tab(level));
-		buf.append(s.getName());
-		buf.append("\n");
-		level++;
-		for (Symbol sym : s.getSymbols()) { // print out all symbols but not scopes
-			if ( !(sym instanceof Scope) ) {
-				buf.append(tab(level));
-				buf.append(sym);
-				buf.append("\n");
-			}
-		}
-		for (Scope nested : s.getNestedScopes()) { // includes named scopes and local scopes
-			buf.append(toString(nested, level));
-		}
-		return buf.toString();
-	}
+//	public static String toString(Scope s, int level) {
+//		if ( s==null ) return "";
+//		StringBuilder buf = new StringBuilder();
+//		buf.append(tab(level));
+//		buf.append(s.getName());
+//		buf.append("\n");
+//		level++;
+//		for (Scope nested : s.getNestedScopes()) { // includes named scopes and local scopes
+//			buf.append(toString(nested, level));
+//		}
+//		return buf.toString();
+//	}
 
-	public static String toString(Scope s) {
-		return toString(s, 0);
-	}
+//	public static String toString(Scope s) {
+//		return toString(s, 0);
+//	}
 
 	//  Generic filtering, mapping, joining that should be in the standard library but aren't
 
