@@ -46,8 +46,6 @@ public abstract class BaseScope implements Scope {
 					if(m1.containsKey(union_scope.getName())){
 						if(union_scope instanceof BaseScope){
 							((BaseScope)(m1.get(union_scope.getName()))).union((Scope) union_scope);
-						}else{
-							System.out.println("TEST TEST TEST TEST");
 						}
 					}else{
 						m1.put(union_scope.getName(), union_scope);
