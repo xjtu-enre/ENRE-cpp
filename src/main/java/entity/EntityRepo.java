@@ -29,6 +29,7 @@ public class EntityRepo {
 	private Map<Integer, Entity> allEntitiesById;
 	private Map<String, Entity> allEntitiesByLocation;
 	private List<FileEntity> fileEntities;
+	private Map<String, Integer> namespaceEntities;
 	private int nextAvaliableIndex;
 
 	/**
@@ -46,6 +47,7 @@ public class EntityRepo {
 		allEntitiesById = new TreeMap<>();
 		allEntitiesByLocation = new TreeMap<>();
 		fileEntities = new ArrayList<FileEntity>();
+		namespaceEntities = new TreeMap<>();
 	}
 
 	public Entity getEntityByName(String entityQualifiedName) {
@@ -83,13 +85,11 @@ public class EntityRepo {
 		}
 		if (entity.getParent() != null)
 			Entity.setParent(entity, entity.getParent());
+		if(entity instanceof NamespaceEntity) namespaceEntities.put(entity.getQualifiedName(), entity.getId());
 	}
 
 	public Iterator<Entity> entityIterator() {
 		return new EntityＭapIterator(allEntitiesById.entrySet());
-	}
-
-	public void update(Entity entity) {
 	}
 
 	public List<FileEntity> getFileEntities() {
@@ -106,7 +106,12 @@ public class EntityRepo {
 			System.out.println(entity.getName() + entity.getLocation().getFileName()
 					+ entity.getLocation().getStartLine() + entity.getLocation().getStartColumn());
 		}
+	}
 
+	public Integer getNamespace(String name){
+		if(namespaceEntities.get(name) != null)
+			return namespaceEntities.get(name);
+		return -1;
 	}
 
 }

@@ -11,6 +11,7 @@ public class ClassEntity extends DataAggregateEntity{
 	List<String> friendClass;
 	List<String> friendFunction;
 	List<Integer> containEntity;
+	boolean isAbstract = false;
 	public ClassEntity(String name, String qualifiedName, Entity parent, Integer id, BaseScope scope, Location location) {
 		super(name,qualifiedName,  parent, id, scope, location);
 		this.baseClass = new ArrayList<String>(); 
@@ -39,4 +40,6 @@ public class ClassEntity extends DataAggregateEntity{
 	public void addContainEntity(Integer entityID){this.containEntity.add(entityID);}
 	public List<Integer> getContainEntity() {return this.containEntity;}
 
+	public void setAbstract() { this.isAbstract = true; }
+	public boolean isAbstract() { return this.isAbstract; }
 }

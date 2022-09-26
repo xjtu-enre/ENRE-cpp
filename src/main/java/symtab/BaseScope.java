@@ -37,18 +37,18 @@ public abstract class BaseScope implements Scope {
 	public void union(Scope scope){
 		if(scope instanceof BaseScope){
 			for(int i = 0; i< Configure.ENTITY_KIND_NUM; i++){
-				LinkedHashMap<String, Symbol> m1 = this.symbols.get(i);
-				LinkedHashMap<String, Symbol> m2 = ((BaseScope) scope).getSymbols().get(i);
-				Collection res = m2.values();
+				LinkedHashMap<String, Symbol> thisSymbol = this.symbols.get(i);
+				LinkedHashMap<String, Symbol> unionSymbol = ((BaseScope) scope).getSymbols().get(i);
+				Collection res = unionSymbol.values();
 				Iterator iterator = res.iterator();
 				while (iterator.hasNext()){
 					Symbol union_scope = (Symbol) iterator.next();
-					if(m1.containsKey(union_scope.getName())){
+					if(thisSymbol.containsKey(union_scope.getName())){
 						if(union_scope instanceof BaseScope){
-							((BaseScope)(m1.get(union_scope.getName()))).union((Scope) union_scope);
+							((BaseScope)(thisSymbol.get(union_scope.getName()))).union((Scope) union_scope);
 						}
 					}else{
-						m1.put(union_scope.getName(), union_scope);
+						thisSymbol.put(union_scope.getName(), union_scope);
 					}
 				}
 //

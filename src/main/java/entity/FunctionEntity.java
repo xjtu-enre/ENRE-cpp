@@ -11,9 +11,9 @@ public class FunctionEntity extends DataAggregateEntity{
 	String nameWithSignature;
 	String returnType;
 	Entity returnEntity;
-	BaseScope pointScope;
 	boolean isCallbackCall = false;
 	boolean hasBeenDefined = false;
+	boolean isPureVirtual = false;
 	
 	
 	public FunctionEntity(String name, String qualifiedName, Entity parent, Integer id, BaseScope scope, Location location) {
@@ -32,6 +32,7 @@ public class FunctionEntity extends DataAggregateEntity{
 	}
 
 	public boolean equals(String name, List<String> parameterLists){
+		if(parameterLists.size() == 0 && this.parameter.size() == 0) return true;
 		this.nameWithSignature = this.getNameWithSignature();
 		String nameWithSignatureB = name;
 		if(parameterLists.size() != this.parameter.size()) return false;
@@ -52,9 +53,6 @@ public class FunctionEntity extends DataAggregateEntity{
 	public void setReturn(String returnType) {
 		this.returnType = returnType;
 	}
-	public String getReturnType() {
-		return this.returnType;
-	}
 	public void setReturn(Entity returnType) {
 		this.returnEntity = returnType;
 	}
@@ -73,4 +71,7 @@ public class FunctionEntity extends DataAggregateEntity{
 
 	public void setHasBeenDefined(){ this.hasBeenDefined = true; }
 	public boolean isHasBeenDefined() { return this.hasBeenDefined; }
+
+	public void setPureVirtual() { this.isPureVirtual = true; }
+	public boolean isPureVirtual() { return this.isPureVirtual; }
 }

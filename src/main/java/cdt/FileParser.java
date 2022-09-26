@@ -5,6 +5,8 @@ import entity.EntityRepo;
 import entity.FileEntity;
 import entity.Location;
 import entity.MacroEntity;
+import org.eclipse.cdt.internal.core.parser.IMacroDictionary;
+import org.eclipse.cdt.internal.core.parser.SavedFilesProvider;
 import util.Configure;
 
 import org.eclipse.cdt.core.dom.ast.*;
@@ -57,6 +59,7 @@ public class FileParser {
 		boolean isIncludePath = false;
 		String[] includePaths = new String[0];
 		definedMacros.put("__cplusplus", "1");
+		definedMacros.put("HWTEST_F(className, funcName, level)", "void className::funcName()");
 		IASTTranslationUnit tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
 				new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
 				EmptyCIndex.INSTANCE, 0, log);
@@ -67,7 +70,9 @@ public class FileParser {
 
 		IASTPreprocessorStatement[] statements= tu.getAllPreprocessorStatements();
 		getallstatements(statements);
+
 		for(String includePath:includePathset) {
+
 			if(!isFileParse(includePath)) {
 				FileParser fileparse = new FileParser(includePath, entityrepo, fileList, Program_environment);
 				fileparse.parse();
@@ -82,10 +87,6 @@ public class FileParser {
 		}
 
 		getMacro(filepath);
-//		for(String macroInfo:fileEntity.getMacroRepo().keySet()) {
-//			definedMacros.remove(macroInfo);
-//		}
-
 		if(isIncludePath) {
 			tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
 					new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),

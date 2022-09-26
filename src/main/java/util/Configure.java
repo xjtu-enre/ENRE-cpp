@@ -13,7 +13,14 @@ import java.util.Set;
 public class Configure {
 
     private static Configure configure = new Configure();
-    private Configure() {}
+    public Configure() {}
+    @CommandLine.Parameters(index = "0", arity = "1", description = "The directory to be analyzed", paramLabel = "directory")
+    private String inputSrcPath;
+    @CommandLine.Parameters(index = "1", arity = "1", description = "A short alias name of the anayzed source code project", paramLabel = "projectName")
+    private String projectName;
+
+    @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true, description = "display help for command")
+    public boolean help = false;
 
     public static Configure getConfigureInstance() {
         return configure;
@@ -22,17 +29,14 @@ public class Configure {
             description = "print version information and exit")
     boolean versionRequested;
 
-    @CommandLine.Option(names = { "-p", "--programEnvironment" },
+    @CommandLine.Option(names = { "-p", "--program_environment" },
             description = "the program environment.")
-    private Set<String> Program_environment = new HashSet<>();
+    private Set<String> program_environment = new HashSet<>();
     @CommandLine.Option(names = {"-d", "--dir"},
             description = "other directory need to analysis.")
     private List<String> dirs;
 
-    @CommandLine.Parameters(index = "0", arity = "1", description = "The directory to be analyzed", paramLabel = "directory")
-    private String inputSrcPath;
-    @CommandLine.Parameters(index = "1", arity = "1", description = "A short alias name of the anayzed source code project", paramLabel = "projectName")
-    private String projectName;
+
 //    @CommandLine.Parameters(index = "3", arity = "1", description = "The output path", paramLabel = "outputPath")
 //    private String usageSrcPath;
 
@@ -51,7 +55,7 @@ public class Configure {
     public String getInputSrcPath() {
         return this.inputSrcPath;
     }
-    public Set<String> getProgram_environment() { return this.Program_environment; }
+    public Set<String> getProgram_environment() { return this.program_environment; }
     public List<String> getOtherDirs() { return this.dirs; }
 
     public static final String CPP = "cpp";
@@ -82,25 +86,26 @@ public class Configure {
         return this.projectName;
     }
 
-    public static final int ENTITY_KIND_NUM = 15;
-    public static final int File = 1;
-    public static final int Class = 2;
-    public static final int Struct = 3;
-    public static final int Union = 4;
-    public static final int Function = 5;
-    public static final int Macro = 6;
+    public static final int ENTITY_KIND_NUM = 16;
+    public static final int Namespace = 1;
+    public static final int File = 2;
+    public static final int Class = 3;
+    public static final int Struct = 4;
+    public static final int Union = 5;
+    public static final int Function = 6;
     public static final int Enum = 7;
     public static final int Enumerator = 8;
     public static final int Typedef = 9;
     public static final int Alias = 10;
-    public static final int Namespace = 11;
+    public static final int Macro = 11;
     public static final int Variable = 12;
     public static final int Label = 13;
     public static final int Virtual = 14;
+    public static final int Default= 14;
 
 
 
     public static final int NOTFOUNDENTITY = -1;
     public static final int FOUNDENTITY = 0;
-    public static final int FOUNDENTITYINCLUDE = 1;
+    public static final int FOUNDOVERLOADENTITY = 1;
 }

@@ -1,5 +1,6 @@
 import picocli.CommandLine;
 import util.Configure;
+import util.UnionFind;
 
 import java.util.Set;
 
@@ -10,14 +11,29 @@ public class Main {
 	* @description: main function
 	*/
 	public static void main(String[] args) throws Exception {
+		final Configure CliParam = new Configure();
+		final CommandLine commandLine = new CommandLine(CliParam);
+		try {
+			final CommandLine.ParseResult parseResult = commandLine.parseArgs(args);
+			if (parseResult.isUsageHelpRequested()) {
+				commandLine.usage(System.out);
+				System.exit(0);
+			}
+			if (parseResult.isVersionHelpRequested()) {
+				commandLine.printVersionHelp(System.out);
+				System.exit(0);
+			}
+		} catch (CommandLine.ParameterException e) {
+			commandLine.usage(System.out);
+			System.exit(1);
+		}
 
 		Configure configure = CommandLine.populateCommand(Configure.getConfigureInstance(),args);
-
 		configure.dealWithInputSrcPath();
 		String inputDir = configure.getInputSrcPath();
 		String projectName = configure.getProjectName();
 		Set<String> Program_environment = configure.getProgram_environment();
-		
+
 		long startTime = System.currentTimeMillis();
 
 		Processor processor = new Processor(Program_environment);

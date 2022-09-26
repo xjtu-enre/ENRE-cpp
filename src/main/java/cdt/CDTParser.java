@@ -32,6 +32,7 @@ public class CDTParser {
 	* @throws: 
 	*/
 	public void setFileList(HashMap<String,Integer> fileList) {
+//		Program_environment.add("/Users/dzf/Desktop/harmony/arkui_ace_engine_lite/test/moduletest/common");
 		this.fileList = fileList;
 		List<String> wordList = new ArrayList<String>();
 		wordList.add("lib");
@@ -61,13 +62,6 @@ public class CDTParser {
 	public void parseFile(String filefullpath) throws Exception {
 		FileParser cdt = new FileParser(filefullpath,entityrepo,fileList, Program_environment);
 		cdt.parse();
-	}
-	
-	public void testprintentityrepo() {
-		Iterator<Entity> print = entityrepo.entityIterator();
-		while(print.hasNext()) {
-			System.out.println(print.next().toString());
-		}
 	}
 
 }
