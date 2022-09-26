@@ -3,15 +3,15 @@ package symtab;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /** A symbol representing a collection of data like a struct or class.
  *  Each member has a slot number indexed from 0 and we track data fields
  *  and methods with different slot sequences. A DataAggregateSymbol
  *  can also be a member of an aggregate itself (nested structs, ...).
  */
-public abstract class DataAggregateSymbol extends SymbolWithScope implements MemberSymbol, Type {
+public class DataAggregateSymbol extends SymbolWithScope implements MemberSymbol, Type {
 	protected ParserRuleContext defNode;
 	protected int nextFreeFieldSlot = 0;  // next slot to allocate
 	protected int typeIndex;
@@ -40,8 +40,8 @@ public abstract class DataAggregateSymbol extends SymbolWithScope implements Mem
 	}
 
 	@Override
-	public List<MemberSymbol> getSymbols() {
-		return (List<MemberSymbol>)super.getSymbols();
+	public List<LinkedHashMap<String, Symbol>> getSymbols() {
+		return super.getSymbols();
 	}
 
 //	@Override
@@ -70,33 +70,6 @@ public abstract class DataAggregateSymbol extends SymbolWithScope implements Mem
 		}
 		return null;
 	}
-
-	/** get the number of fields defined specifically in this class */
-	public int getNumberOfDefinedFields() {
-		int n = 0;
-		for (MemberSymbol s : getSymbols()) {
-			if ( s instanceof FieldSymbol ) {
-				n++;
-			}
-		}
-		return n;
-	}
-
-	/** Get the total number of fields visible to this class */
-	public int getNumberOfFields() { return getNumberOfDefinedFields(); }
-
-	/** Return the list of fields in this specific aggregate */
-	public List<? extends FieldSymbol> getDefinedFields() {
-		List<FieldSymbol> fields = new ArrayList<>();
-		for (MemberSymbol s : getSymbols()) {
-			if (s instanceof FieldSymbol) {
-				fields.add((FieldSymbol)s);
-			}
-		}
-		return fields;
-	}
-
-	public List<? extends FieldSymbol> getFields() { return getDefinedFields(); }
 
 	public void setSlotNumber(Symbol sym) {
 		if ( sym instanceof FieldSymbol) {
