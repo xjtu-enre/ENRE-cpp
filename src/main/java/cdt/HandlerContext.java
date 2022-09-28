@@ -39,8 +39,8 @@ public class HandlerContext {
 		currentFileEntity = new FileEntity(name[name.length-1], filefullpath, 
 				null, entityRepo.generateId(),filefullpath, scope, new Location(filefullpath));
 		entityRepo.add(currentFileEntity);
-		pushScope(scope);
 		entityStack.push(currentFileEntity);
+		this.currentScope = scope;
 		return currentFileEntity;
 	}
 
@@ -52,66 +52,29 @@ public class HandlerContext {
 	}
 
 	public String resolveName(String Name) {
-		if(this.latestValidContainer() instanceof FileEntity)
-			return Name;
-		if(this.latestValidContainer().getQualifiedName().equals(""))
-			return Name;
-		if(this.latestValidContainer().getQualifiedName().equals("[unnamed]") & this.latestValidContainer() instanceof NamespaceEntity) {
-			if (this.latestValidContainer().getParent() instanceof FileEntity)
+		if(this.currentScope instanceof Symbol){
+			Entity en = entityRepo.getEntity(((Symbol)this.currentScope).getEntityID());
+			if(en instanceof FileEntity)
 				return Name;
+			if(en.getQualifiedName().equals(""))
+				return Name;
+			if(en.getQualifiedName().equals("[unnamed]") & en instanceof NamespaceEntity) {
+				if (this.latestValidContainer().getParent() instanceof FileEntity)
+					return Name;
+			}
+			return en.getQualifiedName() + "::" + Name;
 		}
-		return this.latestValidContainer().getQualifiedName() + "::" + Name;
+		return Name;
 	}
 
-	public int[] findSameFunctionFromScope(String functionName,  List<String> parameterLists, Scope scope){
-		String[] names = functionName.split("::");
-		for(int i=0; i < names.length; i++){
-			String name = names[i];
-			if(scope.getSymbol(name) != null){
-				if(i == names.length - 1){
-					if(scope.getSymbolByKind(name, Configure.Function) != null){
-						FunctionSymbol symbol = (FunctionSymbol)scope.getSymbolByKind(name, Configure.Function);
-						if(symbol.isOverload()){
-							for(Integer id:symbol.getOverload_list()){
-								FunctionEntity getEntity = (FunctionEntity) entityRepo.getEntity(id);
-								if(getEntity.equals(name, parameterLists)) return new int[]{Configure.FOUNDENTITY, getEntity.getId()};
-							}
-						}else{
-							FunctionEntity getEntity = (FunctionEntity) entityRepo.getEntity(symbol.getEntityID());
-							if(getEntity != null){
-								if(getEntity.equals(name, parameterLists)) return new int[]{Configure.FOUNDENTITY, getEntity.getId()};
-							}
-						}
-					}
-				}
-				if(scope.getSymbol(name) instanceof Scope) scope = (Scope)scope.getSymbol(name);
-			}
-			else break;
-		}
-		return null;
-	}
-//	/**
-//	 * @methodsName: findFunctionEntity
-//	 * @param:  String qualifiedName, int kind
-//	 * @return: int[]:
-//	 */
-//	public int[] findFunction(String functionName, List<String> parameterLists){
-//		Scope scope = this.currentFileEntity.getScope();
-//		int[] res = this.findSameFunctionFromScope(functionName, parameterLists, scope);
-//		if( res != null){
-//			return res;
-//		}
-//		for(Scope includeScope: this.includeScope){
-//			res = this.findSameFunctionFromScope(functionName, parameterLists, includeScope);
-//			if( res != null){
-//				return res;
-//			}
-//		}
-//		return new int[]{Configure.NOTFOUNDENTITY, -1};
-//	}
 
 	public FunctionEntity foundFunctionDeclare(String name, String returnType, Location location, List<ParameterEntity> parameterList){
+		this.currentScope = this.entityStack.peek().getScope();
+		this.currentScope = this.findTheScope(name);
 		int id = entityRepo.generateId();
+
+		String[] scopeManages = name.split("::");
+		name = scopeManages[scopeManages.length - 1];
 		FunctionSymbol symbol = new FunctionSymbol(name, id);
 		FunctionEntity functionEntity = new FunctionEntity(name, resolveName(name), this.latestValidContainer(), id, symbol, location);
 		if(parameterList.size()>0){
@@ -121,11 +84,9 @@ public class HandlerContext {
 		}
 		if(this.currentScope.getSymbolByKind(symbol.getName(), Configure.Function) != null){
 			overloadSet.union(id, symbol.getEntityID());
-			pushScope((Scope) this.currentScope.getSymbolByKind(symbol.getName(), Configure.Function));
 		}
 		else{
 			this.currentScope.define(symbol, Configure.Function);
-			pushScope(symbol);
 		}
 		entityRepo.add(functionEntity);
 		return functionEntity;
@@ -154,11 +115,13 @@ public class HandlerContext {
 		return current;
 	}
 	public FunctionEntity foundFunctionDefine(String name, String returnType, Location location, List<ParameterEntity> parameterList, boolean isDefine){
+		Entity en = this.entityStack.peek();
+		this.currentScope = this.entityStack.peek().getScope();
 		this.currentScope = findTheScope(name);
 		String[] scopeManages = name.split("::");
 		FunctionEntity functionEntity = null;
 		FunctionSymbol symbol = null;
-
+		name = scopeManages[scopeManages.length - 1];
 		boolean shouldNewEntity = true;
 		if(this.currentScope.getSymbolByKind(scopeManages[scopeManages.length -1], Configure.Function) != null){
 			Integer scopeID = this.currentScope.getSymbolByKind(scopeManages[scopeManages.length -1], Configure.Function).getEntityID();
@@ -195,10 +158,8 @@ public class HandlerContext {
 			}
 			if(this.currentScope.getSymbolByKind(symbol.getName(), Configure.Function) != null){
 				overloadSet.union(id, symbol.getEntityID());
-				pushScope((Scope) this.currentScope.getSymbolByKind(symbol.getName(), Configure.Function));
 			}else{
 				this.currentScope.define(symbol, Configure.Function);
-				pushScope(symbol);
 			}
 			if(this.latestValidContainer() instanceof ClassEntity){
 				((ClassEntity) this.latestValidContainer()).addContainEntity(id);
@@ -209,109 +170,6 @@ public class HandlerContext {
 			entityRepo.add(functionEntity);
 			entityStack.push(functionEntity);
 		}
-
-
-//		int[] findFunctionID = findFunction(name, parameterTypeLists);
-//
-//		switch (findFunctionID[0]){
-//			case Configure.NOTFOUNDENTITY -> {
-//
-//			}
-//			case Configure.FOUNDENTITY -> {
-//				functionEntity = (FunctionEntity) entityRepo.getEntity(findFunctionID[1]);
-//				functionEntity.setLocation(location);
-//				if(this.currentScope.getSymbolByKind(name, Configure.Function) == null){
-//					symbol = new FunctionSymbol(name, findFunctionID[1]);
-//					this.currentScope.define(symbol, Configure.Function);
-//				} else{
-//					symbol = (FunctionSymbol) this.currentScope.getSymbolByKind(name, Configure.Function);
-//				}
-//				this.latestValidContainer().addRelation(
-//						new Relation(this.latestValidContainer(), functionEntity, "Define"));
-//				pushScope(symbol);
-//				entityStack.push(functionEntity);
-//			}
-//			case Configure.FOUNDOVERLOADENTITY -> {
-//				int id = entityRepo.generateId();
-//				symbol = new FunctionSymbol(name, id);
-//				functionEntity = new FunctionEntity(name, resolveName(name), this.latestValidContainer(), id, symbol, location);
-//				if(this.currentScope.getSymbolByKind(functionEntity.getName(), Configure.Function) == null){
-//					symbol = new FunctionSymbol(functionEntity.getName(), findFunctionID[1]);
-//					this.currentScope.define(symbol, Configure.Function);
-//				}else{
-//					FunctionSymbol functionSymbol = (FunctionSymbol) this.currentScope.getSymbolByKind(functionEntity.getName(), Configure.Function);
-//					if(functionSymbol.isBaseOverload()){
-//						// TODO 有问题
-//						symbol = (FunctionSymbol) functionSymbol.getSymbolByKind(functionEntity.getNameWithSignature(), Configure.Function);
-//						if(symbol == null){
-//							symbol = new FunctionSymbol(functionEntity.getNameWithSignature(), findFunctionID[1]);
-//							functionSymbol.define(symbol, Configure.Function);
-//							functionSymbol.addOverload(findFunctionID[1]);
-//						}
-//					}else{
-//					// TODO 情况1.2.2 存在完全一致的实体 当前作用域内存在相同名称的函数, 非overload基类，检测是否为同一个函数
-//						if(functionSymbol.getEntityID() == findFunctionID[1]){
-//							// TODO 情况1.2.2.1 存在完全一致的实体 当前作用域内存在相同名称的函数, 非overload基类，是同一个函数，
-//							// TODO 直接把当前作用域设置为该作用域
-//							symbol = functionSymbol;
-//						}else{
-//							// TODO 情况1.2.2.2 存在完全一致的实体 当前作用域内存在相同名称的函数, 非overload基类，非同一个函数，
-//							// 当前找到的这个symbol没有被设置为是一个overload函数的基类(Overload Base)
-//							// TODO 生成新的作用域, 使用函数签名
-//							// TODO 需要在出栈的时候确定一下 是否为baseOverload，
-//							// TODO baseOverload function和Overload function可以被视作是一个整体 绑定起来
-//							functionSymbol.setBaseOverload();
-//							if(entityRepo.getEntity(functionSymbol.getEntityID()) instanceof FunctionEntity){
-//								FunctionEntity baseOverload = (FunctionEntity)(entityRepo.getEntity((functionSymbol.getEntityID())));
-//								FunctionSymbol baseOverloadSymbol = new FunctionSymbol(baseOverload.getNameWithSignature(),
-//										baseOverload.getId());
-//								functionSymbol.define(baseOverloadSymbol, Configure.Function);
-//								baseOverload.setScope(baseOverloadSymbol);
-//							}
-//							symbol = new FunctionSymbol(functionEntity.getNameWithSignature(), findFunctionID[1]);
-//							symbol.setOverload();
-//							if(functionSymbol.getSymbolByKind(symbol.getName(), Configure.Function) == null){
-//								functionSymbol.define(symbol, Configure.Function);
-//								functionSymbol.addOverload(findFunctionID[1]);
-//							}else{
-//								symbol = (FunctionSymbol) functionSymbol.getSymbolByKind(symbol.getName(), Configure.Function);
-//							}
-//						}
-//					}
-//					functionEntity.setScope(symbol);
-//					pushScope(symbol);
-//					entityStack.push(functionEntity);
-//
-//					functionEntity.clearParamter();
-//					for(ParameterEntity entity:parameterList) {
-//						functionEntity.addParameter(entity);
-//						entity.setQualifiedName(this.resolveName(entity.getName()));
-//						entityRepo.add(entity);
-//					}
-//				}
-//				//			else {
-////				FunctionSymbol functionSymbol = (FunctionSymbol) this.currentScope.getSymbolByKind(functionEntity.getName(), Configure.Function);
-////				if(!functionSymbol.isBaseOverload()){
-////					functionSymbol.setBaseOverload();
-////					if(entityRepo.getEntity(functionSymbol.getEntityID()) instanceof FunctionEntity){
-////						FunctionEntity baseOverload = (FunctionEntity)(entityRepo.getEntity((functionSymbol.getEntityID())));
-////						FunctionSymbol baseOverloadSymbol = new FunctionSymbol(baseOverload.getNameWithSignature(),
-////								baseOverload.getId());
-////						functionSymbol.define(baseOverloadSymbol, Configure.Function);
-////						baseOverload.setScope(baseOverloadSymbol);
-////					}
-////				}
-////				symbol = new FunctionSymbol(functionEntity.getNameWithSignature(), findFunctionID[1]);
-////				symbol.setOverload();
-////				if(functionSymbol.getSymbolByKind(symbol.getName(), Configure.Function) == null){
-////					functionSymbol.define(symbol, Configure.Function);
-////				}else{
-////					symbol = (FunctionSymbol) functionSymbol.getSymbolByKind(symbol.getName(), Configure.Function);
-////				}
-////				functionSymbol.addOverload(id);
-////			}
-//			}
-//		}
 		return functionEntity;
 	}
 	/**
@@ -321,6 +179,7 @@ public class HandlerContext {
 	* @return: Entity
 	*/
 	public Entity foundNamespace(String namespaceName) {
+		this.currentScope = this.entityStack.peek().getScope();
 		NamespaceEntity nsEntity = null;
 		NamespaceScope symbol = null;
 
@@ -339,7 +198,6 @@ public class HandlerContext {
 		if(this.currentScope.getSymbolByKind(symbol.getName(), Configure.Namespace) == null){
 			this.currentScope.define(symbol, Configure.Namespace);
 		}
-		this.pushScope(symbol);
 		entityStack.push(nsEntity);
 		return nsEntity;
 	}
@@ -354,6 +212,7 @@ public class HandlerContext {
 	* @return: ClassEntity
 	*/
 	public ClassEntity foundClassDefinition(String ClassName,List<String> baseClass, Location location){
+		this.currentScope = this.entityStack.peek().getScope();
 		int id = entityRepo.generateId();
 		ClassSymbol symbol = new ClassSymbol(ClassName, id);
 		if(this.currentScope.getSymbolByKind(ClassName, Configure.Class)==null) {
@@ -369,7 +228,6 @@ public class HandlerContext {
 			
 		}
 		entityRepo.add(classEntity);
-		pushScope(symbol);
 		entityStack.push(classEntity);
 		return classEntity;
 	}
@@ -382,6 +240,7 @@ public class HandlerContext {
 	* @return: StructEntity
 	*/
 	public StructEntity foundStructDefinition(String StructName, List<String> baseStruct, Location location) {
+		this.currentScope = this.entityStack.peek().getScope();
 		int id = entityRepo.generateId();
 		if(StructName.equals("")) {
 			StructName = "Default";
@@ -400,7 +259,6 @@ public class HandlerContext {
 			structEntity.addBaseStruct(baseStruct);
 		}
 		entityRepo.add(structEntity);
-		pushScope(symbol);
 		entityStack.push(structEntity);
 		return structEntity;
 	}
@@ -413,6 +271,7 @@ public class HandlerContext {
 	* @return: UnionEntity
 	*/
 	public UnionEntity foundUnionDefinition(String UnionName, Location location) {
+		this.currentScope = this.entityStack.peek().getScope();
 		int id = entityRepo.generateId();
 		
 		UnionScope symbol = new UnionScope(UnionName, id);
@@ -427,7 +286,6 @@ public class HandlerContext {
 				this.latestValidContainer(), id, symbol, location);
 		
 		entityRepo.add(unionEntity);
-		pushScope(symbol);
 		entityStack.push(unionEntity);
 		return unionEntity;
 	}
@@ -457,7 +315,6 @@ public class HandlerContext {
 		EnumEntity enumeration = new EnumEntity(enumName, resolveName(enumName),
 				this.latestValidContainer(), id, symbol, location);
 		entityRepo.add(enumeration);
-		pushScope(symbol);
 		entityStack.push(enumeration);
 		return enumeration;
 	}
@@ -470,6 +327,7 @@ public class HandlerContext {
 	* @return: EnumeratorEntity
 	*/
 	public EnumeratorEntity foundEnumeratorDefinition(String enumeratorName, Location location) {
+		this.currentScope = this.entityStack.peek().getScope();
 		int id = entityRepo.generateId();
 		EnumeratorEntity enumertorEntity = new EnumeratorEntity(enumeratorName, resolveName(enumeratorName),
 				this.latestValidContainer(),id, location);
@@ -610,6 +468,7 @@ public class HandlerContext {
 	* @return: VarEntity
 	*/
 	public VarEntity foundVarDefinition(String varName, Location location, String type) {
+		this.currentScope = this.entityStack.peek().getScope();
 		if(location == null) return null;
 		Integer id = entityRepo.generateId();
 		String qualifiedName = varName;
@@ -631,6 +490,7 @@ public class HandlerContext {
 	}
 
 	public LabelEntity foundLabelDefinition(String labelName, Location location) {
+		this.currentScope = this.entityStack.peek().getScope();
 		if(location == null) return null;
 		LabelEntity labelEntity = new LabelEntity(labelName,  resolveName(labelName),  this.latestValidContainer(), entityRepo.generateId(), location, "null");
 		entityRepo.add(labelEntity);
@@ -652,6 +512,7 @@ public class HandlerContext {
 	* @return: TypedefEntity
 	*/
 	public TypedefEntity foundTypedefDefinition(String Name, String originalName, Location location) {
+		this.currentScope = this.entityStack.peek().getScope();
 		TypedefEntity typedefEntity = new TypedefEntity(Name, resolveName(Name),this.latestValidContainer(),
 				entityRepo.generateId(),  location );
 		entityRepo.add(typedefEntity);
@@ -666,7 +527,8 @@ public class HandlerContext {
 	* @return: AliasEntity
 	*/
 	public AliasEntity foundNewAlias(String aliasName, String originalName, Location location) {
-		if (aliasName.equals(originalName)) return null; 
+		this.currentScope = this.entityStack.peek().getScope();
+		if (aliasName.equals(originalName)) return null;
 		AliasEntity currentTypeEntity = new AliasEntity(aliasName, 
 				this.resolveName(aliasName), this.latestValidContainer(),
 				entityRepo.generateId(), originalName, location );
@@ -675,6 +537,7 @@ public class HandlerContext {
 	}
 
 	public NamespaceAliasEntity foundNewNamespaceAlias(String aliasName, String originalName, Location location) {
+		this.currentScope = this.entityStack.peek().getScope();
 		if (aliasName.equals(originalName)) return null;
 		NamespaceAliasEntity currentTypeEntity = new NamespaceAliasEntity(aliasName,
 				this.resolveName(aliasName), this.latestValidContainer(),
@@ -690,6 +553,7 @@ public class HandlerContext {
 	* @return: AliasEntity
 	*/
 	public AliasEntity foundNewAlias(String aliasName, Entity referToEntity, Location location) {
+		this.currentScope = this.entityStack.peek().getScope();
 		AliasEntity currentTypeEntity = new AliasEntity(aliasName, resolveName(aliasName),this.latestValidContainer(),
 				entityRepo.generateId(),aliasName, location);
 		currentTypeEntity.setReferToEntity(referToEntity);
@@ -721,7 +585,6 @@ public class HandlerContext {
 		BlockEntity entity = new BlockEntity("", "", this.latestValidContainer(),
 				-1, scope, new Location(-1, -1, -1, -1,
 				this.currentFileEntity.getQualifiedName()));
-		pushScope(scope);
 	}
 	
 	
@@ -766,10 +629,6 @@ public class HandlerContext {
 			if (t instanceof NamespaceEntity)
 				return (NamespaceEntity)t;
 			if (t instanceof EnumEntity) {
-//				EnumEntity enumEntity = (EnumEntity)t;
-//				if(enumEntity.getisScope()) {
-//					return enumEntity;
-//				}
 				return (EnumEntity)t;
 			}
 				
@@ -786,24 +645,10 @@ public class HandlerContext {
 	*/
 	public Entity exitLastedEntity() {
 		//we never pop up the lastest one (FileEntity)
-		this.currentScope = entityStack.peek().getScope();
 		if (entityStack.size() > 1) {
 			return entityStack.pop();
 		}
-
 		return null;
-	}
-	
-	/**
-	* @methodsName: pushScope
-	* @description: push scope into stack
-	* @param: Scope s
-	* @return: void
-	*/
-	private void pushScope(Scope s) {
-		if(s != null){
-			this.currentScope = s;
-		}
 	}
 	
 	

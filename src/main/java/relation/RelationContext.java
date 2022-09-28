@@ -2,6 +2,7 @@ package relation;
 
 import entity.*;
 import entity.Entity.BindingRelation;
+import symtab.BlockScope;
 import util.Configure;
 import util.Tuple;
 import symtab.BaseScope;
@@ -60,7 +61,8 @@ public class RelationContext {
 				relationrepo.addRelation(re);				
 			}
 			for(Tuple scopere :entity.getRelationListByScope()) {
-				Entity toEntity = entityrepo.getEntityByName((String)scopere.getSecond());
+				Entity toEntity = this.foundEntityByScope(entity.getScope(), (String)scopere.getSecond());
+				if(toEntity == null) toEntity = entityrepo.getEntityByName((String)scopere.getSecond());
 				if(toEntity == null) continue; 
 				Relation re = new Relation(entity, toEntity,(String)scopere.getFirst());
 				relationrepo.addRelation(re);				
@@ -124,7 +126,7 @@ public class RelationContext {
 				List<String> usingList = ((DataAggregateEntity) entity).getUsingImport();
 				if (usingList.size() != 0) {
 					for (String usingEntity : usingList) {
-						Entity toEntity = this.foundEntity(entity, usingEntity);
+						Entity toEntity = this.foundEntityByName(entity, usingEntity);
 						if(toEntity!=null) {
 							Relation re = new Relation(entity, toEntity, "Using");
 							relationrepo.addRelation(re);
@@ -148,7 +150,7 @@ public class RelationContext {
 			if (entity instanceof ClassEntity) {
 				List<String> baseclass = ((ClassEntity) entity).getBaseClass();
 				for (String base : baseclass) {
-					Entity fromentity = foundEntity(entity, base);
+					Entity fromentity = foundEntityByName(entity, base);
 					if (fromentity != null) {
 						foundOverride(fromentity, entity);
 						Relation re = new Relation(entity, fromentity,  "Extend");
@@ -157,7 +159,7 @@ public class RelationContext {
 				}
 				List<String> friendClass = ((ClassEntity) entity).getFriendClass();
 				for (String friend_class : friendClass) {
-					Entity fromentity = foundEntity(entity, friend_class);
+					Entity fromentity = foundEntityByName(entity, friend_class);
 					if (fromentity != null) {
 						Relation re = new Relation(entity, fromentity,  "Friend");
 						relationrepo.addRelation(re);
@@ -165,7 +167,7 @@ public class RelationContext {
 				}
 				List<String> friendFunction = ((ClassEntity) entity).getFriendFunction();
 				for (String friend : friendFunction) {
-					Entity fromentity = foundEntity(entity, friend);
+					Entity fromentity = foundEntityByName(entity, friend);
 					if (fromentity != null) {
 						Relation re = new Relation(entity, fromentity,  "Friend");
 						relationrepo.addRelation(re);
@@ -183,7 +185,7 @@ public class RelationContext {
 			if (entity instanceof StructEntity) {
 				List<String> baseStruct = ((StructEntity) entity).getBaseStruct();
 				for (String base : baseStruct) {
-					Entity fromentity = foundEntity(entity, base);
+					Entity fromentity = foundEntityByName(entity, base);
 					if (fromentity != null) {
 						Relation re = new Relation(fromentity, entity, "Extend");
 						relationrepo.addRelation(re);
@@ -192,7 +194,7 @@ public class RelationContext {
 			}
 		}
 	}
-	
+
 	/**
 	* @methodsName: foundOverride
 	* @description: deal Override dependency
@@ -222,7 +224,7 @@ public class RelationContext {
 	* @return: Entity
 	* @throws: 
 	*/
-	public Entity foundEntity(Entity entity, String toentity) {
+	public Entity foundEntityByName(Entity entity, String toentity) {
 		if(entity.getScope() != null){
 			if (((BaseScope) entity.getScope()).getEnclosingScope() != null) {
 				if(entity.getParent() instanceof FileEntity) {
@@ -239,6 +241,43 @@ public class RelationContext {
 			}
 			else {
 				return entityrepo.getEntityByName(entity.getParent().getQualifiedName() + "::" + toentity);
+			}
+		}
+		return null;
+	}
+
+
+	public Entity foundEntityByScope(Scope scope, String toentity){
+		if(!toentity.contains("::")){
+			do{
+				if(scope.getSymbol(toentity) != null){
+					Integer toID = scope.getSymbol(toentity).getEntityID();
+					return entityrepo.getEntity(toID);
+				}
+				if(scope.getEnclosingScope() != null) scope = scope.getEnclosingScope();
+			}while(scope.getEnclosingScope() != null);
+		}else{
+			String[] names = toentity.split("::");
+			do{
+				if(scope.getSymbol(names[0]) != null){
+					scope = (Scope) scope.getSymbol(names[0]);
+					break;
+				}
+				if(scope.getEnclosingScope() != null) scope = scope.getEnclosingScope();
+			}while(scope.getEnclosingScope() != null);
+			if(names.length == 2) {
+				if(scope.getSymbol(names[1]) != null) {
+					Integer toID = scope.getSymbol(names[1]).getEntityID();
+					return entityrepo.getEntity(toID);
+				}
+				return null;
+			}
+			for(int i = 1; i < names.length; i++){
+				if(scope.getSymbol(names[i]) != null){
+					scope = (Scope) scope.getSymbol(names[i]);
+				}else{
+					return null;
+				}
 			}
 		}
 		return null;
@@ -288,7 +327,7 @@ public class RelationContext {
 			Entity entity = iterator.next();
 			if (entity instanceof NamespaceAliasEntity) {
 				if(((NamespaceAliasEntity) entity).getToNamespaceName() != null){
-					Entity namespace = this.foundEntity(entity, ((NamespaceAliasEntity) entity).getToNamespaceName());
+					Entity namespace = this.foundEntityByName(entity, ((NamespaceAliasEntity) entity).getToNamespaceName());
 					if(namespace != null){
 						Relation aliasDep= new Relation(entity, namespace, "Alias");
 						relationrepo.addRelation(aliasDep);
