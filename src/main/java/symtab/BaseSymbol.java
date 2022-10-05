@@ -9,7 +9,7 @@ import java.util.List;
  *  You can associate a node in the parse tree that is responsible
  *  for defining this symbol.
  */
-public abstract class BaseSymbol implements Symbol {
+public abstract class BaseSymbol implements Symbol, Cloneable {
 	protected final String name;   		 // All symbols at least have a name
 	protected Type type;				 // If language statically typed, record type
 	protected Scope scope;      		 // All symbols know what scope contains them.
@@ -18,6 +18,10 @@ public abstract class BaseSymbol implements Symbol {
 	protected int entityID;
 
 	public BaseSymbol(String name, int id) { this.name = name; this.entityID = id;}
+	@Override
+	public BaseSymbol clone() throws CloneNotSupportedException {
+		return (BaseSymbol) super.clone();
+	}
 
 	@Override public String getName() { return name; }
 	@Override public int getEntityID(){ return entityID; }

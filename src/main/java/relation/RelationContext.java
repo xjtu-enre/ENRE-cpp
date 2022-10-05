@@ -2,26 +2,24 @@ package relation;
 
 import entity.*;
 import entity.Entity.BindingRelation;
-import symtab.BlockScope;
+import symtab.*;
 import util.Configure;
 import util.Tuple;
-import symtab.BaseScope;
-import symtab.Scope;
 
 import java.util.Iterator;
 import java.util.List;
 
 public class RelationContext {
 	//private static final Logger LOGGER = LogManager.getLogger(RelationContext.class);
-	EntityRepo entityrepo;
-	RelationRepo relationrepo;
+	EntityRepo entityRepo;
+	RelationRepo relationRepo;
 	List<FileEntity> FileList;
-	int entityrepoSize;
+	int entityRepoSize;
 
 	public RelationContext(EntityRepo entityrepo) {
-		this.entityrepo = entityrepo;
-		entityrepoSize = entityrepo.generateId();
-		this.relationrepo = new RelationRepo();
+		this.entityRepo = entityrepo;
+		entityRepoSize = entityrepo.generateId();
+		this.relationRepo = new RelationRepo();
 		this.FileList = entityrepo.getFileEntities();
 	}
 
@@ -36,11 +34,72 @@ public class RelationContext {
 		for (FileEntity File : FileList) {
 			for (FileEntity includefile : File.getIncludeEntity()) {
 				Relation re = new Relation(File, includefile, "Include");
-				relationrepo.addRelation(re);
+				relationRepo.addRelation(re);
 			}
 		}
 	}
-	
+
+	public Entity findTheObject(String name, Scope current){
+		String[] scopeManages = name.split("::");
+		if(scopeManages.length == 1){
+			do{
+				if(current.getSymbol(scopeManages[0]) != null){
+					if(current.getSymbol(scopeManages[0]) instanceof VariableSymbol){
+						return entityRepo.getEntity(current.getSymbol(scopeManages[0]).getEntityID());
+					}
+				}
+				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+			}while(current.getEnclosingScope() != null);
+		}
+		else if(scopeManages.length == 2){
+			do{
+				if(current.getSymbol(scopeManages[0]) != null){
+					if(current.getSymbol(scopeManages[0]) instanceof Scope){
+						current = (Scope) current.getSymbol(scopeManages[0]);
+						if(current.getSymbol(scopeManages[1]) != null){
+							if(current.getSymbol(scopeManages[1]) instanceof DataAggregateSymbol){
+								return entityRepo.getEntity(current.getSymbol(scopeManages[1]).getEntityID());
+							}
+						}
+					}
+					break;
+				}
+				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+			}while(current.getEnclosingScope() != null);
+		}
+		return null;
+	}
+
+	public Entity findTheTypedEntity(String name, Scope current){
+		String[] scopeManages = name.split("::");
+		if(scopeManages.length == 1){
+			do{
+				if(current.getSymbol(scopeManages[0]) != null){
+					if(current.getSymbol(scopeManages[0]) instanceof DataAggregateSymbol){
+						return entityRepo.getEntity(current.getSymbol(scopeManages[0]).getEntityID());
+					}
+				}
+				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+			}while(current.getEnclosingScope() != null);
+		}
+		else if(scopeManages.length == 2){
+			do{
+				if(current.getSymbol(scopeManages[0]) != null){
+					if(current.getSymbol(scopeManages[0]) instanceof Scope){
+						current = (Scope) current.getSymbol(scopeManages[0]);
+						if(current.getSymbol(scopeManages[1]) != null){
+							if(current.getSymbol(scopeManages[1]) instanceof DataAggregateSymbol){
+								return entityRepo.getEntity(current.getSymbol(scopeManages[1]).getEntityID());
+							}
+						}
+					}
+					break;
+				}
+				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+			}while(current.getEnclosingScope() != null);
+		}
+		return null;
+	}
 	/**
 	* @methodsName: relationListDeal() 
 	* @description: deal with relation list
@@ -49,26 +108,46 @@ public class RelationContext {
 	* @throws: 
 	*/
 	public void relationListDeal() {
-		Iterator<Entity> iterator = entityrepo.entityIterator();
+		Iterator<Entity> iterator = entityRepo.entityIterator();
 		while (iterator.hasNext()) {
 			Entity entity = iterator.next();
 			for(BindingRelation bindingre :entity.getRelationListByBinding()) {
-				Entity toEntity = entityrepo.getEntityByLocation(bindingre.getLocationInfor());
+				Entity toEntity = entityRepo.getEntityByLocation(bindingre.getLocationInfor());
 				if(toEntity == null) {
 					continue; 
 				}
 				Relation re = new Relation(entity, toEntity, bindingre.getRelationType());
-				relationrepo.addRelation(re);				
+				relationRepo.addRelation(re);
 			}
 			for(Tuple scopere :entity.getRelationListByScope()) {
 				Entity toEntity = this.foundEntityByScope(entity.getScope(), (String)scopere.getSecond());
-				if(toEntity == null) toEntity = entityrepo.getEntityByName((String)scopere.getSecond());
+				if(toEntity == null) toEntity = entityRepo.getEntityByName((String)scopere.getSecond());
 				if(toEntity == null) continue; 
 				Relation re = new Relation(entity, toEntity,(String)scopere.getFirst());
-				relationrepo.addRelation(re);				
+				relationRepo.addRelation(re);
+			}
+			for(Tuple scopere :entity.getRelationListByObject()) {
+				Tuple infor = (Tuple) scopere.getSecond();
+				String function_name = (String) infor.getFirst();
+				String object_name = (String) infor.getSecond();
+				Entity fieldObject = findTheObject(object_name, entity.getScope());
+				if(fieldObject != null){
+					if(fieldObject instanceof VarEntity){
+						String typeName = ((VarEntity) fieldObject).getType().getTypeName();
+						Entity typedEntity = findTheTypedEntity(typeName, entity.getScope());
+						if(typedEntity != null){
+							if(typedEntity.getScope().getSymbol(function_name) != null){
+								Relation re = new Relation(entity,
+										entityRepo.getEntity(typedEntity.getScope().getSymbol(function_name).getEntityID()),
+										(String)scopere.getFirst());
+								relationRepo.addRelation(re);
+							}
+						}
+					}
+				}
 			}
 			for(Relation relation :entity.getRelations()) {
-				relationrepo.addRelation(relation);
+				relationRepo.addRelation(relation);
 			}
 		}
 	}
@@ -89,7 +168,7 @@ public class RelationContext {
 				if (getToFile(file) != null) {
 					Relation re = new Relation(fromEntity, getToFile(file), "Include");
 					fromEntity.addincludeEntity(getToFile(file));
-					relationrepo.addRelation(re);
+					relationRepo.addRelation(re);
 				}
 			}
 		}
@@ -112,7 +191,7 @@ public class RelationContext {
 	}
 
 	public void AggregateDeal() {
-		Iterator<Entity> iterator = entityrepo.entityIterator();
+		Iterator<Entity> iterator = entityRepo.entityIterator();
 		while (iterator.hasNext()) {
 			Entity entity = iterator.next();
 			if (entity instanceof DataAggregateEntity) {
@@ -120,7 +199,7 @@ public class RelationContext {
 				if (useList.size() != 0) {
 					for (Entity toEntity : useList) {
 						Relation re = new Relation(entity, toEntity, "Use");
-						relationrepo.addRelation(re);
+						relationRepo.addRelation(re);
 					}
 				}
 				List<String> usingList = ((DataAggregateEntity) entity).getUsingImport();
@@ -129,7 +208,7 @@ public class RelationContext {
 						Entity toEntity = this.foundEntityByName(entity, usingEntity);
 						if(toEntity!=null) {
 							Relation re = new Relation(entity, toEntity, "Using");
-							relationrepo.addRelation(re);
+							relationRepo.addRelation(re);
 						}
 					}
 				}
@@ -144,7 +223,7 @@ public class RelationContext {
 	* @throws: 
 	*/
 	public void ClassDeal() {
-		Iterator<Entity> iterator = entityrepo.entityIterator();
+		Iterator<Entity> iterator = entityRepo.entityIterator();
 		while (iterator.hasNext()) {
 			Entity entity = iterator.next();
 			if (entity instanceof ClassEntity) {
@@ -154,7 +233,7 @@ public class RelationContext {
 					if (fromentity != null) {
 						foundOverride(fromentity, entity);
 						Relation re = new Relation(entity, fromentity,  "Extend");
-						relationrepo.addRelation(re);
+						relationRepo.addRelation(re);
 					}
 				}
 				List<String> friendClass = ((ClassEntity) entity).getFriendClass();
@@ -162,7 +241,7 @@ public class RelationContext {
 					Entity fromentity = foundEntityByName(entity, friend_class);
 					if (fromentity != null) {
 						Relation re = new Relation(entity, fromentity,  "Friend");
-						relationrepo.addRelation(re);
+						relationRepo.addRelation(re);
 					}
 				}
 				List<String> friendFunction = ((ClassEntity) entity).getFriendFunction();
@@ -170,15 +249,15 @@ public class RelationContext {
 					Entity fromentity = foundEntityByName(entity, friend);
 					if (fromentity != null) {
 						Relation re = new Relation(entity, fromentity,  "Friend");
-						relationrepo.addRelation(re);
+						relationRepo.addRelation(re);
 					}
 				}
 				List<Integer> containEntity = ((ClassEntity) entity).getContainEntity();
 				for(Integer to_entity:containEntity){
-					Entity contain_to_entity = entityrepo.getEntity(to_entity);
+					Entity contain_to_entity = entityRepo.getEntity(to_entity);
 					if(contain_to_entity != null){
 						Relation re = new Relation(entity, contain_to_entity, "Contain");
-						relationrepo.addRelation(re);
+						relationRepo.addRelation(re);
 					}
 				}
 			}
@@ -188,7 +267,7 @@ public class RelationContext {
 					Entity fromentity = foundEntityByName(entity, base);
 					if (fromentity != null) {
 						Relation re = new Relation(fromentity, entity, "Extend");
-						relationrepo.addRelation(re);
+						relationRepo.addRelation(re);
 					}
 				}
 			}
@@ -206,10 +285,10 @@ public class RelationContext {
 		for (Entity child : baseEntity.getChild()) {
 			if (child instanceof FunctionEntity) {
 				if (((BaseScope) entity.getScope()).getSymbol(child.getName()+"_method") != null) {
-					Entity OverrideEntity = entityrepo.getEntityByName(entity.getQualifiedName() + "::" + child.getName());
+					Entity OverrideEntity = entityRepo.getEntityByName(entity.getQualifiedName() + "::" + child.getName());
 					if(OverrideEntity != null){
 						Relation re = new Relation(child, OverrideEntity, "Override");
-						relationrepo.addRelation(re);
+						relationRepo.addRelation(re);
 					}
 				}
 			}
@@ -228,19 +307,19 @@ public class RelationContext {
 		if(entity.getScope() != null){
 			if (((BaseScope) entity.getScope()).getEnclosingScope() != null) {
 				if(entity.getParent() instanceof FileEntity) {
-					return entityrepo.getEntityByName(toentity);
+					return entityRepo.getEntityByName(toentity);
 				}
 				else {
-					return entityrepo.getEntityByName(entity.getParent().getQualifiedName() + "::" + toentity);
+					return entityRepo.getEntityByName(entity.getParent().getQualifiedName() + "::" + toentity);
 				}
 			}
 		}
 		if(entity.getParent() != null){
 			if(entity.getParent() instanceof FileEntity) {
-				return entityrepo.getEntityByName(toentity);
+				return entityRepo.getEntityByName(toentity);
 			}
 			else {
-				return entityrepo.getEntityByName(entity.getParent().getQualifiedName() + "::" + toentity);
+				return entityRepo.getEntityByName(entity.getParent().getQualifiedName() + "::" + toentity);
 			}
 		}
 		return null;
@@ -252,7 +331,7 @@ public class RelationContext {
 			do{
 				if(scope.getSymbol(toentity) != null){
 					Integer toID = scope.getSymbol(toentity).getEntityID();
-					return entityrepo.getEntity(toID);
+					return entityRepo.getEntity(toID);
 				}
 				if(scope.getEnclosingScope() != null) scope = scope.getEnclosingScope();
 			}while(scope.getEnclosingScope() != null);
@@ -268,7 +347,7 @@ public class RelationContext {
 			if(names.length == 2) {
 				if(scope.getSymbol(names[1]) != null) {
 					Integer toID = scope.getSymbol(names[1]).getEntityID();
-					return entityrepo.getEntity(toID);
+					return entityRepo.getEntity(toID);
 				}
 				return null;
 			}
@@ -291,29 +370,29 @@ public class RelationContext {
 	* @throws: 
 	*/
 	public void FunctionDeal() {
-		Iterator<Entity> iterator = entityrepo.entityIterator();
+		Iterator<Entity> iterator = entityRepo.entityIterator();
 		while (iterator.hasNext()) {
 			Entity entity = iterator.next();
 			if (entity instanceof FunctionEntity) {
 				for (Entity parameterEntity : ((FunctionEntity) entity).getParameter()) {
 					if (parameterEntity != null) {
 						Relation re = new Relation(entity, parameterEntity, "Parameter");
-						relationrepo.addRelation(re);
+						relationRepo.addRelation(re);
 					}
 				}
 				Entity returnEntity = ((FunctionEntity) entity).getReturnEntity();
 				if (returnEntity != null) {
 					Relation re = new Relation(entity, returnEntity, "Return");
-					relationrepo.addRelation(re);
+					relationRepo.addRelation(re);
 				}
 				if (entity instanceof FunctionEntity) {
-					Iterator<Entity> iteratorFunction = entityrepo.entityIterator();
+					Iterator<Entity> iteratorFunction = entityRepo.entityIterator();
 					while (iteratorFunction.hasNext()) {
 						Entity entityfunc = iteratorFunction.next();
 						if (entityfunc instanceof FunctionEntity) {
 							if (entityfunc.getName().equals(entity.getName())) {
 								Relation redefine = new Relation(entityfunc, entity, "Define");
-								relationrepo.addRelation(redefine);
+								relationRepo.addRelation(redefine);
 							}
 						}
 					}
@@ -322,7 +401,7 @@ public class RelationContext {
 		}
 	}
 	public void NamespaceAliasDeal() {
-		Iterator<Entity> iterator = entityrepo.entityIterator();
+		Iterator<Entity> iterator = entityRepo.entityIterator();
 		while (iterator.hasNext()) {
 			Entity entity = iterator.next();
 			if (entity instanceof NamespaceAliasEntity) {
@@ -330,7 +409,7 @@ public class RelationContext {
 					Entity namespace = this.foundEntityByName(entity, ((NamespaceAliasEntity) entity).getToNamespaceName());
 					if(namespace != null){
 						Relation aliasDep= new Relation(entity, namespace, "Alias");
-						relationrepo.addRelation(aliasDep);
+						relationRepo.addRelation(aliasDep);
 					}
 				}
 			}
@@ -381,7 +460,7 @@ public class RelationContext {
 	}
 
 	public RelationRepo getRelationRepo() {
-		return relationrepo;
+		return relationRepo;
 	}
 
 }

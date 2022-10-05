@@ -66,7 +66,11 @@ public class CppVisitor extends ASTVisitor {
 
 	@Override
 	public int visit(IASTTranslationUnit tu) {
-		this.context.dealIncludeScope();
+		try {
+			this.context.dealIncludeScope();
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException(e);
+		}
 		return super.visit(tu);
 	}
 
@@ -236,7 +240,8 @@ public class CppVisitor extends ASTVisitor {
 						// TODO: 绑定到相应的类型
 						for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
 							String varName = this.resolveEntityName(declarator.getName());
-							context.foundVarDefinition(varName, getLocation(declarator.getName()), "null");
+							String type = ((CPPASTNamedTypeSpecifier) declSpecifier).getName().toString();
+							context.foundVarDefinition(varName, getLocation(declarator.getName()), type);
 						}
 					}
 

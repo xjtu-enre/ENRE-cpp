@@ -1,5 +1,8 @@
 package cdt;
 import entity.*;
+import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTExpression;
+import org.eclipse.cdt.internal.core.dom.parser.ProblemBinding;
+import org.eclipse.cdt.internal.core.dom.parser.ProblemType;
 import relation.Relation;
 import util.Configure;
 import util.Tuple;
@@ -44,7 +47,7 @@ public class HandlerContext {
 		return currentFileEntity;
 	}
 
-	public void dealIncludeScope(){
+	public void dealIncludeScope() throws CloneNotSupportedException {
 		for(FileEntity fileEntity:currentFileEntity.getIncludeEntity()){
 			includeScope.add(fileEntity.getScope());
 			this.currentScope.union(fileEntity.getScope());
@@ -91,6 +94,7 @@ public class HandlerContext {
 		entityRepo.add(functionEntity);
 		return functionEntity;
 	}
+
 	public Scope findTheScope(String name){
 		String[] scopeManages = name.split("::");
 		if(scopeManages.length == 1) return this.currentScope;
@@ -369,6 +373,22 @@ public class HandlerContext {
 		}
 		if(expression instanceof CPPASTFunctionCallExpression) {
 			CPPASTFunctionCallExpression functionCallExpression = (CPPASTFunctionCallExpression)expression;
+			IASTExpression functionNameExpression = functionCallExpression.getFunctionNameExpression();
+			if(functionNameExpression instanceof CPPASTUnaryExpression){}
+			else if(functionNameExpression instanceof CPPASTFieldReference) {
+				String rawSignature = expression.getRawSignature();
+				String callFunctionName = ((CPPASTFieldReference) functionNameExpression).getFieldName().toString();
+				ICPPASTExpression fieldExpression = ((CPPASTFieldReference) functionNameExpression).getFieldOwner();
+				if(fieldExpression instanceof CPPASTIdExpression){
+					String fieldName = ((CPPASTIdExpression) fieldExpression).getName().toString();
+					this.latestValidContainer().addRelationByObject("call", callFunctionName, fieldName);
+				}else if(fieldExpression instanceof CPPASTFieldReference){
+					String text = expression.getRawSignature();
+				}
+			}
+			else if(functionNameExpression instanceof CPPASTFunctionCallExpression){}
+			else if(functionNameExpression instanceof CPPASTIdExpression){}
+			else{}
 			this.dealExpressionNode(functionCallExpression.getFunctionNameExpression(), "Call");
 		}
 		if(expression instanceof CPPASTExpressionList) {
@@ -461,6 +481,38 @@ public class HandlerContext {
 		return null;
 	}
 
+	public Entity findTheTypedEntity(String name){
+		String[] scopeManages = name.split("::");
+		Scope current = this.currentScope;
+		if(scopeManages.length == 1){
+			do{
+				if(current.getSymbol(scopeManages[0]) != null){
+					if(current.getSymbol(scopeManages[0]) instanceof DataAggregateSymbol){
+						return entityRepo.getEntity(current.getSymbol(scopeManages[0]).getEntityID());
+					}
+				}
+				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+			}while(current.getEnclosingScope() != null);
+		}
+		else if(scopeManages.length == 2){
+			do{
+				if(current.getSymbol(scopeManages[0]) != null){
+					if(current.getSymbol(scopeManages[0]) instanceof Scope){
+						current = (Scope) current.getSymbol(scopeManages[0]);
+						if(current.getSymbol(scopeManages[1]) != null){
+							if(current.getSymbol(scopeManages[1]) instanceof DataAggregateSymbol){
+								return entityRepo.getEntity(current.getSymbol(scopeManages[1]).getEntityID());
+							}
+						}
+					}
+					break;
+				}
+				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+			}while(current.getEnclosingScope() != null);
+		}
+		return null;
+	}
+
 	/**
 	* @methodsName: foundVarDefinition
 	* @description: build var entity
@@ -473,6 +525,10 @@ public class HandlerContext {
 		Integer id = entityRepo.generateId();
 		String qualifiedName = varName;
 		if(this.latestValidContainer() instanceof NamespaceEntity) qualifiedName = resolveName(varName);
+		Entity typeEntity = this.findTheTypedEntity(type);
+		if(typeEntity != null){
+			typeEntity = this.findTheTypedEntity(type);
+		}
 		VarEntity varEntity = new VarEntity(varName, qualifiedName,  this.latestValidContainer(), id, location, type);
 		entityRepo.add(varEntity);
 		if(this.latestValidContainer() instanceof DataAggregateEntity ) {

@@ -38,6 +38,7 @@ public abstract class Entity {
 
 	private List<BindingRelation> RelationListByBinding = new ArrayList<BindingRelation>();
 	private List<Tuple> RelationListByScope = new ArrayList<Tuple>();
+	private List<Tuple> RelationListByObject = new ArrayList<Tuple>();
 	protected HashMap<String, Entity> visibleNames = new HashMap<>();
 	ArrayList<Relation> relations;
 	Scope scope = null;
@@ -233,12 +234,20 @@ public abstract class Entity {
 		return this.RelationListByBinding;
 	}
 	
-	public void addScopeRelation(String retype, String enname) {
-		this.RelationListByScope.add(new Tuple(retype, enname));
+	public void addScopeRelation(String retype, String entityName) {
+		this.RelationListByScope.add(new Tuple(retype, entityName));
 	}
-	
+
+	public void addRelationByObject(String relationType, String entityName, String object) {
+		this.RelationListByObject.add(new Tuple(relationType, new Tuple(entityName, object)));
+	}
+
 	public List<Tuple> getRelationListByScope(){
 		return this.RelationListByScope;
+	}
+
+	public List<Tuple> getRelationListByObject(){
+		return this.RelationListByObject;
 	}
 
 }

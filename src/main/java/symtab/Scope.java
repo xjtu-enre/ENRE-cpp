@@ -79,5 +79,5 @@ public interface Scope {
 	/** Return scopes from to current with separator in between */
 	public String toQualifierString(String separator);
 
-	void union(Scope scope);
+	void union(Scope scope) throws CloneNotSupportedException;
 }

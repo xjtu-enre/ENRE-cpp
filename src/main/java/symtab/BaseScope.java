@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 /** An abstract base class that houses common functionality for scopes. */
-public abstract class BaseScope implements Scope {
+public abstract class BaseScope implements Scope, Cloneable{
 	protected Scope enclosingScope; // null if this scope is the root of the scope tree
 
 	/** All symbols defined in this scope; can include classes, functions,
@@ -33,38 +33,40 @@ public abstract class BaseScope implements Scope {
 			this.symbols.add(new LinkedHashMap<String,Symbol>());
 		}
 	}
+
 	@Override
-	public void union(Scope scope){
+	public BaseScope clone() throws CloneNotSupportedException {
+		return (BaseScope) super.clone();
+	}
+
+	@Override
+	public void union(Scope scope) throws CloneNotSupportedException {
 		if(scope instanceof BaseScope){
 			for(int i = 0; i< Configure.ENTITY_KIND_NUM; i++){
-				LinkedHashMap<String, Symbol> thisSymbol = this.symbols.get(i);
-				LinkedHashMap<String, Symbol> unionSymbol = ((BaseScope) scope).getSymbols().get(i);
-				Collection res = unionSymbol.values();
+				Collection res = ((BaseScope) scope).getSymbols().get(i).values();
 				Iterator iterator = res.iterator();
 				while (iterator.hasNext()){
 					Symbol union_scope = (Symbol) iterator.next();
-					if(thisSymbol.containsKey(union_scope.getName())){
+					if(this.symbols.get(i).containsKey(union_scope.getName())){
 						if(union_scope instanceof BaseScope){
-							((BaseScope)(thisSymbol.get(union_scope.getName()))).union((Scope) union_scope);
+							((BaseScope)(this.symbols.get(i).get(union_scope.getName()))).union((Scope) union_scope);
 						}
 					}else{
-						thisSymbol.put(union_scope.getName(), union_scope);
+						if(union_scope instanceof BaseScope){
+							BaseScope symbol = (BaseScope) ((BaseScope) union_scope).clone();
+							this.define((Symbol) symbol, i);
+						}else if(union_scope instanceof BaseSymbol){
+							BaseSymbol symbol = (BaseSymbol) ((BaseSymbol) union_scope).clone();
+							this.define(symbol, i);
+						}
+
+//						this.symbols.get(i).put(union_scope.getName(), union_scope);
 					}
 				}
-//
-//				LinkedHashMap<String, Object> finalMap = (LinkedHashMap<String, Object>) Stream.concat(scope.get(i).entrySet().stream(), m2.entrySet().stream())
-//						.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue(), (map1, map2) -> {
-//							System.out.println("m1" + m1.getClass());
-//							System.out.println("m2" + m2.getClass());
-//							return map2;
-//						}));
 			}
 		}
 	}
 
-//	public Map<String, ? extends Symbol> getMembers() {
-//		return symbols;
-//	}
 
 	@Override
 	public Symbol getSymbolByKind(String name, int kind) {
