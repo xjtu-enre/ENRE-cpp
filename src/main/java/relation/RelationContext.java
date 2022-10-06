@@ -39,7 +39,7 @@ public class RelationContext {
 		}
 	}
 
-	public Entity findTheObject(String name, Scope current){
+	public Entity findTheVariable(String name, Scope current){
 		String[] scopeManages = name.split("::");
 		if(scopeManages.length == 1){
 			do{
@@ -130,7 +130,7 @@ public class RelationContext {
 				Tuple infor = (Tuple) scopere.getSecond();
 				String function_name = (String) infor.getFirst();
 				String object_name = (String) infor.getSecond();
-				Entity fieldObject = findTheObject(object_name, entity.getScope());
+				Entity fieldObject = findTheVariable(object_name, entity.getScope());
 				if(fieldObject != null){
 					if(fieldObject instanceof VarEntity){
 						String typeName = ((VarEntity) fieldObject).getType().getTypeName();
@@ -229,10 +229,10 @@ public class RelationContext {
 			if (entity instanceof ClassEntity) {
 				List<String> baseclass = ((ClassEntity) entity).getBaseClass();
 				for (String base : baseclass) {
-					Entity fromentity = foundEntityByName(entity, base);
-					if (fromentity != null) {
-						foundOverride(fromentity, entity);
-						Relation re = new Relation(entity, fromentity,  "Extend");
+					Entity fromEntity = findTheTypedEntity(base, entity.getScope());
+					if (fromEntity != null) {
+						foundOverride(fromEntity, entity);
+						Relation re = new Relation(entity, fromEntity,  "Extend");
 						relationRepo.addRelation(re);
 					}
 				}
