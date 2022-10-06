@@ -2,6 +2,7 @@ package relation;
 
 import entity.*;
 import entity.Entity.BindingRelation;
+import org.eclipse.cdt.core.model.IFunction;
 import symtab.*;
 import util.Configure;
 import util.Tuple;
@@ -282,17 +283,31 @@ public class RelationContext {
 	* @throws: 
 	*/
 	public void foundOverride(Entity baseEntity, Entity entity) {
-		for (Entity child : baseEntity.getChild()) {
-			if (child instanceof FunctionEntity) {
-				if (((BaseScope) entity.getScope()).getSymbol(child.getName()+"_method") != null) {
-					Entity OverrideEntity = entityRepo.getEntityByName(entity.getQualifiedName() + "::" + child.getName());
-					if(OverrideEntity != null){
-						Relation re = new Relation(child, OverrideEntity, "Override");
-						relationRepo.addRelation(re);
-					}
+		Scope fromScope = baseEntity.getScope();
+		Scope toScope = entity.getScope();
+		if(fromScope instanceof DataAggregateSymbol){
+			for(String function_name: ((DataAggregateSymbol) fromScope).getSymbols().get(Configure.Function).keySet()){
+				if(toScope.getSymbolByKind(function_name, Configure.Function) != null){
+					Relation re = new Relation(
+							entityRepo.getEntity(toScope.getSymbolByKind(function_name, Configure.Function).getEntityID()),
+							entityRepo.getEntity(fromScope.getSymbolByKind(function_name, Configure.Function).getEntityID()),
+							 "Override");
+					relationRepo.addRelation(re);
 				}
 			}
 		}
+
+//		for (Entity child : baseEntity.getChild()) {
+//			if (child instanceof FunctionEntity) {
+//				if (((BaseScope) entity.getScope()).getSymbol(child.getName()+"_method") != null) {
+//					Entity OverrideEntity = entityRepo.getEntityByName(entity.getQualifiedName() + "::" + child.getName());
+//					if(OverrideEntity != null){
+//						Relation re = new Relation(child, OverrideEntity, "Override");
+//						relationRepo.addRelation(re);
+//					}
+//				}
+//			}
+//		}
 	}
 	
 	
