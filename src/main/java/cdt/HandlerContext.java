@@ -131,7 +131,9 @@ public class HandlerContext {
 			Integer scopeID = this.currentScope.getSymbolByKind(scopeManages[scopeManages.length -1], Configure.Function).getEntityID();
 			FunctionEntity scopeFunctionEntity = (FunctionEntity) entityRepo.getEntity(scopeID);
 			List<String> parameterLists = new ArrayList<String>();
-			for(ParameterEntity parameterEntity:parameterList) parameterLists.add(parameterEntity.getType().getTypeName());
+			for(ParameterEntity parameterEntity:parameterList){
+				parameterLists.add(parameterEntity.getType().getTypeName());
+			}
 			if(scopeFunctionEntity.equals(name, parameterLists)){
 				shouldNewEntity = false;
 				scopeFunctionEntity.setLocation(location);
@@ -156,7 +158,6 @@ public class HandlerContext {
 			functionEntity = new FunctionEntity(name, resolveName(name), this.latestValidContainer(), id, symbol, location);
 			if(parameterList.size()>0){
 				for(ParameterEntity parameter:parameterList){
-					//TODO 没有把parameter加入到entityrepo里
 					functionEntity.addParameter(parameter);
 				}
 			}
@@ -369,7 +370,10 @@ public class HandlerContext {
 		
 		if(expression instanceof CPPASTUnaryExpression) {
 			CPPASTUnaryExpression unaryExp = (CPPASTUnaryExpression)expression;
-			this.dealExpressionNode(unaryExp.getOperand(), "Modify");
+			String unaryExpText = unaryExp.getRawSignature();
+			if(unaryExp.getOperator() == 9 || unaryExp.getOperator() == 10){
+				this.dealExpressionNode(unaryExp.getOperand(), "Modify");
+			}
 		}
 		if(expression instanceof CPPASTFunctionCallExpression) {
 			CPPASTFunctionCallExpression functionCallExpression = (CPPASTFunctionCallExpression)expression;

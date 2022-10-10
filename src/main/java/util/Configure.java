@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@CommandLine.Command(name = "ENRE-CPP", mixinStandardHelpOptions = true, version = "2022-08-18")
+@CommandLine.Command(name = "ENRE-CPP", mixinStandardHelpOptions = true, version = "1.0.2")
 
 public class Configure {
 

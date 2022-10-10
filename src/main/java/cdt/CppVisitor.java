@@ -282,7 +282,7 @@ public class CppVisitor extends ASTVisitor {
 						String varType = declSpecifier.getRawSignature().toString();
 						String varName = declarator.getName().toString();
 						if(declarator instanceof CPPASTFunctionDeclarator){
-							varName = declarator.getNestedDeclarator().getName().toString();
+							if(declarator.getNestedDeclarator() != null) varName = declarator.getNestedDeclarator().getName().toString();
 						}
 						context.foundTypedefDefinition(varName, varType, getLocation(declarator));
 					} else if (!(declarator instanceof IASTFunctionDeclarator)) {
