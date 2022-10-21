@@ -55,8 +55,11 @@ public class HandlerContext {
 	}
 
 	public String resolveName(String Name) {
+		this.currentScope = this.entityStack.peek().getScope();
 		if(this.currentScope instanceof Symbol){
 			Entity en = entityRepo.getEntity(((Symbol)this.currentScope).getEntityID());
+			if(en == null)
+				return Name;
 			if(en instanceof FileEntity)
 				return Name;
 			if(en.getQualifiedName().equals(""))
@@ -334,6 +337,7 @@ public class HandlerContext {
 	public EnumeratorEntity foundEnumeratorDefinition(String enumeratorName, Location location) {
 		this.currentScope = this.entityStack.peek().getScope();
 		int id = entityRepo.generateId();
+		System.out.println(resolveName(enumeratorName));
 		EnumeratorEntity enumertorEntity = new EnumeratorEntity(enumeratorName, resolveName(enumeratorName),
 				this.latestValidContainer(),id, location);
 		entityRepo.add(enumertorEntity);

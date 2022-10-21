@@ -306,6 +306,8 @@ public class RelationContext {
 		}
 		else if(scopeManages.length == 2){
 			do{
+				if(current == null)
+					return null;
 				if(current.getSymbol(scopeManages[0]) != null){
 					if(current.getSymbol(scopeManages[0]) instanceof Scope){
 						current = (Scope) current.getSymbol(scopeManages[0]);

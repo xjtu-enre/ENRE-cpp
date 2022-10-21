@@ -327,7 +327,7 @@ public class CppVisitor extends ASTVisitor {
 			}
 			functionEntity = context.foundFunctionDefine(rawName, returnType, getLocation(functionDefinition.getDeclarator()), parameterLists, true);
 			if (declaration.getParent() instanceof CPPASTTemplateDeclaration) {
-				functionEntity.setTemplate(true);
+				if(functionEntity != null) functionEntity.setTemplate(true);
 			}
 		}
 		else if (declaration instanceof ICPPASTAliasDeclaration) {

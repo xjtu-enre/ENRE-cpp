@@ -49,7 +49,9 @@ public abstract class BaseScope implements Scope, Cloneable{
 					Symbol union_scope = (Symbol) iterator.next();
 					if(this.symbols.get(i).containsKey(union_scope.getName())){
 						if(union_scope instanceof BaseScope){
-							((BaseScope)(this.symbols.get(i).get(union_scope.getName()))).union((Scope) union_scope);
+							Scope this_scope = (Scope) this.symbols.get(i).get(union_scope.getName());
+							if (this_scope != union_scope)
+								((BaseScope)(this.symbols.get(i).get(union_scope.getName()))).union((Scope) union_scope);
 						}
 					}else{
 						if(union_scope instanceof BaseScope){
