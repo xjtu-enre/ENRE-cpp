@@ -54,12 +54,13 @@ public class FileParser {
 		System.out.println("Parse file path: " + this.filepath);
 		fileList.put(filepath,1);
 		final FileContent content = FileContent.createForExternalFileLocation(filepath);
+		if(content == null){
+			return;
+		}
 		IParserLogService log = new DefaultLogService();
-		
 		boolean isIncludePath = false;
 		String[] includePaths = new String[0];
 		definedMacros.put("__cplusplus", "1");
-		definedMacros.put("HWTEST_F(className, funcName, level)", "void className::funcName()");
 		IASTTranslationUnit tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
 				new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
 				EmptyCIndex.INSTANCE, 0, log);
