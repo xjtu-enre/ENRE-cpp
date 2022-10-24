@@ -148,17 +148,17 @@ public class CppVisitor extends ASTVisitor {
 		return super.leave(declSpec);
 	}
 
-	@Override
-	public int visit(IASTDeclarator declarator) {
-		if(this.specifierEntity != null) {
-			if (declarator.getParent() instanceof IASTSimpleDeclaration) {
-				if (((IASTSimpleDeclaration) declarator.getParent()).getDeclSpecifier() instanceof CPPASTCompositeTypeSpecifier) {
-					context.foundVarDefinition(declarator.getName().toString(), getLocation(declarator.getName()), this.specifierEntity.getQualifiedName());
-				}
-			}
-		}
-		return super.visit(declarator);
-	}
+//	@Override
+//	public int visit(IASTDeclarator declarator) {
+//		if(this.specifierEntity != null) {
+//			if (declarator.getParent() instanceof IASTSimpleDeclaration) {
+//				if (((IASTSimpleDeclaration) declarator.getParent()).getDeclSpecifier() instanceof CPPASTCompositeTypeSpecifier) {
+//					context.foundVarDefinition(declarator.getName().toString(), getLocation(declarator.getName()), this.specifierEntity.getQualifiedName());
+//				}
+//			}
+//		}
+//		return super.visit(declarator);
+//	}
 
 	@Override
 	public int visit(IASTEnumerator enumerator) {
@@ -242,7 +242,6 @@ public class CppVisitor extends ASTVisitor {
 						context.addFriendClass(((CPPASTNamedTypeSpecifier) declSpec).getName().toString());
 					}
 					else {
-						// TODO: 绑定到相应的类型
 						for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
 							String varName = this.resolveEntityName(declarator.getName());
 							String type = ((CPPASTNamedTypeSpecifier) declSpecifier).getName().toString();
@@ -296,17 +295,7 @@ public class CppVisitor extends ASTVisitor {
 						if(declSpecifier instanceof CPPASTCompositeTypeSpecifier){
 
 						}else{
-//							if (getLocation(declarator.getName()) != null) {
-//								VarEntity entity = context.foundVarDefinition(varName, getLocation(declarator.getName()), "null");
-//							}
-//							for (IASTNode node : declarator.getChildren()) {
-//								if (node instanceof CPPASTPointer) {
-//									// entity = context.foundPointerDefinition(varName,varType);
-//								}
-//								if (node instanceof CPPASTReferenceOperator) {
-//									// entity.setReference(true);
-//								}
-//							}
+
 						}
 					}
 				}
