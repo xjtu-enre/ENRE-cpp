@@ -64,9 +64,8 @@ public class HandlerContext {
 				return Name;
 			if(en.getQualifiedName().equals(""))
 				return Name;
-			if(en.getQualifiedName().equals("[unnamed]") & en instanceof NamespaceEntity) {
-				if (this.latestValidContainer().getParent() instanceof FileEntity)
-					return Name;
+			if(en.getQualifiedName().equals("[unnamed]")) {
+				return Name;
 			}
 			return en.getQualifiedName() + "::" + Name;
 		}
@@ -337,7 +336,6 @@ public class HandlerContext {
 	public EnumeratorEntity foundEnumeratorDefinition(String enumeratorName, Location location) {
 		this.currentScope = this.entityStack.peek().getScope();
 		int id = entityRepo.generateId();
-		System.out.println(resolveName(enumeratorName));
 		EnumeratorEntity enumertorEntity = new EnumeratorEntity(enumeratorName, resolveName(enumeratorName),
 				this.latestValidContainer(),id, location);
 		entityRepo.add(enumertorEntity);
