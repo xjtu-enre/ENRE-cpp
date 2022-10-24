@@ -108,7 +108,12 @@ public class CppVisitor extends ASTVisitor {
 				methodName = templateId.getTemplateName().toString();
 			}
 			if(methodName.equals("")){
-				methodName = "[unnamed]";
+				if(declSpec.getParent() instanceof CPPASTSimpleDeclaration && declSpec.getStorageClass() == IASTDeclSpecifier.sc_typedef){
+					CPPASTSimpleDeclaration simpleDeclaration = (CPPASTSimpleDeclaration)(declSpec.getParent());
+					if(simpleDeclaration.getDeclarators().length == 1){
+						methodName = simpleDeclaration.getDeclarators()[0].getName().toString();
+					}
+				}else methodName = "[unnamed]";
 			}
 			ArrayList<String> baseName = new ArrayList<String>();
 			ICPPASTBaseSpecifier[] baseSpecifiers = ((CPPASTCompositeTypeSpecifier) declSpec).getBaseSpecifiers();
@@ -291,9 +296,9 @@ public class CppVisitor extends ASTVisitor {
 						if(declSpecifier instanceof CPPASTCompositeTypeSpecifier){
 
 						}else{
-							if (getLocation(declarator.getName()) != null) {
-								VarEntity entity = context.foundVarDefinition(varName, getLocation(declarator.getName()), "null");
-							}
+//							if (getLocation(declarator.getName()) != null) {
+//								VarEntity entity = context.foundVarDefinition(varName, getLocation(declarator.getName()), "null");
+//							}
 //							for (IASTNode node : declarator.getChildren()) {
 //								if (node instanceof CPPASTPointer) {
 //									// entity = context.foundPointerDefinition(varName,varType);
