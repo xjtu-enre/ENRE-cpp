@@ -28,8 +28,8 @@ namespace alias_name = nested_name::ns_name;	(3)
 ```cpp
 namespace base{
     namespace flags{
-        namespace child{
-        }
+        class child{
+        };
     }
 }
 using flags = base::flags::child;
