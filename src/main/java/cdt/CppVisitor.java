@@ -148,17 +148,6 @@ public class CppVisitor extends ASTVisitor {
 		return super.leave(declSpec);
 	}
 
-//	@Override
-//	public int visit(IASTDeclarator declarator) {
-//		if(this.specifierEntity != null) {
-//			if (declarator.getParent() instanceof IASTSimpleDeclaration) {
-//				if (((IASTSimpleDeclaration) declarator.getParent()).getDeclSpecifier() instanceof CPPASTCompositeTypeSpecifier) {
-//					context.foundVarDefinition(declarator.getName().toString(), getLocation(declarator.getName()), this.specifierEntity.getQualifiedName());
-//				}
-//			}
-//		}
-//		return super.visit(declarator);
-//	}
 
 	@Override
 	public int visit(IASTEnumerator enumerator) {
@@ -264,8 +253,14 @@ public class CppVisitor extends ASTVisitor {
 					EnumEntity enumentity = null;
 					String methodName = enumerationSpecifier.getName().toString();
 					if (methodName.equals(""))
-						methodName = "[unnamed]";
+						if (declSpecifier.getStorageClass() == IASTDeclSpecifier.sc_typedef) {
+							if (((IASTSimpleDeclaration) declaration).getDeclarators().length > 0) methodName = ((IASTSimpleDeclaration) declaration).getDeclarators()[0].getName().toString();
+							else
+								methodName = "[unnamed]";
+						}else
+							methodName = "[unnamed]";
 					enumentity = context.foundEnumDefinition(methodName, getLocation(enumerationSpecifier));
+
 //					try {
 //						// enum with scope: enum class/enum struct
 //						if(enumerationSpecifier.getName()!= null & !methodName.equals("")) {

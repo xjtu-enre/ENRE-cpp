@@ -497,6 +497,7 @@ public class HandlerContext {
 						return entityRepo.getEntity(current.getSymbol(scopeManages[0]).getEntityID());
 					}
 				}
+				if(current.getEnclosingScope() == current) return null;
 				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
 			}while(current.getEnclosingScope() != null);
 		}
@@ -514,6 +515,7 @@ public class HandlerContext {
 					break;
 				}
 				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+				if(current.getEnclosingScope() == current) return null;
 			}while(current.getEnclosingScope() != null);
 		}
 		return null;
