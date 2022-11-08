@@ -49,5 +49,21 @@ enum class Handle {};
                 type: Enum
 ```
 
+###### Typedef Enum
+```cpp
+typedef enum {
+    Monday = 1;
+    Tuesday;
+} Weekday;
+```
+
+```yaml
+    name: Typedef Enum
+    entity:
+        items:
+            -   name: Weekday
+                loc: 4:3:4:9
+                type: Enum
+```
 
 
