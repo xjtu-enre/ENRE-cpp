@@ -51,6 +51,9 @@ public class FileParser {
 				return ;
 			}
 		}
+		if(filepath.contains("if.h")){
+			String test = "";
+		}
 		System.out.println("Parse file path: " + this.filepath);
 		fileList.put(filepath,1);
 		final FileContent content = FileContent.createForExternalFileLocation(filepath);
@@ -68,9 +71,6 @@ public class FileParser {
 		CppVisitor visitor = new CppVisitor(entityrepo, filepath);
 		fileEntity = visitor.getfile();
 		HashSet<String> includePathset = getdirectedinclude(tu);
-
-		IASTPreprocessorStatement[] statements= tu.getAllPreprocessorStatements();
-		getallstatements(statements);
 
 		for(String includePath:includePathset) {
 
@@ -93,6 +93,8 @@ public class FileParser {
 					new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
 					EmptyCIndex.INSTANCE, 0, log);
 		}
+		IASTPreprocessorStatement[] statements= tu.getAllPreprocessorStatements();
+		getallstatements(statements);
 		tu.accept(visitor);
 	}
 	
@@ -299,21 +301,8 @@ public class FileParser {
 	}
 	
 	
-//	public static String uniformPath(String str1, String str2, String str3) {
-//		String str4 = str1.split("\\\\")[str1.split("\\\\").length-1];
-//		String str5 = str2.split("\\\\")[0];
-//		
-//		if(str5.equals(str4)) {
-//			String str6 = str1.substring(0, str1.length()-str4.length()-1);
-//			String str7 = str2.substring(str5.length()+1);
-//			return uniformPath(str6, str7, str5);
-//		}
-//		
-//		if(str3.length() == 0) return str1+"\\"+str2;
-//		return str1+"\\" + str3 + "\\"+ str2;
-//		
-//	}
-	public static String uniformPath(String root, String include_file) {
+
+	public String uniformPath(String root, String include_file) {
 		String[] root_split = root.split("[/|\\\\]");
 		String[] include_file_split = include_file.split("[/|\\\\]");
 		Stack<String> pathStack = new Stack<>();
@@ -335,7 +324,9 @@ public class FileParser {
 				if (i<include_file_split.length-1)
 					sb.append(File.separator);
 			}
-			return sb.toString();
+			if(exitFile(sb.toString())){
+				return sb.toString();
+			}
 		}
 		
 		boolean isRoot = false;
@@ -378,6 +369,22 @@ public class FileParser {
 			}
 			sb.append(include_file);
 		}
+		if(exitFile(sb.toString())){
+			return sb.toString();
+		}
+
+		for(int i=root_split.length-1;i>0;i--) {
+			StringBuilder sb_short_root = new StringBuilder();
+			for(int j=0; j<root_split.length-1; j++){
+				sb_short_root.append(root_split[j]);
+				sb_short_root.append(File.separator);
+			}
+			sb_short_root.append(include_file);
+			if(exitFile(sb_short_root.toString())){
+				return sb_short_root.toString();
+			}
+		}
+
 		return sb.toString();
 	}
 
