@@ -90,6 +90,10 @@ public abstract class Entity {
 	public Entity getParent() {
 		return parent;
 	}
+	public Integer getParentId(){
+		if(parent == null) return -1;
+		return parent.getId();
+	}
 
 	public void setParent(Entity parent) {
 		this.parent = parent;

@@ -43,8 +43,8 @@ public class CppVisitor extends ASTVisitor {
 		this.shouldVisitDesignators = true;
 		this.shouldVisitEnumerators = true;
 		this.shouldVisitExpressions = true;
-		// TODO: should be try and throw exception
-		// this.shouldVisitImplicitDestructorNames = true;
+//		// TODO: should be try and throw exception
+//		// this.shouldVisitImplicitDestructorNames = true;
 		this.shouldVisitImplicitNameAlternates = true;
 		this.shouldVisitImplicitNames = true;
 		this.shouldVisitInitializers = true;
@@ -84,7 +84,14 @@ public class CppVisitor extends ASTVisitor {
 	public int visit(ICPPASTNamespaceDefinition namespaceDefinition) {
 		String namespaceName = namespaceDefinition.getName().toString();
 		if(namespaceName.equals("")) namespaceName = "[unnamed]";
-		context.foundNamespace(namespaceName);
+		try{
+			context.foundNamespace(namespaceName,
+					namespaceDefinition.getFileLocation().getStartingLineNumber(),
+					namespaceDefinition.getFileLocation().getEndingLineNumber());
+		}catch(NullPointerException exception){
+
+		}
+
 		return super.visit(namespaceDefinition);
 	}
 
@@ -108,12 +115,15 @@ public class CppVisitor extends ASTVisitor {
 				methodName = templateId.getTemplateName().toString();
 			}
 			if(methodName.equals("")){
-				if(declSpec.getParent() instanceof CPPASTSimpleDeclaration && declSpec.getStorageClass() == IASTDeclSpecifier.sc_typedef){
-					CPPASTSimpleDeclaration simpleDeclaration = (CPPASTSimpleDeclaration)(declSpec.getParent());
-					if(simpleDeclaration.getDeclarators().length == 1){
-						methodName = simpleDeclaration.getDeclarators()[0].getName().toString();
-					}
-				}else methodName = "[unnamed]";
+				if(declSpec != null){
+					if(declSpec.getParent() instanceof CPPASTSimpleDeclaration && declSpec.getStorageClass() == IASTDeclSpecifier.sc_typedef){
+						CPPASTSimpleDeclaration simpleDeclaration = (CPPASTSimpleDeclaration)(declSpec.getParent());
+						if(simpleDeclaration.getDeclarators().length == 1){
+							methodName = simpleDeclaration.getDeclarators()[0].getName().toString();
+						}
+					}else methodName = "[unnamed]";
+				}
+
 			}
 			ArrayList<String> baseName = new ArrayList<String>();
 			ICPPASTBaseSpecifier[] baseSpecifiers = ((CPPASTCompositeTypeSpecifier) declSpec).getBaseSpecifiers();
@@ -297,7 +307,6 @@ public class CppVisitor extends ASTVisitor {
 			}
 		}
 		else if (declaration instanceof IASTFunctionDefinition) {
-
 			// function definition
 			FunctionEntity functionEntity = null;
 			IASTFunctionDefinition functionDefinition = (IASTFunctionDefinition) declaration;
@@ -315,9 +324,12 @@ public class CppVisitor extends ASTVisitor {
 				}
 			}
 			functionEntity = context.foundFunctionDefine(rawName, returnType, getLocation(functionDefinition.getDeclarator()), parameterLists, true);
-			if (declaration.getParent() instanceof CPPASTTemplateDeclaration) {
-				if(functionEntity != null) functionEntity.setTemplate(true);
+			if(declaration != null){
+				if (declaration.getParent() instanceof CPPASTTemplateDeclaration) {
+					if(functionEntity != null) functionEntity.setTemplate(true);
+				}
 			}
+
 		}
 		else if (declaration instanceof ICPPASTAliasDeclaration) {
 			ICPPASTAliasDeclaration aliasDeclaration = (ICPPASTAliasDeclaration) declaration;
@@ -432,10 +444,13 @@ public class CppVisitor extends ASTVisitor {
 				var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
 					null,  null, context.entityRepo.generateId(),
 					getLocation(parameterDeclaration.getDeclarator().getName()), "");
-			if (parameterDeclaration.getParent() instanceof IASTStandardFunctionDeclarator) {
-				if(context.currentFunction()!=null)
-					context.currentFunction().setCallbackCall();
+			if(parameterDeclaration != null){
+				if (parameterDeclaration.getParent() instanceof IASTStandardFunctionDeclarator) {
+					if(context.currentFunction()!=null)
+						context.currentFunction().setCallbackCall();
+				}
 			}
+
 		}
 		else {
 			if (parameterDeclaration.getDeclSpecifier() instanceof CPPASTSimpleDeclSpecifier) {
@@ -445,9 +460,9 @@ public class CppVisitor extends ASTVisitor {
 				if (declaratorChild.length == 1) {
 					if (getLocation(parameterDeclaration.getDeclarator().getName()) != null) {
 						var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
-								null,  null, context.entityRepo.generateId(),
+								parameterDeclaration.getDeclarator().getName().toString(),  null, context.entityRepo.generateId(),
 								getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
-
+						entityrepo.add(var);
 					}
 				}
 				if (declaratorChild.length <= 3) {
@@ -455,13 +470,13 @@ public class CppVisitor extends ASTVisitor {
 						if (node instanceof CPPASTPointer) {
 							if (getLocation(parameterDeclaration.getDeclarator().getName()) != null) {
 								var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
-										null,  null, context.entityRepo.generateId(),
+										parameterDeclaration.getDeclarator().getName().toString(),  null, context.entityRepo.generateId(),
 										getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
 							}
 							break;
 						} else if (node instanceof CPPASTReferenceOperator) {
 							var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
-									null,  null, context.entityRepo.generateId(),
+									parameterDeclaration.getDeclarator().getName().toString(),  null, context.entityRepo.generateId(),
 									getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
 							break;
 						}else if(node instanceof CPPASTName){
@@ -478,8 +493,9 @@ public class CppVisitor extends ASTVisitor {
 			}else{
 				String parameterType = this.getType(parameterDeclaration.getDeclSpecifier());
 				var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
-						null,  null, context.entityRepo.generateId(),
+						parameterDeclaration.getDeclarator().getName().toString(),  null, context.entityRepo.generateId(),
 						getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
+				entityrepo.add(var);
 			}
 		}
 		return var;

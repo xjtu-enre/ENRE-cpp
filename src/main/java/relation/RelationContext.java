@@ -200,18 +200,18 @@ public class RelationContext {
 					Relation re = new Relation(entity, returnEntity, "Return");
 					relationRepo.addRelation(re);
 				}
-				if (entity instanceof FunctionEntity) {
-					Iterator<Entity> iteratorFunction = entityRepo.entityIterator();
-					while (iteratorFunction.hasNext()) {
-						Entity entityfunc = iteratorFunction.next();
-						if (entityfunc instanceof FunctionEntity) {
-							if (entityfunc.getName().equals(entity.getName())) {
-								Relation redefine = new Relation(entityfunc, entity, "Define");
-								relationRepo.addRelation(redefine);
-							}
-						}
-					}
-				}
+//				if (entity instanceof FunctionEntity) {
+//					Iterator<Entity> iteratorFunction = entityRepo.entityIterator();
+//					while (iteratorFunction.hasNext()) {
+//						Entity entityfunc = iteratorFunction.next();
+//						if (entityfunc instanceof FunctionEntity) {
+//							if (entityfunc.getName().equals(entity.getName())) {
+//								Relation redefine = new Relation(entityfunc, entity, "Define");
+//								relationRepo.addRelation(redefine);
+//							}
+//						}
+//					}
+//				}
 			}
 		}
 	}
@@ -221,6 +221,7 @@ public class RelationContext {
 			Entity entity = iterator.next();
 			if (entity instanceof NamespaceAliasEntity) {
 				if(((NamespaceAliasEntity) entity).getToNamespaceName() != null){
+					if(entity.getScope() == null) continue;
 					Entity namespace = this.findTheEntity(((NamespaceAliasEntity) entity).getToNamespaceName(), entity.getScope());
 					if(namespace != null){
 						Relation aliasDep= new Relation(entity, namespace, "Alias");
@@ -295,31 +296,38 @@ public class RelationContext {
 	}
 
 	public Entity findTheEntity(String name, Scope current){
-		String[] scopeManages = name.split("::");
-		if(scopeManages.length == 1){
-			do{
-				if(current.getSymbol(scopeManages[0]) != null){
-					return entityRepo.getEntity(current.getSymbol(scopeManages[0]).getEntityID());
-				}
-				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
-			}while(current.getEnclosingScope() != null);
-		}
-		else if(scopeManages.length == 2){
-			do{
-				if(current == null)
-					return null;
-				if(current.getSymbol(scopeManages[0]) != null){
-					if(current.getSymbol(scopeManages[0]) instanceof Scope){
-						current = (Scope) current.getSymbol(scopeManages[0]);
-						if(current.getSymbol(scopeManages[1]) != null){
-							return entityRepo.getEntity(current.getSymbol(scopeManages[1]).getEntityID());
-						}
+		try{
+			if(current == null) return null;
+			String[] scopeManages = name.split("::");
+			if(scopeManages.length == 1){
+				do{
+					if(current == null) return null;
+					if(current.getSymbol(scopeManages[0]) != null){
+						return entityRepo.getEntity(current.getSymbol(scopeManages[0]).getEntityID());
 					}
-					break;
-				}
-				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
-			}while(current.getEnclosingScope() != null);
+					if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+				}while(current.getEnclosingScope() != null);
+			}
+			else if(scopeManages.length == 2){
+				do{
+					if(current == null)
+						return null;
+					if(current.getSymbol(scopeManages[0]) != null){
+						if(current.getSymbol(scopeManages[0]) instanceof Scope){
+							current = (Scope) current.getSymbol(scopeManages[0]);
+							if(current.getSymbol(scopeManages[1]) != null){
+								return entityRepo.getEntity(current.getSymbol(scopeManages[1]).getEntityID());
+							}
+						}
+						break;
+					}
+					if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+				}while(current.getEnclosingScope() != null);
+			}
+		}catch (NullPointerException exception){
+			return null;
 		}
+
 		return null;
 	}
 

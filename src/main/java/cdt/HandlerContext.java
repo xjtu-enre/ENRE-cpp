@@ -185,7 +185,7 @@ public class HandlerContext {
 	* @param:  String namespaceName, int startingLineNumber, Location location
 	* @return: Entity
 	*/
-	public Entity foundNamespace(String namespaceName) {
+	public Entity foundNamespace(String namespaceName, int startLine, int endLine) {
 		this.currentScope = this.entityStack.peek().getScope();
 		NamespaceEntity nsEntity = null;
 		NamespaceScope symbol = null;
@@ -205,6 +205,7 @@ public class HandlerContext {
 		if(this.currentScope.getSymbolByKind(symbol.getName(), Configure.Namespace) == null){
 			this.currentScope.define(symbol, Configure.Namespace);
 		}
+		nsEntity.addScale(endLine - startLine);
 		entityStack.push(nsEntity);
 		return nsEntity;
 	}
@@ -230,6 +231,7 @@ public class HandlerContext {
 		}
 		ClassEntity classEntity = new ClassEntity(ClassName, resolveName(ClassName),
 				this.latestValidContainer(),id,symbol, location);
+		classEntity.addRelation(new Relation(this.currentFileEntity, classEntity,"Contain"));
 		if(baseClass!= null) {
 			classEntity.addBaseClass(baseClass);
 			
@@ -369,7 +371,7 @@ public class HandlerContext {
 			CPPASTDeleteExpression deleteExp = (CPPASTDeleteExpression)expression;
 			this.dealExpressionNode(deleteExp.getOperand(), "Delete");
 		}
-		
+
 		if(expression instanceof CPPASTUnaryExpression) {
 			CPPASTUnaryExpression unaryExp = (CPPASTUnaryExpression)expression;
 			String unaryExpText = unaryExp.getRawSignature();
@@ -394,7 +396,6 @@ public class HandlerContext {
 			}
 			else if(functionNameExpression instanceof CPPASTFunctionCallExpression){}
 			else if(functionNameExpression instanceof CPPASTIdExpression){}
-			else{}
 			this.dealExpressionNode(functionCallExpression.getFunctionNameExpression(), "Call");
 		}
 		if(expression instanceof CPPASTExpressionList) {

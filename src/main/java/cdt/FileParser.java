@@ -95,7 +95,12 @@ public class FileParser {
 		}
 		IASTPreprocessorStatement[] statements= tu.getAllPreprocessorStatements();
 		getallstatements(statements);
-		tu.accept(visitor);
+
+		try{
+			tu.accept(visitor);
+		}catch (NullPointerException exception){
+
+		}
 	}
 	
 	/**
@@ -292,11 +297,11 @@ public class FileParser {
 		scanner.setProcessInactiveCode(true);
 		if (scanner==null) return;
 		Map<String, IMacroBinding> macros = scanner.getMacroDefinitions();
-		for (String key : macros.keySet()) {
-			IMacroBinding imb = macros.get(key);
-			String exp = new String(macros.get(key).getName());
-			fileEntity.getMacroRepo().put(macros.get(key).toString(), exp);
-		}
+//		for (String key : macros.keySet()) {
+//			IMacroBinding imb = macros.get(key);
+//			String exp = new String(macros.get(key).getName());
+//			fileEntity.getMacroRepo().put(macros.get(key).toString(), exp);
+//		}
 
 	}
 	

@@ -78,11 +78,11 @@ public class Processor {
 	public void outputFile(String projectName) throws Exception {
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
 		JSONString node_str = new JSONString();
-		FileOutputStream outputEntityStream = new FileOutputStream(projectName + "_node.json");
-		node_str.writeEntityJsonStream(outputEntityStream, entityrepo.getEntities());
-
-		FileOutputStream outputRelationStream = new FileOutputStream(projectName + "_edge.json");
-		node_str.writeRelationJsonStream(outputRelationStream, this.relationcontext.getRelationRepo().getrelationrepo());
+//		FileOutputStream outputEntityStream = new FileOutputStream(projectName + "_node.json");
+//		node_str.writeEntityJsonStream(outputEntityStream, entityrepo.getEntities());
+//
+//		FileOutputStream outputRelationStream = new FileOutputStream(projectName + "_edge.json");
+//		node_str.writeRelationJsonStream(outputRelationStream, this.relationcontext.getRelationRepo().getrelationrepo());
 
 		FileOutputStream outputStream = new FileOutputStream(projectName + "_out.json");
 		node_str.writeJsonStream(outputStream, entityrepo.getEntities(), this.relationcontext.getRelationRepo().getrelationrepo());
