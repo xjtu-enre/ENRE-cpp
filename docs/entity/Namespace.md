@@ -36,6 +36,32 @@ namespace ns{}
                 type: Namespace
 ```
 
+###### Nested Namespace
+```cpp
+namespace foo {
+    namespace bar {
+         namespace baz {
+             int qux = 42;
+         }
+    }
+}
+```
+
+```yaml
+    name: Nested Namespace
+    entity:
+        items:
+            -   name: foo
+                loc: 1:11:1:13
+                type: Namespace
+            -   name: bar
+                loc: 2:15:2:17
+                type: Namespace
+            -   name: baz
+                loc: 3:20:3:22
+                type: Namespace
+```
+
 ###### Unnamed Namespace
 ```cpp
 namespace{
@@ -49,5 +75,24 @@ namespace{
         items:
             -   name: (unnamed namespace)
                 loc: 1:0:1:0
+                type: Namespace
+```
+
+###### Inline Namespace
+```cpp
+namespace Test{
+    inline namespace new_ns { \* empty *\  }
+}
+```
+
+```yaml
+    name: Inline Namespace
+    entity:
+        items:
+            -   name: Test
+                loc: 1:11:1:14
+                type: Namespace
+            -   name: new_ns
+                loc: 2:22:2:27
                 type: Namespace
 ```

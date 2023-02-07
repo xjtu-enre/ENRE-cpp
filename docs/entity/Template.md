@@ -64,3 +64,147 @@ void func(T x);
                 kind: Function Template
                 type: Template
 ```
+
+###### Variadic template
+```cpp
+template<typename... Values> class tuple;
+template<typename First, typename... Rest> class tuple;
+template<typename... Params> void my_printf(const std::string &str_format, Params... parameters);
+```
+
+```yaml
+    name: Variadic template
+    entity:
+        items:
+            -   name: tuple
+                loc: 1:36:1:40
+                kind: Class Template
+                type: Template
+            -   name: tuple
+                loc: 2:50:2:54
+                kind: Class Template
+                type: Template
+            -   name: my_printf
+                loc: 3:35:3:43
+                kind: Function Template
+                type: Template
+```
+
+###### Extern template
+```cpp
+extern template class tuple;
+```
+
+```yaml
+    name: Extern template
+    entity:
+        items:
+            -   name: tuple
+                loc: 1:23:1:27
+                kind: Class Template
+                type: Template
+```
+
+###### Templates as template parameters
+```cpp
+template<typename T, template<typename U, int I> class Arr>
+class tuple
+{ /* empty */ };
+```
+
+```yaml
+    name: Templates as template parameters
+    entity:
+        items:
+            -   name: Arr
+                loc: 1:56:1:58
+                kind: Class Template
+                type: Template
+            -   name: tuple
+                loc: 2:7:2:11
+                kind: Class Template
+                type: Template
+```
+
+
+###### Templates with Default template arguments
+```cpp
+template <class T, class Allocator = allocator<T>> class vector;
+```
+
+```yaml
+    name: Templates with Default template arguments
+    entity:
+        items:
+            -   name: vector
+                loc: 1:58:1:63
+                kind: Class Template
+                type: Template
+```
+
+###### Template specialization
+```cpp
+template <typename K, typename V>
+class MyMap{ /* Empty */ };
+template<typename V>
+class MyMap<string, V> { /* Empty */ };
+```
+
+```yaml
+    name: Template specialization
+    entity:
+        items:
+            -   name: MyMap
+                loc: 2:7:2:11
+                kind: Class Template
+                type: Template
+            -   name: MyMap
+                loc: 4:7:4:11
+                kind: Class Template
+                type: Template
+```
+
+
+###### Nested Class Template
+```cpp
+class X
+{
+   template <class T>
+   struct Y
+   {
+      T m_t;
+      Y(T t): m_t(t) { }
+   };
+};
+```
+
+```yaml
+    name: Nested Class Template
+    entity:
+        items:
+            -   name: X
+                loc: 1:7:1:7
+                type: Class
+            -   name: Y
+                loc: 4:11:4:11
+                kind: Struct Template
+                type: Template
+```
+
+###### Function Template Instantiation
+```cpp
+
+template<class T> void f(T) { }
+template void f<int> (int);
+template void f(char);
+```
+
+```yaml
+    name: Function Template Instantiation
+    entity:
+        items:
+            -   name: f
+                loc: 1:24:1:24
+                kind: Function Template
+                type: Template
+```

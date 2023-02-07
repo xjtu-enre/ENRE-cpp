@@ -31,3 +31,38 @@ entity:
             loc: 1:7:1:11
             type: Union
 ```
+
+###### Anonymous Union
+```cpp
+struct widget{
+    union{
+        long id_num;
+    }
+}
+```
+
+```yaml
+name: Anonymous Union
+entity:
+    items:
+        -   name: unnamed
+            loc: 2:10:2:10
+            type: Union
+```
+
+###### Unrestricted unions
+```cpp
+struct Point { \* empty *\ };
+union U{
+    Point p;
+};
+```
+
+```yaml
+name: Unrestricted unions
+entity:
+    items:
+        -   name: U
+            loc: 2:7:2:7
+            type: Union
+```

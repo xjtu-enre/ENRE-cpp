@@ -67,3 +67,45 @@ relation:
             from: Function:'func'
             to: Variable:'x'
 ```
+
+
+###### Class Use
+```cpp
+class A{ /* empty */ }
+int main(){
+    A a;
+}
+```
+
+```yaml
+name: Class Use
+relation:
+    items:
+        -   type: Use
+            loc: file0:3:5;
+            from: Function:'main'
+            to: Class:'A'
+```
+
+
+###### Function Use Macro
+```cpp
+#define dou double
+int main(){
+    dou number;
+}
+```
+
+```yaml
+name: Class Use
+relation:
+    items:
+        -   type: Use
+            loc: file0:3:5;
+            from: Function:'main'
+            to: Macro:'dou'
+```
+
+
+
+

@@ -43,7 +43,7 @@ using namespace ns;
 ```
 
 ```yaml
-name: Function Call
+name: File using Namespace
 relation:
   type: Call
   items:

@@ -21,6 +21,21 @@ enum struct|class name : type ;	(4)
 ```
 ##### Examples
 
+
+###### Enum Declaration
+```cpp
+enum A : int;
+```
+
+```yaml
+    name: Enum Declaration
+    entity:
+        items:
+            -   name: A
+                loc: 1:6:1:6
+                type: Enum
+```
+
 ###### Enum
 ```cpp
 enum Color {};
@@ -49,6 +64,21 @@ enum class Handle {};
                 type: Enum
 ```
 
+###### Enum Struct
+```cpp
+enum struct Handle {};
+```
+
+```yaml
+    name: Enum Struct
+    entity:
+        items:
+            -   name: Handle
+                loc: 1:12:1:17
+                type: Enum
+```
+
+
 ###### Typedef Enum
 ```cpp
 typedef enum {
@@ -66,4 +96,22 @@ typedef enum {
                 type: Enum
 ```
 
+###### Enums with no enumerators
+```cpp
+enum class byte : unsigned char { };
+enum class E : int { };
+E e1{ 0 };
+E e2 = E{ 0 };
+```
 
+```yaml
+    name: Enums with no enumerators
+    entity:
+        items:
+            -   name: byte
+                loc: 1:12:1:15
+                type: Enum
+            -   name: E
+                loc: 2:12:2:12
+                type: Enum
+```

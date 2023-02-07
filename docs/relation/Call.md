@@ -36,6 +36,68 @@ relation:
         loc: file0:3:5
 ```
 
+###### Cross-file Function Call
+
+```cpp
+void run_benchmark() {}
+class Dog{
+public:
+    void bark(){}
+}
+```
+
+```cpp
+include "file0.h"
+void epoll(){
+    run_benchmark();
+    Dog dog;
+    dog.bark();
+}
+```
+
+```yaml
+name: Cross-file Function Call
+relation:
+  type: Call
+  items:
+    -   from: Function:'epoll'
+        to: Function:'run_benchmark'
+        loc: file1:3:5
+    -   from: Function:'epoll'
+        to: Function:'bark'
+        loc: file1:5:9
+```
+
+###### Method Function Call
+
+```cpp
+class dog
+{
+public:
+   void setAge(int age)     
+   {
+      _age = age;
+   }
+private:
+   int _age;
+};
+int main()
+{
+   dog mongrel;
+   mongrel.setAge(5);
+}
+```
+
+```yaml
+name: Method Call
+relation:
+  type: Call
+  items:
+    -   from: Function:'main'
+        to: Function:'setAge'
+        loc: file0:13:12
+```
+
 ###### Deref Call
 If an Variable can deref as a function, there maybe a deref call.
 
@@ -193,5 +255,31 @@ relation:
       -   from: Function:'func2'
           to: Template:'func'
           loc: file0:7:5:7:8
+          type: Call
+```
+
+###### Operator Function call
+```cpp
+struct S
+{
+   operator ptf()
+   {
+      return func;
+   }
+};
+int main()
+{
+   S s;
+   s();
+}
+```
+
+```yaml
+name: Operator Function call
+relation:
+    items:
+      -   from: Function:'main'
+          to: Function:'operator ()'
+          loc: file0:11:4
           type: Call
 ```

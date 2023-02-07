@@ -102,3 +102,21 @@ relation:
             to: Variable:'i'
             loc: file0:4:5
 ```
+
+
+######  Modify in for loop
+```cpp
+void main(){
+    for(int i=0;i<10;i++){}
+}
+```
+
+```yaml
+name: Template Modify
+relation:
+    items:
+        -   type: Modify
+            from: Function:'main'
+            to: Variable:'i'
+            loc: file0:2:22
+```

@@ -29,3 +29,34 @@ entity:
             loc: 1:8:1:15
             type: Struct
 ```
+
+###### Anonymous Struct
+```cpp
+struct{
+    int value;
+};
+```
+```yaml
+name: Anonymous Struct
+entity:
+    items:
+        -   name: [unnamed]
+            loc: 1:0:1:0
+            type: Struct
+```
+
+###### Struct use macro
+```cpp
+#define Mystruct struct 
+Mystruct cell{
+    int value;
+};
+```
+```yaml
+name: Struct use macro
+entity:
+    items:
+        -   name: cell
+            loc: 2:10:2:13
+            type: Struct
+```

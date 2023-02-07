@@ -31,3 +31,39 @@ name: Macro
                 loc: 1:9:1:9
                 type: Macro
 ```
+
+
+###### NULL Macro
+```cpp
+#define EMPTY
+```
+
+```yaml
+    name: NULL Macro
+    entity:
+        items:
+            -   name: EMPTY
+                loc: 1:9:1:13
+                type: Macro
+```
+
+
+###### Conditional Macro
+```cpp
+#define EMPTY
+#ifdef EMPTY
+#define FULL
+#endif
+```
+
+```yaml
+    name: NULL Macro
+    entity:
+        items:
+            -   name: EMPTY
+                loc: 1:9:1:13
+                type: Macro
+            -   name: FULL
+                loc: 3:9:3:12
+                type: Macro
+```

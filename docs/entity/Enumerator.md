@@ -38,3 +38,73 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
                 loc: 2:9:2:12
                 type: Enumerator
 ```
+
+
+###### Enumerator with default value
+
+```cpp
+enum DAY {
+    saturday,
+    sunday = 0,
+    monday,
+    tuesday,
+    wednesday, 
+    thursday,
+    friday
+} workday;
+```
+
+```yaml
+    name: Enumerator
+    entity:
+        items:
+            -   name: DAY::saturday
+                loc: 2:5:2:12
+                type: Enumerator
+            -   name: DAY::sunday
+                loc: 3:5:3:10
+                type: Enumerator
+            -   name: DAY::monday
+                loc: 4:5:4:10
+                type: Enumerator
+            -   name: DAY::tuesday
+                loc: 5:5:5:11
+                type: Enumerator
+            -   name: DAY::wednesday
+                loc: 6:5:6:13
+                type: Enumerator
+            -   name: DAY::thursday
+                loc: 7:5:7:12
+                type: Enumerator
+            -   name: DAY::friday
+                loc: 8:5:8:10
+                type: Enumerator
+```
+
+
+###### Enumerator in enum class
+
+```cpp
+namespace CardGame_Scoped
+{
+    enum class Suit { Diamonds, Hearts, Clubs, Spades };
+}
+```
+
+```yaml
+    name: Enumerator
+    entity:
+        items:
+            -   name: CardGame_Scoped::Suit::Diamonds
+                loc: 2:23:2:30
+                type: Enumerator
+            -   name: CardGame_Scoped::Suit::Hearts
+                loc: 2:33:2:38
+                type: Enumerator
+            -   name: CardGame_Scoped::Suit::Clubs
+                loc: 2:41:2:45
+                type: Enumerator
+            -   name: CardGame_Scoped::Suit::Spades
+                loc: 2:48:2:53
+                type: Enumerator
+```

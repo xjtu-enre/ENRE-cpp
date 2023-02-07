@@ -39,6 +39,34 @@ int *p = &a;
                 loc: 2:6:2:6
 ```
 
+###### Allocate space for Pointer
+```cpp
+int *p = new int;
+```
+
+```yaml
+    name: Allocate space for Pointer
+    entity:
+        items:
+            -   name: p
+                type: Variable
+                loc: 1:6:1:6
+```
+
+###### Dynamic Array
+```cpp
+int* parray = new int [10];
+```
+
+```yaml
+    name: Dynamic Array
+    entity:
+        items:
+            -   name: parray
+                type: Variable
+                loc: 1:6:1:13
+```
+
 ###### Variable
 ```cpp
 int x;

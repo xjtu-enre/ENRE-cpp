@@ -42,3 +42,15 @@ typedef struct{ double hi, lo; } range;
                 loc: 1:34:1:38
 ```
 
+###### Function Pointer Typedef
+```cpp
+typedef int (*t_somefunc)(int,int);
+```
+```yaml
+    name: Function Pointer Typedef
+    entity:
+        items:
+            -   name: t_somefunc
+                type: Typedef
+                loc: 1:15:1:24
+```

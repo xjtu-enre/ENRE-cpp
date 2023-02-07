@@ -12,7 +12,6 @@ name: Function
 ```text
 noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) attr(optional)	(1)	
 noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) attr(optional) -> trailing	(2)	(since C++11)
-
 [ captures ] ( params ) specs requires(optional) { body }	(1)	
 [ captures ] { body }	(2)	(until C++23)
 [ captures ] specs { body }	(2)	(since C++23)
@@ -25,11 +24,9 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
 
 ##### Examples
 
-###### Function
+###### Function 
 ```cpp
-int func(){
-    return 0;
-}
+void func(){ /* empty */ }
 ```
 
 ```yaml
@@ -37,7 +34,35 @@ name: Function
 entity:
   items:
       -   name: func
-          loc: 1:5:1:8
+          loc: 1:6:1:9
+          type: Function
+```
+
+###### Function with Parameter
+```cpp
+void func(int i){ /* empty */ }
+```
+
+```yaml
+name: Function with Parameter
+entity:
+  items:
+      -   name: func
+          loc: 1:6:1:9
+          type: Function
+```
+
+###### Inline Function
+```cpp
+inline void func(){ /* empty */ }
+```
+
+```yaml
+name: Inline Function
+entity:
+  items:
+      -   name: func
+          loc: 1:13:1:16
           type: Function
 ```
 
@@ -58,6 +83,91 @@ struct Linear {
                 loc: 2:9:9:12
                 type: Function
 ```
+
+###### Functions with Variable Argument Lists
+```cpp
+void func( char *szTypes, ... ){ /* empty */ }
+```
+
+```yaml
+name: Functions with Variable Argument Lists
+entity:
+  items:
+      -   name: func
+          loc: 1:6:1:9
+          type: Function
+```
+
+###### Deleted Functions
+```cpp
+struct deletedFunction
+{
+  deletedFunction() =default;
+  deletedFunction(const noncopyable&) =delete;
+};
+```
+
+```yaml
+name: Deleted Functions
+entity:
+  items:
+      -   name: deletedFunction
+          loc: 4:3:4:17
+          type: Function
+      -   name: deletedFunction
+          loc: 3:3:3:17
+          type: Function
+```
+
+###### Virtual Functions
+```cpp
+class Account {
+public:
+    virtual void func(){ /* empty */ }
+}
+```
+
+```yaml
+name: Virtual Functions
+entity:
+  items:
+      -   name: func
+          loc: 3:18:3:21
+          type: Function
+```
+
+###### Constructors
+```cpp
+class Box {
+public:
+    // Default constructor
+    Box() {}
+    // Initialize a Box with equal dimensions (i.e. a cube)
+    explicit Box(int i) : m_width(i), m_length(i), m_height(i) // member init list
+    {}
+
+    // Initialize a Box with custom dimensions
+    Box(int width, int length, int height)
+        : m_width(width), m_length(length), m_height(height) {}
+}
+```
+
+```yaml
+name: Constructors
+entity:
+  items:
+      -   name: Box
+          loc: 4:5:4:7
+          type: Function
+      -   name: Box
+          loc: 6:14:6:16
+          type: Function
+      -   name: Box
+          loc: 10:5:10:7
+          type: Function
+```
+
+
 
 ###### Overload Function
 ```cpp
