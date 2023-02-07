@@ -56,7 +56,7 @@ class { /* empty */ };
     name: Anonymous Class
     entity:
         items:
-            -   name: [unnamed]
+            -   name: <Anonymous as="Class">
                 loc: 1:7:1:7
                 type: Class
 ```

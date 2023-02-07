@@ -3,7 +3,7 @@ Descriptions: `Alias Relation` means
 
 ### Supported Patterns
 ```yaml
-name: Alias
+name: Alias Relation
 ```
 #### Syntax: Alias Declaration
 
@@ -53,7 +53,7 @@ namespace ds = ::foo;
 
 ```yaml
 name: Using Alias
-entity:
+relation:
     items:
       -   from: Alias:'fbz'
           to: Namespace:'foo::bar::baz'
@@ -74,7 +74,7 @@ using Vec = vector<T, Alloc<T>>;
 
 ```yaml
 name: template alias
-entity:
+relation:
     items:
       -   from: Alias:'Vec'
           to: Variable:'vector<T, Alloc<T>>'

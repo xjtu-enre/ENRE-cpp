@@ -5,7 +5,7 @@ Description: `Alias` is a name that refers to a previously defined type (similar
 ### Supported Patterns
 
 ```yaml
-name: Alias 
+name: Alias Entity
 ```
 #### Syntax: Alias Declaration
 
