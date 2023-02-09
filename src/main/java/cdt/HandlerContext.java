@@ -205,6 +205,7 @@ public class HandlerContext {
 		if(this.currentScope.getSymbolByKind(symbol.getName(), Configure.Namespace) == null){
 			this.currentScope.define(symbol, Configure.Namespace);
 		}
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), nsEntity, "Define"));
 		nsEntity.addScale(endLine - startLine);
 		entityStack.push(nsEntity);
 		return nsEntity;
@@ -219,7 +220,7 @@ public class HandlerContext {
 	* @param:  String ClassName,List<String> baseClass, Location location
 	* @return: ClassEntity
 	*/
-	public ClassEntity foundClassDefinition(String ClassName,List<String> baseClass, Location location){
+	public ClassEntity foundClassDefinition(String ClassName,List<String> baseClass, Location location, boolean isTemplate){
 		this.currentScope = this.entityStack.peek().getScope();
 		int id = entityRepo.generateId();
 		ClassSymbol symbol = new ClassSymbol(ClassName, id);
@@ -232,10 +233,11 @@ public class HandlerContext {
 		ClassEntity classEntity = new ClassEntity(ClassName, resolveName(ClassName),
 				this.latestValidContainer(),id,symbol, location);
 		classEntity.addRelation(new Relation(this.currentFileEntity, classEntity,"Contain"));
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), classEntity, "Define"));
 		if(baseClass!= null) {
 			classEntity.addBaseClass(baseClass);
-			
 		}
+		classEntity.setTemplate(true);
 		entityRepo.add(classEntity);
 		entityStack.push(classEntity);
 		return classEntity;
@@ -248,7 +250,7 @@ public class HandlerContext {
 	* @param:  String StructName, List<String> baseStruct, Location location
 	* @return: StructEntity
 	*/
-	public StructEntity foundStructDefinition(String StructName, List<String> baseStruct, Location location) {
+	public StructEntity foundStructDefinition(String StructName, List<String> baseStruct, Location location, boolean isTemplate) {
 		this.currentScope = this.entityStack.peek().getScope();
 		int id = entityRepo.generateId();
 		if(StructName.equals("")) {
@@ -264,9 +266,11 @@ public class HandlerContext {
 
 		StructEntity structEntity = new StructEntity(StructName, resolveName(StructName),
 				this.latestValidContainer(), id, symbol, location);
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), structEntity, "Define"));
 		if(baseStruct!= null) {
 			structEntity.addBaseStruct(baseStruct);
 		}
+		structEntity.setTemplate(true);
 		entityRepo.add(structEntity);
 		entityStack.push(structEntity);
 		return structEntity;
@@ -293,7 +297,7 @@ public class HandlerContext {
 
 		UnionEntity unionEntity = new UnionEntity(UnionName, resolveName(UnionName),
 				this.latestValidContainer(), id, symbol, location);
-		
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), unionEntity, "Define"));
 		entityRepo.add(unionEntity);
 		entityStack.push(unionEntity);
 		return unionEntity;
@@ -323,6 +327,7 @@ public class HandlerContext {
 		
 		EnumEntity enumeration = new EnumEntity(enumName, resolveName(enumName),
 				this.latestValidContainer(), id, symbol, location);
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), enumeration, "Define"));
 		entityRepo.add(enumeration);
 		entityStack.push(enumeration);
 		return enumeration;
@@ -344,7 +349,7 @@ public class HandlerContext {
 		if(this.latestValidContainer() instanceof EnumEntity) {
 			((EnumEntity)this.latestValidContainer()).addEnumerator(enumertorEntity);
 		}
-
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), enumertorEntity, "Define"));
 		return enumertorEntity;
 	}
 	
@@ -374,8 +379,10 @@ public class HandlerContext {
 
 		if(expression instanceof CPPASTUnaryExpression) {
 			CPPASTUnaryExpression unaryExp = (CPPASTUnaryExpression)expression;
-			String unaryExpText = unaryExp.getRawSignature();
-			if(unaryExp.getOperator() == 9 || unaryExp.getOperator() == 10){
+			if(unaryExp.getOperator() == IASTUnaryExpression.op_postFixIncr ||
+					unaryExp.getOperator() == IASTUnaryExpression.op_postFixDecr ||
+					unaryExp.getOperator() == IASTUnaryExpression.op_tilde ||
+					unaryExp.getOperator() == IASTUnaryExpression.op_prefixIncr){
 				this.dealExpressionNode(unaryExp.getOperand(), "Modify");
 			}
 		}
@@ -541,7 +548,7 @@ public class HandlerContext {
 		VarEntity varEntity = new VarEntity(varName, qualifiedName,  this.latestValidContainer(), id, location, type);
 		entityRepo.add(varEntity);
 		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
-			if(!(this.currentScope instanceof DataAggregateSymbol)) {
+			if(this.currentScope instanceof DataAggregateSymbol) {
 				if(this.currentScope.getSymbolByKind(varName, Configure.Variable)==null) {
 					VariableSymbol v = new VariableSymbol(varName, id);
 					this.currentScope.define(v, Configure.Variable);
@@ -551,6 +558,7 @@ public class HandlerContext {
 		if(this.latestValidContainer() instanceof ClassEntity){
 			((ClassEntity) this.latestValidContainer()).addContainEntity(id);
 		}
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), varEntity, "Define"));
 		return varEntity;
 	}
 
@@ -567,6 +575,7 @@ public class HandlerContext {
 				}
 			}
 		}
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), labelEntity, "Define"));
 		return labelEntity;
 	}
 	
@@ -581,6 +590,7 @@ public class HandlerContext {
 		TypedefEntity typedefEntity = new TypedefEntity(Name, resolveName(Name),this.latestValidContainer(),
 				entityRepo.generateId(),  location );
 		entityRepo.add(typedefEntity);
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), typedefEntity, "Define"));
 		return typedefEntity;		
 	}
 	
@@ -597,6 +607,8 @@ public class HandlerContext {
 		AliasEntity currentTypeEntity = new AliasEntity(aliasName, 
 				this.resolveName(aliasName), this.latestValidContainer(),
 				entityRepo.generateId(), originalName, location );
+		currentTypeEntity.addBindingRelation("Alias", null, originalName);
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), currentTypeEntity, "Define"));
 		entityRepo.add(currentTypeEntity);
 		return currentTypeEntity;		
 	}
@@ -606,7 +618,8 @@ public class HandlerContext {
 		if (aliasName.equals(originalName)) return null;
 		NamespaceAliasEntity currentTypeEntity = new NamespaceAliasEntity(aliasName,
 				this.resolveName(aliasName), this.latestValidContainer(),
-				entityRepo.generateId(), originalName, location );
+				entityRepo.generateId(), originalName, location);
+		currentTypeEntity.addBindingRelation("Alias", "Namespace", originalName);
 		entityRepo.add(currentTypeEntity);
 		return currentTypeEntity;
 	}

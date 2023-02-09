@@ -54,13 +54,14 @@ public class RelationContext {
 			for(BindingRelation bindingre :entity.getRelationListByBinding()) {
 				Entity toEntity = entityRepo.getEntityByLocation(bindingre.getLocationInfor());
 				if(toEntity == null) {
-					continue;
+					toEntity = this.findTheEntity(bindingre.getLocationInfor(), entity);
+					if(toEntity == null) continue;
 				}
 				Relation re = new Relation(entity, toEntity, bindingre.getRelationType());
 				relationRepo.addRelation(re);
 			}
 			for(Tuple scopere :entity.getRelationListByScope()) {
-				Entity toEntity = this.findTheEntity((String)scopere.getSecond(), entity.getScope());
+				Entity toEntity = this.findTheEntity((String)scopere.getSecond(), entity);
 				if(toEntity == null) toEntity = entityRepo.getEntityByName((String)scopere.getSecond());
 				if(toEntity == null) continue;
 				Relation re = new Relation(entity, toEntity,(String)scopere.getFirst());
@@ -107,7 +108,7 @@ public class RelationContext {
 				List<String> usingList = ((DataAggregateEntity) entity).getUsingImport();
 				if (usingList.size() != 0) {
 					for (String usingEntity : usingList) {
-						Entity toEntity = this.findTheEntity(usingEntity, entity.getScope());
+						Entity toEntity = this.findTheEntity(usingEntity, entity);
 						if(toEntity!=null) {
 							Relation re = new Relation(entity, toEntity, "Using");
 							relationRepo.addRelation(re);
@@ -141,7 +142,7 @@ public class RelationContext {
 				List<String> friendClass = ((ClassEntity) entity).getFriendClass();
 				for (String friend_class : friendClass) {
 
-					Entity fromentity = this.findTheEntity(friend_class, entity.getScope());
+					Entity fromentity = this.findTheEntity(friend_class, entity);
 					if (fromentity != null) {
 						Relation re = new Relation(entity, fromentity,  "Friend");
 						relationRepo.addRelation(re);
@@ -149,7 +150,7 @@ public class RelationContext {
 				}
 				List<String> friendFunction = ((ClassEntity) entity).getFriendFunction();
 				for (String friend_function : friendFunction) {
-					Entity fromEntity = this.findTheEntity(friend_function, entity.getScope());
+					Entity fromEntity = this.findTheEntity(friend_function, entity);
 					if (fromEntity != null) {
 						Relation re = new Relation(entity, fromEntity,  "Friend");
 						relationRepo.addRelation(re);
@@ -222,7 +223,7 @@ public class RelationContext {
 			if (entity instanceof NamespaceAliasEntity) {
 				if(((NamespaceAliasEntity) entity).getToNamespaceName() != null){
 					if(entity.getScope() == null) continue;
-					Entity namespace = this.findTheEntity(((NamespaceAliasEntity) entity).getToNamespaceName(), entity.getScope());
+					Entity namespace = this.findTheEntity(((NamespaceAliasEntity) entity).getToNamespaceName(), entity);
 					if(namespace != null){
 						Relation aliasDep= new Relation(entity, namespace, "Alias");
 						relationRepo.addRelation(aliasDep);
@@ -274,7 +275,7 @@ public class RelationContext {
 					}
 				}
 				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
-			}while(current.getEnclosingScope() != null);
+			}while(current != null);
 		}
 		else if(scopeManages.length == 2){
 			do{
@@ -295,7 +296,10 @@ public class RelationContext {
 		return null;
 	}
 
-	public Entity findTheEntity(String name, Scope current){
+	public Entity findTheEntity(String name, Entity entity){
+		Scope current = entity.getScope();
+		if((current == null) && (entity.getParent()!=null))
+			current = entity.getParent().getScope();
 		try{
 			if(current == null) return null;
 			String[] scopeManages = name.split("::");
@@ -306,7 +310,8 @@ public class RelationContext {
 						return entityRepo.getEntity(current.getSymbol(scopeManages[0]).getEntityID());
 					}
 					if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
-				}while(current.getEnclosingScope() != null);
+					else return null;
+				}while(current != null);
 			}
 			else if(scopeManages.length == 2){
 				do{
@@ -322,7 +327,8 @@ public class RelationContext {
 						break;
 					}
 					if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
-				}while(current.getEnclosingScope() != null);
+					else return null;
+				}while(current != null);
 			}
 		}catch (NullPointerException exception){
 			return null;
