@@ -81,9 +81,9 @@ enum struct Handle {};
 
 ###### Typedef Enum
 ```cpp
-typedef enum {
+typedef enum{
     Monday = 1;
-    Tuesday;
+    Tuesday
 } Weekday;
 ```
 

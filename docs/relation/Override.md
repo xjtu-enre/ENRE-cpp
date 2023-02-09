@@ -85,7 +85,7 @@ class DerivedClass: public BaseClass
 ```
 
 ```yaml
-name: Operator Function Override
+name: Function Override with Override keyword
 relation:
     items:
         -   type: Override

@@ -22,7 +22,7 @@ int func() {
 ```
 
 ```yaml
-name: Use
+name: Ordinary Use
 relation:
     items:
         -   type: Use
@@ -97,7 +97,7 @@ int main(){
 ```
 
 ```yaml
-name: Class Use
+name: Function Use Macro
 relation:
     items:
         -   type: Use

@@ -34,7 +34,7 @@ typedef struct{ double hi, lo; } range;
 ```
 
 ```yaml
-    name: typedef struct
+    name: struct typdef 
     entity:
         items:
             -   name: range

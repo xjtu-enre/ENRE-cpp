@@ -89,7 +89,7 @@ int main()
 ```
 
 ```yaml
-name: Method Call
+name: Method Function Call
 relation:
   type: Call
   items:
@@ -113,7 +113,7 @@ void run_benchmark(void (*setup)(void*), void* data) {
 ```
 
 ```yaml
-name: Function Deref Call
+name: Deref Call
 relation:
     type: Call
     items:
@@ -249,7 +249,7 @@ void func2(){
 ```
 
 ```yaml
-name: Template Call Template
+name: Function Call Template
 relation:
     items:
       -   from: Function:'func2'

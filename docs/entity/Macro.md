@@ -57,7 +57,7 @@ name: Macro
 ```
 
 ```yaml
-    name: NULL Macro
+    name: Conditional Macro
     entity:
         items:
             -   name: EMPTY

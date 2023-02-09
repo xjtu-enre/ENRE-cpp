@@ -228,7 +228,7 @@ public:
 ```
 
 ```yaml
-    name: Overload Function
+    name: Overload Class Method
     entity:
         items:
             -   name: foo::overloadFunction

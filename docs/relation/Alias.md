@@ -27,9 +27,9 @@ namespace text = ns;
 ```
 
 ```yaml
-name: Alias
+name: Namespace Alias
 relation:
-    type: Namespace Alias
+    type: Alias
     items:
         -   from: Alias:'text'
             to: Namespace:'ns'
@@ -47,8 +47,8 @@ namespace foo {
     }
 }
 namespace fbz = foo::bar::baz;
+namespace fb = foo::bar;
 namespace f = foo;
-namespace ds = ::foo;
 ```
 
 ```yaml
@@ -56,20 +56,20 @@ name: Using Alias
 relation:
     items:
       -   from: Alias:'fbz'
-          to: Namespace:'foo::bar::baz'
+          to: Namespace:'baz'
           loc: file0:8:0:8:0
+      -   from: Alias:'fb'
+          to: Namespace:'bar'
+          loc: file0:10:0:10:0
       -   from: Alias:'f'
           to: Namespace:'foo'
-          loc: file0:9:0:9:0
-      -   from: Alias:'fs'
-          to: Namespace:'foo'
-          loc: file0:10:0:10:0
+          loc: file0:11:0:11:0
 ```
 
 ###### Template Alias
 ```cpp
 template<class T>
-using Vec = vector<T, Alloc<T>>; 
+using Vec = vector; 
 ```
 
 ```yaml
@@ -77,6 +77,6 @@ name: template alias
 relation:
     items:
       -   from: Alias:'Vec'
-          to: Variable:'vector<T, Alloc<T>>'
+          to: Variable:'vector'
           loc: file0:2:0:2:0
 ```

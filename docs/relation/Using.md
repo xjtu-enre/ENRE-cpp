@@ -75,7 +75,7 @@ relation:
         loc: file0:7:17:7:20
 ```
 
-###### Class Using Function
+###### Class Using Variable
 
 ```cpp
 class Base {
@@ -89,7 +89,7 @@ public:
 ```
 
 ```yaml
-name: Class Using Function
+name: Class Using Variable
 relation:
   type: Call
   items:

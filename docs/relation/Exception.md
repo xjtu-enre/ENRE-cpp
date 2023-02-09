@@ -28,7 +28,7 @@ std::optional<bilingual_str> LoadAddrman(){
 ```
 
 ```yaml
-name: Exception
+name: Try Catch Exception
 relation:
     type: Exception
     items:

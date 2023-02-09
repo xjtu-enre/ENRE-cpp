@@ -67,13 +67,13 @@ int* parray = new int [10];
                 loc: 1:6:1:13
 ```
 
-###### Variable
+###### built-in Variable
 ```cpp
 int x;
 ```
 
 ```yaml
-    name: Variable 2
+    name: built-in Variable
     entity:
         items:
             -   name: x

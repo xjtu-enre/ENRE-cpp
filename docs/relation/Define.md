@@ -44,7 +44,7 @@ relation:
             loc: file0:5:5
 ```
 
-###### Define
+###### Define Enumerator
 
 ```cpp
 enum weekday {
@@ -55,7 +55,7 @@ enum weekday {
 ```
 
 ```yaml
-name: Define
+name: Define Enumerator
 relation:
     type: Define
     items:

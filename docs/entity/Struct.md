@@ -4,7 +4,7 @@ Description: Classes and structs are the constructs whereby you define your own 
 ### Supported Patterns
 
 ```yaml
-name: Struct Declaration
+name: Struct
 ```
 #### Syntax: Struct Declaration
 

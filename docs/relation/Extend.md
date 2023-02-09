@@ -12,6 +12,7 @@ attr(optional) access-specifier(optional) virtual-specifier(optional) class-or-d
 
 ##### Examples
 
+###### Struct Extend 
 ```cpp
 struct Base {
     int a, b, c;

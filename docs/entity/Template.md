@@ -167,7 +167,7 @@ class MyMap<string, V> { /* Empty */ };
 
 ###### Nested Class Template
 ```cpp
-class X
+template <class T> class X
 {
    template <class T>
    struct Y
@@ -184,7 +184,7 @@ class X
         items:
             -   name: X
                 loc: 1:7:1:7
-                type: Class
+                type: Class Template
             -   name: Y
                 loc: 4:11:4:11
                 kind: Struct Template
