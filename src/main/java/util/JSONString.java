@@ -26,7 +26,7 @@ public class JSONString {
 		String resolvedName = "";
 		switch(typeName) {
 		case "class entity.VarEntity":
-			resolvedName = "Object";
+			resolvedName = "Variable";
 			break;
 		case "class entity.FunctionEntityDefine":
 			resolvedName = "Function";
@@ -68,7 +68,7 @@ public class JSONString {
 			resolvedName = "Namespace Alias";
 			break;
 		case "class entity.ParameterEntity":
-			resolvedName = "Parameter";
+			resolvedName = "Parameter Variable";
 			break;
 		default:
 			System.out.println("Unmapped entity type:"+ typeName);
