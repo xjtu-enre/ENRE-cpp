@@ -68,6 +68,7 @@ relation:
 
 ###### Template Alias
 ```cpp
+class vector{};
 template<class T>
 using Vec = vector; 
 ```
@@ -78,5 +79,5 @@ relation:
     items:
       -   from: Alias:'Vec'
           to: Variable:'vector'
-          loc: file0:2:0:2:0
+          loc: file0:3:0:3:0
 ```

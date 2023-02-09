@@ -262,7 +262,7 @@ relation:
 ```cpp
 struct S
 {
-   operator ptf()
+   operator ()
    {
       return func;
    }
