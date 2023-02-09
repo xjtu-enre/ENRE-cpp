@@ -51,6 +51,9 @@ public class RelationContext {
 		Iterator<Entity> iterator = entityRepo.entityIterator();
 		while (iterator.hasNext()) {
 			Entity entity = iterator.next();
+			if(entity.getId() == 625){
+				System.out.println("test");
+			}
 			for(BindingRelation bindingre :entity.getRelationListByBinding()) {
 				Entity toEntity = entityRepo.getEntityByLocation(bindingre.getLocationInfor());
 				if(toEntity == null) {
@@ -275,6 +278,7 @@ public class RelationContext {
 					}
 				}
 				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+				else return null;
 			}while(current != null);
 		}
 		else if(scopeManages.length == 2){
@@ -291,6 +295,7 @@ public class RelationContext {
 					break;
 				}
 				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+				else return null;
 			}while(current.getEnclosingScope() != null);
 		}
 		return null;
