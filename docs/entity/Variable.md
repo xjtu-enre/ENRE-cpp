@@ -111,3 +111,116 @@ private:
                 type: Variable
                 loc: 3:9:3:14
 ```
+
+
+###### Global Variable with External Linkage
+```cpp
+// Declare a global variable with external linkage
+extern int globalVar;
+
+// Define the global variable in another file
+int globalVar = 42;
+
+int main() {
+    // Print the value of the global variable
+    std::cout << "globalVar = " << globalVar << std::endl;
+    return 0;
+}
+```
+
+```yaml
+name: Global Variable with External Linkage
+entity:
+  items:
+    - name: globalVar
+      loc: 4:1:4:16
+      type: variable
+      storage_class: external
+    - name: main
+      loc: 6:1:10:2
+      type: function
+      visibility: public
+```
+
+###### Static Variable
+```cpp
+void increment() {
+    static int count = 0;
+    count++;
+    std::cout << "count = " << count << std::endl;
+}
+
+int main() {
+    for (int i = 0; i < 5; i++) {
+        increment();
+    }
+    return 0;
+}
+```
+
+```yaml
+name: Static Variable
+entity:
+  items:
+    - name: increment
+      loc: 1:1:5:2
+      type: function
+      visibility: public
+    - name: count
+      loc: 2:12:2:16
+      type: variable
+      storage_class: static
+    - name: main
+      loc: 7:1:11:2
+      type: function
+      visibility: public
+```
+
+
+###### Auto Keyword
+```cpp
+#include <iostream>
+
+int main() {
+    auto x = 42;
+    std::cout << "x = " << x << std::endl;
+    return 0;
+}
+```
+
+```yaml
+name: Auto Keyword
+entity:
+  items:
+    - name: main
+      loc: 3:1:7:2
+      type: function
+      visibility: Public
+    - name: x
+      loc: 4:10:4:11
+      type: variable
+      storage_class: auto
+```
+
+###### Register Keyword
+```cpp
+int main() {
+    register int x = 42;
+    std::cout << "x = " << x << std::endl;
+    return 0;
+}
+```
+
+```yaml
+name: Register Keyword
+entity:
+  items:
+    - name: main
+      loc: 1:1:4:2
+      type: function
+      visibility: public
+    - name: x
+      loc: 2:16:2:17
+      type: variable
+      storage_class: register
+```

@@ -97,3 +97,69 @@ class Vector final {
                 loc: 1:7:1:12
                 type: Class
 ```
+
+###### Class with private-public-protected
+```cpp
+class ExampleClass {
+public:
+    int publicVar;
+    void publicMethod();
+
+private:
+    int privateVar;
+    void privateMethod();
+
+protected:
+    int protectedVar;
+    void protectedMethod();
+};
+
+void ExampleClass::publicMethod() {
+    // implementation code for public method
+}
+
+void ExampleClass::privateMethod() {
+    // implementation code for private method
+}
+
+void ExampleClass::protectedMethod() {
+    // implementation code for protected method
+}
+```
+
+```yaml
+    name: ExampleClass
+    entity:
+      kind: class
+      items:
+        -   name: publicVar
+            kind: int
+            type: variable
+            visibility: public
+            loc: 3:9:3:17
+        -   name: publicMethod
+            return_type: void
+            type: function
+            visibility: public
+            loc: 4:10:4:21
+        -   name: privateVar
+            kind: int
+            type: variable
+            visibility: private
+            loc: 8:9:8:18
+        -   name: privateMethod
+            return_type: void
+            type: function
+            visibility: private
+            loc: 9:10:9:22
+        -   name: protectedVar
+            kind: int
+            type: variable
+            visibility: protected
+            loc: 13:9:13:18
+        -   name: protectedMethod
+            return_type: void
+            type: function
+            visibility: protected
+            loc: 14:10:14:24
+```
