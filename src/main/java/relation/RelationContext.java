@@ -51,9 +51,6 @@ public class RelationContext {
 		Iterator<Entity> iterator = entityRepo.entityIterator();
 		while (iterator.hasNext()) {
 			Entity entity = iterator.next();
-			if(entity.getId() == 625){
-				System.out.println("test");
-			}
 			for(BindingRelation bindingre :entity.getRelationListByBinding()) {
 				Entity toEntity = entityRepo.getEntityByLocation(bindingre.getLocationInfor());
 				if(toEntity == null) {
@@ -247,38 +244,8 @@ public class RelationContext {
 					}
 				}
 				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
-			}while(current.getEnclosingScope() != null);
-		}
-		else if(scopeManages.length == 2){
-			do{
-				if(current.getSymbol(scopeManages[0]) != null){
-					if(current.getSymbol(scopeManages[0]) instanceof Scope){
-						current = (Scope) current.getSymbol(scopeManages[0]);
-						if(current.getSymbol(scopeManages[1]) != null){
-							if(current.getSymbol(scopeManages[1]) instanceof DataAggregateSymbol){
-								return entityRepo.getEntity(current.getSymbol(scopeManages[1]).getEntityID());
-							}
-						}
-					}
-					break;
-				}
-				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
-			}while(current.getEnclosingScope() != null);
-		}
-		return null;
-	}
-
-	public Entity findTheTypedEntity(String name, Scope current){
-		String[] scopeManages = name.split("::");
-		if(scopeManages.length == 1){
-			do{
-				if(current.getSymbol(scopeManages[0]) != null){
-					if(current.getSymbol(scopeManages[0]) instanceof DataAggregateSymbol){
-						return entityRepo.getEntity(current.getSymbol(scopeManages[0]).getEntityID());
-					}
-				}
-				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
 				else return null;
+				if(current == current.getEnclosingScope()) return null;
 			}while(current != null);
 		}
 		else if(scopeManages.length == 2){
@@ -296,6 +263,42 @@ public class RelationContext {
 				}
 				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
 				else return null;
+				if(current == current.getEnclosingScope()) return null;
+			}while(current != null);
+		}
+		return null;
+	}
+
+	public Entity findTheTypedEntity(String name, Scope current){
+		String[] scopeManages = name.split("::");
+		if(scopeManages.length == 1){
+			do{
+				if(current.getSymbol(scopeManages[0]) != null){
+					if(current.getSymbol(scopeManages[0]) instanceof DataAggregateSymbol){
+						return entityRepo.getEntity(current.getSymbol(scopeManages[0]).getEntityID());
+					}
+				}
+				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+				else return null;
+				if(current == current.getEnclosingScope()) return null;
+			}while(current != null);
+		}
+		else if(scopeManages.length == 2){
+			do{
+				if(current.getSymbol(scopeManages[0]) != null){
+					if(current.getSymbol(scopeManages[0]) instanceof Scope){
+						current = (Scope) current.getSymbol(scopeManages[0]);
+						if(current.getSymbol(scopeManages[1]) != null){
+							if(current.getSymbol(scopeManages[1]) instanceof DataAggregateSymbol){
+								return entityRepo.getEntity(current.getSymbol(scopeManages[1]).getEntityID());
+							}
+						}
+					}
+					break;
+				}
+				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+				else return null;
+				if(current == current.getEnclosingScope()) return null;
 			}while(current.getEnclosingScope() != null);
 		}
 		return null;
@@ -316,6 +319,7 @@ public class RelationContext {
 					}
 					if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
 					else return null;
+					if(current == current.getEnclosingScope()) return null;
 				}while(current != null);
 			}
 			else if(scopeManages.length == 2){
@@ -333,6 +337,7 @@ public class RelationContext {
 					}
 					if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
 					else return null;
+					if(current == current.getEnclosingScope()) return null;
 				}while(current != null);
 			}
 		}catch (NullPointerException exception){

@@ -46,57 +46,54 @@ public class FileParser {
 	 * @throws:
 	 */
 	public void parse( ) throws Exception {
-		if(exitFile(filepath)) {
-			if(isFileParse(filepath)) {
-				return ;
+		try{
+			if(exitFile(filepath)) {
+				if(isFileParse(filepath)) {
+					return ;
+				}
 			}
-		}
-		if(filepath.contains("if.h")){
-			String test = "";
-		}
-		System.out.println("Parse file path: " + this.filepath);
-		fileList.put(filepath,1);
-		final FileContent content = FileContent.createForExternalFileLocation(filepath);
-		if(content == null){
-			return;
-		}
-		IParserLogService log = new DefaultLogService();
-		boolean isIncludePath = false;
-		String[] includePaths = new String[0];
-		definedMacros.put("__cplusplus", "1");
-		IASTTranslationUnit tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
-				new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
-				EmptyCIndex.INSTANCE, 0, log);
-
-		CppVisitor visitor = new CppVisitor(entityrepo, filepath);
-		fileEntity = visitor.getfile();
-		HashSet<String> includePathset = getdirectedinclude(tu);
-
-		for(String includePath:includePathset) {
-
-			if(!isFileParse(includePath)) {
-				FileParser fileparse = new FileParser(includePath, entityrepo, fileList, Program_environment);
-				fileparse.parse();
+			System.out.println("Parse file path: " + this.filepath);
+			fileList.put(filepath,1);
+			final FileContent content = FileContent.createForExternalFileLocation(filepath);
+			if(content == null){
+				return;
 			}
-			if(entityrepo.getEntityByName(includePath)!=null && entityrepo.getEntityByName(includePath) instanceof FileEntity) {
-				FileEntity includeFileEntity = (FileEntity)entityrepo.getEntityByName(includePath);
-				fileEntity.addincludeEntity(includeFileEntity);
-				definedMacros.putAll(includeFileEntity.getMacroRepo());
-				fileEntity.getMacroRepo().putAll(includeFileEntity.getMacroRepo());
-			}
-			isIncludePath = true;
-		}
-
-		getMacro(filepath);
-		if(isIncludePath) {
-			tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
+			IParserLogService log = new DefaultLogService();
+			boolean isIncludePath = false;
+			String[] includePaths = new String[0];
+			definedMacros.put("__cplusplus", "1");
+			IASTTranslationUnit tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
 					new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
 					EmptyCIndex.INSTANCE, 0, log);
-		}
-		IASTPreprocessorStatement[] statements= tu.getAllPreprocessorStatements();
-		getallstatements(statements);
 
-		try{
+			CppVisitor visitor = new CppVisitor(entityrepo, filepath);
+			fileEntity = visitor.getfile();
+			HashSet<String> includePathset = getdirectedinclude(tu);
+
+			for(String includePath:includePathset) {
+
+				if(!isFileParse(includePath)) {
+					FileParser fileparse = new FileParser(includePath, entityrepo, fileList, Program_environment);
+					fileparse.parse();
+				}
+				if(entityrepo.getEntityByName(includePath)!=null && entityrepo.getEntityByName(includePath) instanceof FileEntity) {
+					FileEntity includeFileEntity = (FileEntity)entityrepo.getEntityByName(includePath);
+					fileEntity.addincludeEntity(includeFileEntity);
+					definedMacros.putAll(includeFileEntity.getMacroRepo());
+					fileEntity.getMacroRepo().putAll(includeFileEntity.getMacroRepo());
+				}
+				isIncludePath = true;
+			}
+
+			getMacro(filepath);
+			if(isIncludePath) {
+				tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
+						new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
+						EmptyCIndex.INSTANCE, 0, log);
+			}
+			IASTPreprocessorStatement[] statements= tu.getAllPreprocessorStatements();
+			getallstatements(statements);
+
 			tu.accept(visitor);
 		}catch (NullPointerException exception){
 

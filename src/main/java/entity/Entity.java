@@ -43,7 +43,20 @@ public abstract class Entity {
 	ArrayList<Relation> relations;
 	Scope scope = null;
 	int visibilityLabel = 1;
+	int visibility = -1;
+	int storage_class = -1;
 
+
+	public Entity(String name, String qualifiedName, Entity parent, Integer id) {
+		this.name = name;
+		this.qualifiedName = qualifiedName;
+		this.parent = parent;
+		this.id = id;
+		if (parent != null)
+			parent.addChild(this);
+		this.location = location;
+		visibleNames.put(qualifiedName, this);
+	}
 
 	public Entity(String name, String qualifiedName, Entity parent, Integer id, Location location) {
 		this.name = name;
@@ -209,6 +222,14 @@ public abstract class Entity {
 	public int getVisibilityLabel() {
 		return this.visibilityLabel;
 	}
+
+	public void setVisiblity(int tag) { this.visibility = tag; }
+
+	public int getVisiblity() {return this.visibility; }
+
+	public void setStorage_class(int tag) { this.storage_class = tag; }
+
+	public int getStorgae_class() { return this.storage_class; }
 
 	public List<Entity> getChild() {
 		List<Entity> childlist = new ArrayList<Entity>();

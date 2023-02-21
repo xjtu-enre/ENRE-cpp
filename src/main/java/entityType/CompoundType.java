@@ -1,6 +1,8 @@
 package entityType;
 
-public class CompoundType extends Type{
+import entity.TypeRecord;
+
+public class CompoundType extends TypeRecord {
 	
 	private static final String VOID = "VOID";
     private static final String NULLPTR = "NULLPTR";

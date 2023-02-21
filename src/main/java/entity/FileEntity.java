@@ -14,8 +14,8 @@ public class FileEntity extends DataAggregateEntity {
 	List<FileEntity> includeEntity= new ArrayList<FileEntity>();
 	Map<String, String> macrorepo;
 	
-	public FileEntity(String name,String qualifiedName, Entity parent, int id,String filefullpath, BaseScope scope, Location location) {
-		super(name,qualifiedName, parent, id, scope, location);
+	public FileEntity(String name,String qualifiedName, Entity parent, int id,String filefullpath, BaseScope scope) {
+		super(name,qualifiedName, parent, id, scope);
 		this.path = filefullpath;
 		this.includeFile = new ArrayList<String>();
 	}

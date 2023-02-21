@@ -1,6 +1,8 @@
 package entityType;
 
-public class FundamentalType  extends Type{
+import entity.TypeRecord;
+
+public class FundamentalType  extends TypeRecord {
 	
 	private static final String VOID = "VOID";
     private static final String NULLPTR = "NULLPTR";

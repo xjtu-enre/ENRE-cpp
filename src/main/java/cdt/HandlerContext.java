@@ -1,5 +1,6 @@
 package cdt;
 import entity.*;
+import entity.TypeRecord;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTExpression;
 import org.eclipse.cdt.internal.core.dom.parser.ProblemBinding;
 import org.eclipse.cdt.internal.core.dom.parser.ProblemType;
@@ -40,7 +41,7 @@ public class HandlerContext {
 		GlobalScope scope = new GlobalScope(null);
 
 		currentFileEntity = new FileEntity(name[name.length-1], filefullpath, 
-				null, entityRepo.generateId(),filefullpath, scope, new Location(filefullpath));
+				null, entityRepo.generateId(),filefullpath, scope);
 		entityRepo.add(currentFileEntity);
 		entityStack.push(currentFileEntity);
 		this.currentScope = scope;
@@ -56,8 +57,10 @@ public class HandlerContext {
 
 	public String resolveName(String Name) {
 		this.currentScope = this.entityStack.peek().getScope();
+
 		if(this.currentScope instanceof Symbol){
-			Entity en = entityRepo.getEntity(((Symbol)this.currentScope).getEntityID());
+			Entity en = this.entityStack.peek();
+//			Entity en = entityRepo.getEntity(((Symbol)this.currentScope).getEntityID());
 			if(en == null)
 				return Name;
 			if(en instanceof FileEntity)
@@ -102,11 +105,13 @@ public class HandlerContext {
 		if(scopeManages.length == 1) return this.currentScope;
 		Scope current = this.currentScope;
 		do{
-			if(current.getSymbol(scopeManages[0]) != null){
+			if( (current.getSymbol(scopeManages[0]) != null) &&
+					(current.getSymbol(scopeManages[0]) instanceof Scope)){
 				current = (Scope) current.getSymbol(scopeManages[0]);
 				break;
 			}
 			if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+			if(current == current.getEnclosingScope()) break;
 		}while(current.getEnclosingScope() != null);
 		if(scopeManages.length == 2) return current;
 		for(int i = 1; i < scopeManages.length - 1; i++){
@@ -237,7 +242,7 @@ public class HandlerContext {
 		if(baseClass!= null) {
 			classEntity.addBaseClass(baseClass);
 		}
-		classEntity.setTemplate(true);
+		classEntity.setTemplate(isTemplate);
 		entityRepo.add(classEntity);
 		entityStack.push(classEntity);
 		return classEntity;
@@ -270,7 +275,7 @@ public class HandlerContext {
 		if(baseStruct!= null) {
 			structEntity.addBaseStruct(baseStruct);
 		}
-		structEntity.setTemplate(true);
+		structEntity.setTemplate(isTemplate);
 		entityRepo.add(structEntity);
 		entityStack.push(structEntity);
 		return structEntity;
@@ -376,7 +381,6 @@ public class HandlerContext {
 			CPPASTDeleteExpression deleteExp = (CPPASTDeleteExpression)expression;
 			this.dealExpressionNode(deleteExp.getOperand(), "Delete");
 		}
-
 		if(expression instanceof CPPASTUnaryExpression) {
 			CPPASTUnaryExpression unaryExp = (CPPASTUnaryExpression)expression;
 			if(unaryExp.getOperator() == IASTUnaryExpression.op_postFixIncr ||
@@ -410,6 +414,12 @@ public class HandlerContext {
 			for(IASTExpression exp:expressionList.getExpressions()) {
 				this.dealExpression(exp);
 			}
+		}
+		if(expression instanceof CPPASTLiteralExpression){
+			// TODO extract nullptr type
+//			System.out.println(((CPPASTLiteralExpression) expression).getBasicCharKind());
+//			System.out.println(((CPPASTLiteralExpression) expression).getKind());
+//			System.out.println(IASTLiteralExpression.lk_nullptr);
 		}
 
 	}
@@ -560,6 +570,34 @@ public class HandlerContext {
 		}
 		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), varEntity, "Define"));
 		return varEntity;
+	}
+
+	public FieldEntity foundFieldDefinition(String varName, Location location, String type, int visibility) {
+		this.currentScope = this.entityStack.peek().getScope();
+		if(location == null) return null;
+		Integer id = entityRepo.generateId();
+		String qualifiedName = resolveName(varName);
+
+		FieldEntity entity = new FieldEntity(varName, qualifiedName,  this.latestValidContainer(), id, location, type);
+		Entity typeEntity = this.findTheTypedEntity(type);
+		if(typeEntity != null){
+			entity.setType(new TypeRecord(typeEntity.getId()));
+		}
+		entity.setVisiblity(visibility);
+		entityRepo.add(entity);
+		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
+			if(this.currentScope instanceof DataAggregateSymbol) {
+				if(this.currentScope.getSymbolByKind(varName, Configure.Variable)==null) {
+					VariableSymbol v = new VariableSymbol(varName, id);
+					this.currentScope.define(v, Configure.Variable);
+				}
+			}
+		}
+		if(this.latestValidContainer() instanceof ClassEntity){
+			((ClassEntity) this.latestValidContainer()).addContainEntity(id);
+		}
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), entity, "Define"));
+		return entity;
 	}
 
 	public LabelEntity foundLabelDefinition(String labelName, Location location) {

@@ -14,7 +14,16 @@ public class DataAggregateEntity extends Entity{
 	boolean isSpecializationTemplate = false;
 	List<Entity> useList = new ArrayList<Entity>();
 	List<String> usingImport = new ArrayList<String>();
-	
+
+	public DataAggregateEntity(String name, String qualifiedName, Entity parent, Integer id,BaseScope scope) {
+		super(name,qualifiedName, parent,id);
+		this.scope = scope;
+		if(name.contains("::")) {
+			isScopeTrue = false;
+		}
+		this.usingImport = new ArrayList<String>();
+	}
+
 	public DataAggregateEntity(String name, String qualifiedName, Entity parent, Integer id,BaseScope scope, Location location) {
 		super(name,qualifiedName, parent,id, location);
 		this.scope = scope;

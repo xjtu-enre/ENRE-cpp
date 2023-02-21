@@ -7,6 +7,8 @@ import com.google.gson.stream.JsonWriter;
 
 import entity.*;
 
+import org.eclipse.cdt.core.dom.ast.IASTDeclSpecifier;
+import org.eclipse.cdt.core.dom.ast.cpp.ICPPMember;
 import org.json.JSONObject;
 import symtab.FunctionSymbol;
 
@@ -21,12 +23,45 @@ public class JSONString {
 	//protected static Configure configure = Configure.getConfigureInstance();
 
 	Configure configure = Configure.getConfigureInstance();
+	public String resolveStorage_class(int tag){
+		switch(tag) {
+			case IASTDeclSpecifier.sc_typedef:
+				return "typedef";
+			case IASTDeclSpecifier.sc_extern:
+				return "extern";
+			case IASTDeclSpecifier.sc_static:
+				return "static";
+			case IASTDeclSpecifier.sc_auto:
+				return "auto";
+			case IASTDeclSpecifier.sc_register:
+				return "register";
+			case IASTDeclSpecifier.sc_mutable:
+				return "mutable";
+		}
+		return null;
+	}
+
+	public String resolveVisibility(int tag){
+		switch(tag) {
+			case ICPPMember.v_public:
+				return "public";
+			case ICPPMember.v_protected:
+				return "protected";
+			case ICPPMember.v_private:
+				return "private";
+		}
+		return null;
+	}
+
 	public String resolveTypeName(Entity entity) {
 		String typeName = entity.getClass().toString();
 		String resolvedName = "";
 		switch(typeName) {
 		case "class entity.VarEntity":
 			resolvedName = "Variable";
+			break;
+		case "class entity.FieldEntity":
+			resolvedName = "Field";
 			break;
 		case "class entity.FunctionEntityDefine":
 			resolvedName = "Function";
@@ -92,13 +127,22 @@ public class JSONString {
 		private Integer id;
 		private String entityType;
 		private String entityFile;
-		private int startLine = -1;
-		private int startColumn = -1;
-		private int endLine = -1;
-		private int endColumn = -1;
 		private Integer parentID;
-		private Integer scale = -1;
+		private Integer startLine;
+		private Integer startColumn;
+		private Integer endLine;
+		private Integer endColumn;
+		private Integer scale;
+		private String storage_class;
+		private String visibility;
 		public EntityTemp(){}
+		public EntityTemp(String name, Integer key, String type, String entityFile){
+			this.qualifiedName = name;
+			this.id = key;
+			this.entityType = type;
+			this.entityFile = entityFile;
+		}
+
 		public EntityTemp(String name, Integer key, String type, String entityFile, Integer parentid){
 			this.qualifiedName = name;
 			this.id = key;
@@ -126,6 +170,20 @@ public class JSONString {
 			this.parentID = parentid;
 			this.scale = scale;
 		}
+		public EntityTemp(String name, Integer key, String type, String entityFile, int startLine,
+						  int startColumn, int endLine, int endColumn, Integer parentid, String storage_class, String visibility){
+			this.qualifiedName = name;
+			this.id = key;
+			this.entityType = type;
+			this.entityFile = entityFile;
+			this.startLine = startLine;
+			this.startColumn = startColumn;
+			this.endLine = endLine;
+			this.endColumn = endColumn;
+			this.parentID = parentid;
+			this.storage_class = storage_class;
+			this.visibility = visibility;
+		}
 	}
 	
 	public EntityTemp resolveEntity(Entity entity) {
@@ -145,15 +203,20 @@ public class JSONString {
 		if(entity instanceof NamespaceEntity){
 			entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile, entity.getParentId(),
 					((NamespaceEntity) entity).getScale());
-		}else if(entity.getLocation() != null) {
+		}else if(entity instanceof FileEntity){
+			entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile);
+		} else if(entity.getLocation() != null) {
     		entityFile = entity.getLocation().getFileName();
     		entityFile = entityFile.replace(configure.getInputSrcPath()+"\\", "");
     		entityFile = entityFile.replace("\\", "/");
         	
     		if(entity.getLocation().getStartLine() != null) {
-    			entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile,
-    					entity.getLocation().getStartLine(), entity.getLocation().getStartColumn(), 
-    					entity.getLocation().getEndLine(), entity.getLocation().getEndColumn(), entity.getParentId());
+
+				entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile,
+						entity.getLocation().getStartLine(), entity.getLocation().getStartColumn(),
+						entity.getLocation().getEndLine(), entity.getLocation().getEndColumn(), entity.getParentId(),
+						resolveStorage_class(entity.getStorgae_class()), resolveVisibility(entity.getVisiblity()));
+
     		}
     		else entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile, entity.getParentId());
     	}
