@@ -1,11 +1,11 @@
-## Relation: Exception
+## Relation: Throw
 
-Descriptions: An `Exception Relation` is an error condition, possibly outside the program's control, that prevents the program from continuing along its regular execution path. Certain operations, including object creation, file input/output, and function calls made from other modules, are all potential sources of exceptions, even when your program is running correctly. 
+Descriptions: An `Throw Exception Relation` is an error condition, possibly outside the program's control, that prevents the program from continuing along its regular execution path. Certain operations, including object creation, file input/output, and function calls made from other modules, are all potential sources of exceptions, even when your program is running correctly.
 
 ### Supported Patterns
 
 ```yaml
-name: Exception Declaration
+name: Throw Exception Declaration
 ```
 #### Syntax: Catch Exception
 
@@ -30,10 +30,10 @@ std::optional<bilingual_str> LoadAddrman(){
 ```yaml
 name: Try Catch Exception
 relation:
-    type: Exception
+    type: Throw
     items:
         -   from: Function:'LoadAddrman'
-            to: Variable:'DbNotFoundError'
+            to: Class:'DbNotFoundError'
             loc: file0:5:17
 ```
 
@@ -52,9 +52,9 @@ void CallRPC()
 ```yaml
 name: Throw Exception
 relation:
-    type: Exception
+    type: Throw Exception
     items:
         -   from: Function:'CallRPC'
-            to: Variable:'CConnectionFailed'
+            to: Class:'CConnectionFailed'
             loc: file0:6:15
 ```
