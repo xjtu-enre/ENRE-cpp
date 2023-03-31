@@ -26,10 +26,10 @@ name: Class
 entity:
     items:
         -   name: Base
-            loc: 1:1:7:10
+            loc: 1:7:1:10
             type: Class
         -   name: Extend
-            loc: 2:2:7:12
+            loc: 2:7:2:12
             type: Class
 ```
 
@@ -43,7 +43,7 @@ name: Class With Object
 entity:
     items:
         -   name: objClass
-            loc: 1:1:7:14
+            loc: 1:7:1:14
             type: Class
 ```
 
@@ -130,7 +130,6 @@ void ExampleClass::protectedMethod() {
 ```yaml
     name: ExampleClass
     entity:
-      kind: class
       items:
         -   name: publicVar
             kind: int
@@ -146,20 +145,20 @@ void ExampleClass::protectedMethod() {
             kind: int
             type: variable
             visibility: private
-            loc: 8:9:8:18
+            loc: 7:9:7:18
         -   name: privateMethod
             return_type: void
             type: function
             visibility: private
-            loc: 9:10:9:22
+            loc: 8:10:8:22
         -   name: protectedVar
             kind: int
             type: variable
             visibility: protected
-            loc: 13:9:13:18
+            loc: 11:9:11:18
         -   name: protectedMethod
             return_type: void
             type: function
             visibility: protected
-            loc: 14:10:14:24
+            loc: 12:10:12:24
 ```

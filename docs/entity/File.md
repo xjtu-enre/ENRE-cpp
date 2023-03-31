@@ -24,7 +24,7 @@ name: File
     name: File
     entity:
         items:
-            -   name: filename.cpp
+            -   name: file.cpp
                 loc: -1:-1:-1:-1
                 type: File
 ```

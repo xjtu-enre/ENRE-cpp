@@ -54,7 +54,7 @@ name: template alias
 entity:
     items:
         -   name: Vec
-            loc: 2:2:7:9
+            loc: 2:7:2:9
             type: Alias
 ```
 
