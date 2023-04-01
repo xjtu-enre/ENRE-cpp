@@ -33,10 +33,10 @@ relation:
         -   from: Class:'Units'
             to: Variable:'x'
             loc: file0:2:9
-        -   from: File:'file0'
+        -   from: File:'file0.cpp'
             to: Class:'Units'
             loc: file0:1:7
-        -   from: File:'file0'
+        -   from: File:'file0.cpp'
             to: Function:'main'
             loc: file0:4:0
         -   from: Function:'main'
@@ -50,7 +50,7 @@ relation:
 enum weekday {
     Monday = 1;
     Tuesday = 2;
-    Wednesday = 3；
+    Wednesday = 3;
 };
 ```
 

@@ -32,7 +32,7 @@ relation:
 
 ###### Array Parameter
 ```cpp
-int func(int array[])
+int func(int array[]) {
     return -1;
 }
 ```

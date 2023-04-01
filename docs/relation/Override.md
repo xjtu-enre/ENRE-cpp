@@ -27,8 +27,8 @@ name: Override
 relation:
     items:
         -   type: Override
-            from: Function:'func'
-            to: Function:'func'
+            from: Function:'func'[@loc=5]
+            to: Function:'func'[@loc=2]
             loc: file0:5:18
 ```
 
@@ -47,13 +47,13 @@ name: Virtual Function Override
 relation:
     items:
         -   type: Override
-            from: Function:'func'
-            to: Function:'func'
+            from: Function:'func'[@loc=5]
+            to: Function:'func'[@loc=2]
             loc: file0:5:18
 ```
 
 
-######  Operator Function Override
+<!-- ######  Operator Function Override
 ```cpp
 struct Complex {
    Complex( double r, double i ) : re(r), im(i) {}
@@ -69,7 +69,7 @@ relation:
             from: Function:'Complex::operator+'
             to: Function:'operator+'
             loc: file0:3:12
-```
+``` -->
 
 
 ######  Function Override with Override keyword
@@ -89,7 +89,7 @@ name: Function Override with Override keyword
 relation:
     items:
         -   type: Override
-            from: Function:'BaseClass::funcA'
-            to: Function:'DerivedClass::funcA'
+            from: Function:'BaseClass::funcA'[@loc=7]
+            to: Function:'DerivedClass::funcA'[@loc=3]
             loc: file0:7:18
 ```

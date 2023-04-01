@@ -39,6 +39,7 @@ relation:
 ###### Cross-file Function Call
 
 ```cpp
+//// @ext h
 void run_benchmark() {}
 class Dog{
 public:
@@ -47,7 +48,7 @@ public:
 ```
 
 ```cpp
-include "file0.h"
+#include "file0.h"
 void epoll(){
     run_benchmark();
     Dog dog;
@@ -95,7 +96,7 @@ relation:
   items:
     -   from: Function:'main'
         to: Function:'setAge'
-        loc: file0:13:12
+        loc: file0:14:12
 ```
 
 ###### Deref Call
@@ -139,7 +140,8 @@ void run_benchmark(){
 name: Function Continuous Call
 relation:
   items:
-    -   from: Function:'funcB'
+    #-   from: Function:'funcB'
+    -   from: Function:'run_benchmark'
         to: Function:'funcA'
         loc: file0:8:11
         type: Call

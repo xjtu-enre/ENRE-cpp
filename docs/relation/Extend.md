@@ -29,6 +29,7 @@ struct Derived2 : Derived {
 name: Struct Extend 
 relation:
     type: Extend
+    extra: false
     items:
         -   from: Struct:'Derived'
             to: Struct:'Base'
@@ -50,6 +51,7 @@ class CollectionOfBook : public Book, public Collection {};
 name: Multi Extend
 relation:
   type: Extend
+  extra: false
   items:
     -   from: Class:'CollectionOfBook'
         to: Class:'Book'
@@ -70,6 +72,7 @@ struct Derived : public Base<std::string>{};
 name: Template Struct Extend
 relation:
   type: Extend
+  extra: false
   items:
     -   from: Struct:'Derived'
         to: Template:'Base'
@@ -88,6 +91,7 @@ class Derived : public Base<std::string>{};
 name: Template Class Extend
 relation:
   type: Extend
+  extra: false
   items:
     -   from: Class:'Derived'
         to: Template:'Base'
