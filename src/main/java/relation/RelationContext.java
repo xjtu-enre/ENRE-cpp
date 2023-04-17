@@ -9,9 +9,9 @@ import util.Tuple;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public class RelationContext {
-	//private static final Logger LOGGER = LogManager.getLogger(RelationContext.class);
 	EntityRepo entityRepo;
 	RelationRepo relationRepo;
 	List<FileEntity> FileList;
@@ -22,22 +22,6 @@ public class RelationContext {
 		entityRepoSize = entityrepo.generateId();
 		this.relationRepo = new RelationRepo();
 		this.FileList = entityrepo.getFileEntities();
-	}
-
-	/**
-	* @methodsName: FileDeal
-	* @description: deal include dependency
-	* @param: null
-	* @return: void
-	* @throws: 
-	*/
-	public void FileDeal() {
-		for (FileEntity File : FileList) {
-			for (FileEntity includefile : File.getIncludeEntity()) {
-				Relation re = new Relation(File, includefile, "Include");
-				relationRepo.addRelation(re);
-			}
-		}
 	}
 
 	/**
@@ -57,30 +41,34 @@ public class RelationContext {
 					toEntity = this.findTheEntity(bindingre.getLocationInfor(), entity);
 					if(toEntity == null) continue;
 				}
-				Relation re = new Relation(entity, toEntity, bindingre.getRelationType());
+				Relation re = new Relation(entity, toEntity, bindingre.getRelationType(), bindingre.getFileID(),
+						bindingre.getStartLine(), bindingre.getStartOffset());
 				relationRepo.addRelation(re);
 			}
-			for(Tuple scopere :entity.getRelationListByScope()) {
-				Entity toEntity = this.findTheEntity((String)scopere.getSecond(), entity);
-				if(toEntity == null) toEntity = entityRepo.getEntityByName((String)scopere.getSecond());
+			for(ScopeRelation relation :entity.getRelationListByScope()) {
+				Entity toEntity = this.findTheEntity(relation.getToEntity(), entity);
+				if(toEntity == null) toEntity = entityRepo.getEntityByName(relation.getToEntity());
 				if(toEntity == null) continue;
-				Relation re = new Relation(entity, toEntity,(String)scopere.getFirst());
+				Relation re;
+				if(Objects.equals(relation.getType(), "Type")) re = new Relation(toEntity, entity, relation.getType(),
+						relation.getFileID(), relation.getStartLine(), relation.getStartOffset());
+				else re = new Relation(entity, toEntity, relation.getType(),
+						relation.getFileID(), relation.getStartLine(), relation.getStartOffset());
 				relationRepo.addRelation(re);
 			}
-			for(Tuple scopere :entity.getRelationListByObject()) {
-				Tuple infor = (Tuple) scopere.getSecond();
-				String function_name = (String) infor.getFirst();
-				String object_name = (String) infor.getSecond();
+			for(ObjectRelation relation:entity.getRelationListByObject()) {
+				String function_name = relation.getToEntity();
+				String object_name = relation.getObject();
 				Entity fieldObject = findTheVariable(object_name, entity.getScope());
 				if(fieldObject != null){
 					if(fieldObject instanceof VarEntity){
-						String typeName = ((VarEntity) fieldObject).getType().getTypeName();
+						String typeName = ((VarEntity) fieldObject).getType();
 						Entity typedEntity = findTheTypedEntity(typeName, entity.getScope());
 						if(typedEntity != null){
 							if(typedEntity.getScope().getSymbol(function_name) != null){
 								Relation re = new Relation(entity,
 										entityRepo.getEntity(typedEntity.getScope().getSymbol(function_name).getEntityID()),
-										(String)scopere.getFirst());
+										relation.getType(), relation.getFileID(), relation.getStartLine(), relation.getStartOffset());
 								relationRepo.addRelation(re);
 							}
 						}
@@ -98,19 +86,22 @@ public class RelationContext {
 		while (iterator.hasNext()) {
 			Entity entity = iterator.next();
 			if (entity instanceof DataAggregateEntity) {
-				List<Entity> useList = ((DataAggregateEntity) entity).getUse();
-				if (useList.size() != 0) {
-					for (Entity toEntity : useList) {
-						Relation re = new Relation(entity, toEntity, "Use");
-						relationRepo.addRelation(re);
-					}
-				}
-				List<String> usingList = ((DataAggregateEntity) entity).getUsingImport();
+//				List<Entity> useList = ((DataAggregateEntity) entity).getUse();
+//				if (useList.size() != 0) {
+//					for (Entity toEntity : useList) {
+//						System.out.println("Use relation");
+////						Relation re = new Relation(entity, toEntity, "Use");
+////						relationRepo.addRelation(re);
+//					}
+//				}
+				List<ScopeRelation> usingList = ((DataAggregateEntity) entity).getUsingImport();
 				if (usingList.size() != 0) {
-					for (String usingEntity : usingList) {
+					for (ScopeRelation relation : usingList) {
+						String usingEntity = relation.getToEntity();
 						Entity toEntity = this.findTheEntity(usingEntity, entity);
 						if(toEntity!=null) {
-							Relation re = new Relation(entity, toEntity, "Using");
+							Relation re = new Relation(entity, toEntity, "Using", relation.getFileID(),
+									relation.getStartLine(), relation.getStartOffset());
 							relationRepo.addRelation(re);
 						}
 					}
@@ -130,50 +121,32 @@ public class RelationContext {
 		while (iterator.hasNext()) {
 			Entity entity = iterator.next();
 			if (entity instanceof ClassEntity) {
-				List<String> baseclass = ((ClassEntity) entity).getBaseClass();
-				for (String base : baseclass) {
-					Entity fromEntity = findTheTypedEntity(base, entity.getScope());
-					if (fromEntity != null) {
-						foundOverride(fromEntity, entity);
-						Relation re = new Relation(entity, fromEntity,  "Extend");
-						relationRepo.addRelation(re);
-					}
-				}
-				List<String> friendClass = ((ClassEntity) entity).getFriendClass();
-				for (String friend_class : friendClass) {
-
-					Entity fromentity = this.findTheEntity(friend_class, entity);
+				List<ScopeRelation> friend_relations = ((ClassEntity) entity).getFriendClass();
+				for (ScopeRelation friend_relation : friend_relations) {
+					Entity fromentity = this.findTheEntity(friend_relation.getToEntity(), entity);
 					if (fromentity != null) {
-						Relation re = new Relation(entity, fromentity,  "Friend");
+						Relation re = new Relation(entity, fromentity,  "Friend",
+								friend_relation.getFileID(), friend_relation.getStartLine(), friend_relation.getStartOffset());
 						relationRepo.addRelation(re);
 					}
 				}
-				List<String> friendFunction = ((ClassEntity) entity).getFriendFunction();
-				for (String friend_function : friendFunction) {
-					Entity fromEntity = this.findTheEntity(friend_function, entity);
-					if (fromEntity != null) {
-						Relation re = new Relation(entity, fromEntity,  "Friend");
+				List<ScopeRelation> friend_Functions = ((ClassEntity) entity).getFriendFunction();
+				for (ScopeRelation friend_relation : friend_Functions) {
+					Entity fromentity = this.findTheEntity(friend_relation.getToEntity(), entity);
+					if (fromentity != null) {
+						Relation re = new Relation(entity, fromentity,  "Friend",
+								friend_relation.getFileID(), friend_relation.getStartLine(), friend_relation.getStartOffset());
 						relationRepo.addRelation(re);
 					}
 				}
-				List<Integer> containEntity = ((ClassEntity) entity).getContainEntity();
-				for(Integer to_entity:containEntity){
-					Entity contain_to_entity = entityRepo.getEntity(to_entity);
-					if(contain_to_entity != null){
-						Relation re = new Relation(entity, contain_to_entity, "Contain");
-						relationRepo.addRelation(re);
-					}
-				}
-			}
-			if (entity instanceof StructEntity) {
-				List<String> baseStruct = ((StructEntity) entity).getBaseStruct();
-				for (String base : baseStruct) {
-					Entity fromEntity = this.findTheTypedEntity(base, entity.getScope());
-					if (fromEntity != null) {
-						Relation re = new Relation(fromEntity, entity, "Extend");
-						relationRepo.addRelation(re);
-					}
-				}
+//				List<Integer> containEntity = ((ClassEntity) entity).getContainEntity();
+//				for(Integer to_entity:containEntity){
+//					Entity contain_to_entity = entityRepo.getEntity(to_entity);
+//					if(contain_to_entity != null){
+//						Relation re = new Relation(entity, contain_to_entity, "Contain");
+//						relationRepo.addRelation(re);
+//					}
+//				}
 			}
 		}
 	}
@@ -192,8 +165,12 @@ public class RelationContext {
 			if (entity instanceof FunctionEntity) {
 				for (Entity parameterEntity : ((FunctionEntity) entity).getParameter()) {
 					if (parameterEntity != null) {
-						Relation re = new Relation(entity, parameterEntity, "Parameter");
-						relationRepo.addRelation(re);
+						if(parameterEntity.getLocation() != null){
+							Relation re = new Relation(entity, parameterEntity, "Parameter",
+									parameterEntity.getLocation().getFile(),
+									parameterEntity.getLocation().getStartLine(), parameterEntity.getLocation().getStartOffset());
+							relationRepo.addRelation(re);
+						}
 					}
 				}
 				Entity returnEntity = ((FunctionEntity) entity).getReturnEntity();
@@ -225,7 +202,8 @@ public class RelationContext {
 					if(entity.getScope() == null) continue;
 					Entity namespace = this.findTheEntity(((NamespaceAliasEntity) entity).getToNamespaceName(), entity);
 					if(namespace != null){
-						Relation aliasDep= new Relation(entity, namespace, "Alias");
+						Relation aliasDep= new Relation(entity, namespace, "Alias", entity.getLocation().getFile(),
+								entity.getLocation().getStartLine(), entity.getLocation().getStartOffset());
 						relationRepo.addRelation(aliasDep);
 					}
 				}
@@ -360,126 +338,41 @@ public class RelationContext {
 		if(fromScope instanceof DataAggregateSymbol){
 			for(String function_name: ((DataAggregateSymbol) fromScope).getSymbols().get(Configure.Function).keySet()){
 				if(toScope.getSymbolByKind(function_name, Configure.Function) != null){
+					Entity toEntity = entityRepo.getEntity(toScope.getSymbolByKind(function_name, Configure.Function).getEntityID());
 					Relation re = new Relation(
-							entityRepo.getEntity(toScope.getSymbolByKind(function_name, Configure.Function).getEntityID()),
-							entityRepo.getEntity(fromScope.getSymbolByKind(function_name, Configure.Function).getEntityID()),
-							 "Override");
+							toEntity, entityRepo.getEntity(fromScope.getSymbolByKind(function_name, Configure.Function).getEntityID()),
+							 "Override", toEntity.getLocation().getFile(), toEntity.getLocation().getStartLine(),
+							toEntity.getLocation().getStartOffset());
 					relationRepo.addRelation(re);
 				}
 			}
 		}
 	}
-	
-	
-//	/**
-//	* @methodsName: foundExtendEntity
-//	* @description: deal Extend dependency
-//	* @param: Entity entity, String toentity
-//	* @return: Entity
-//	* @throws:
-//	*/
-//	public Entity foundEntityByName(Entity entity, String toentity) {
-//		if(entity.getScope() != null){
-//			if (((BaseScope) entity.getScope()).getEnclosingScope() != null) {
-//				if(entity.getParent() instanceof FileEntity) {
-//					return entityRepo.getEntityByName(toentity);
-//				}
-//				else {
-//					return entityRepo.getEntityByName(entity.getParent().getQualifiedName() + "::" + toentity);
-//				}
-//			}
-//		}
-//		if(entity.getParent() != null){
-//			if(entity.getParent() instanceof FileEntity) {
-//				return entityRepo.getEntityByName(toentity);
-//			}
-//			else {
-//				return entityRepo.getEntityByName(entity.getParent().getQualifiedName() + "::" + toentity);
-//			}
-//		}
-//		return null;
-//	}
 
-
-//	public Entity foundEntityByScope(Scope scope, String toentity){
-//		if(!toentity.contains("::")){
-//			do{
-//				if(scope.getSymbol(toentity) != null){
-//					Integer toID = scope.getSymbol(toentity).getEntityID();
-//					return entityRepo.getEntity(toID);
-//				}
-//				if(scope.getEnclosingScope() != null) scope = scope.getEnclosingScope();
-//			}while(scope.getEnclosingScope() != null);
-//		}else{
-//			String[] names = toentity.split("::");
-//			do{
-//				if(scope.getSymbol(names[0]) != null){
-//					scope = (Scope) scope.getSymbol(names[0]);
-//					break;
-//				}
-//				if(scope.getEnclosingScope() != null) scope = scope.getEnclosingScope();
-//			}while(scope.getEnclosingScope() != null);
-//			if(names.length == 2) {
-//				if(scope.getSymbol(names[1]) != null) {
-//					Integer toID = scope.getSymbol(names[1]).getEntityID();
-//					return entityRepo.getEntity(toID);
-//				}
-//				return null;
-//			}
-//			for(int i = 1; i < names.length; i++){
-//				if(scope.getSymbol(names[i]) != null){
-//					scope = (Scope) scope.getSymbol(names[i]);
-//				}else{
-//					return null;
-//				}
-//			}
-//		}
-//		return null;
-//	}
-	
-
-//	/**
-//	* @methodsName: getEntity()
-//	* @description: get entity by methodName and fromEntity
-//	* @param: Entity entity, String methodName
-//	* @return: Entity
-//	* @throws:
-//	*/
-//	public Entity getEntity(Entity entity, String methodName) {
-//		String pureName = methodName;
-//
-//		if (((BaseScope) entity.getScope()).getSymbol(pureName) != null) {
-//			for (Entity en : entity.getParent().getChild()) {
-//				if (en instanceof FunctionEntity && en.getName().equals(pureName))
-//					return en;
-//			}
-//		} else {
-//			// (2)
-//			while (entity.getParent() != null) {
-//				entity = entity.getParent();
-//				if (((BaseScope) entity.getScope()).getSymbol(pureName) != null) {
-//					for (Entity en : entity.getChild()) {
-//						if (en instanceof FunctionEntity && en.getName().equals(pureName))
-//							return en;
-//					}
-//				}
-//			}
-//			// (3)
-//			if (entity instanceof FileEntity) {
-//				if (((FileEntity) entity).getIncludeEntity() == null)
-//					return null;
-//				for (FileEntity file : ((FileEntity) entity).getIncludeEntity()) {
-//					if (file.getScope().resolve(pureName, Configure.File) != null) {
-//						for (Entity en : file.getChild()) {
-//							if (en instanceof FunctionEntity && en.getName().equals(pureName))
-//								return en;
-//						}
-//					}
-//				}
-//			}
-//		}
-//		return null;
-//	}
+	public void relationListDealAfter() {
+		Iterator<Entity> iterator = entityRepo.entityIterator();
+		while (iterator.hasNext()) {
+			Entity entity = iterator.next();
+			if(entity instanceof VarEntity){
+				if(((VarEntity) entity).getTypeID() != -1){
+					if(entity.getParentId() != -1){
+						Entity parent = entityRepo.getEntity(entity.getParentId());
+						Entity type = entityRepo.getEntity(((VarEntity) entity).getTypeID());
+						if(parent instanceof StructEntity & type instanceof StructEntity){
+							relationRepo.addRelation(new Relation(parent, type, "Embed",
+									entity.getLocation().getFile(), entity.getLocation().getStartLine(),
+									entity.getLocation().getStartOffset()));
+						}else if(parent instanceof FunctionEntity & type instanceof StructEntity){
+							if(entity.getLocation() != null)
+								relationRepo.addRelation(new Relation(parent, type, "typeUse",
+										entity.getLocation().getFile(), entity.getLocation().getStartLine(),
+										entity.getLocation().getStartOffset()));
+						}
+					}
+				}
+			}
+		}
+	}
 
 	public RelationRepo getRelationRepo() {
 		return relationRepo;

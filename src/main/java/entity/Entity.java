@@ -1,6 +1,8 @@
 package entity;
 
+import relation.ObjectRelation;
 import relation.Relation;
+import relation.ScopeRelation;
 import util.Tuple;
 import symtab.Scope;
 
@@ -23,24 +25,33 @@ public abstract class Entity {
 		String RelationType;
 		String EntityType;
 		String EntityLocationInfor;
-		public BindingRelation(String retype, String entype, String eninfor) {
+		Integer startLine;
+		Integer startOffset;
+		Integer fileID;
+		public BindingRelation(String retype, String entype, String eninfor, Integer fileID, Integer line, Integer Offset) {
 			this.RelationType = retype;
 			this.EntityType = entype;
 			this.EntityLocationInfor = eninfor;
+			this.fileID = fileID;
+			this.startLine = line;
+			this.startOffset = Offset;
 		}
 		public String getLocationInfor() {
 			return this.EntityLocationInfor;
 		}
-		public String getRelationType() {
-			return this.RelationType;
-		}
+		public String getRelationType() {return this.RelationType;}
+		public Integer getFileID() {return this.fileID;}
+		public Integer getStartLine() {return this.startLine; }
+		public Integer getStartOffset() {return this.startOffset; }
 	}
 
 	private List<BindingRelation> RelationListByBinding = new ArrayList<BindingRelation>();
-	private List<Tuple> RelationListByScope = new ArrayList<Tuple>();
-	private List<Tuple> RelationListByObject = new ArrayList<Tuple>();
+	private ArrayList<ScopeRelation> RelationListByScope = new ArrayList<ScopeRelation>();
+	private ArrayList<ObjectRelation> RelationListByObject = new ArrayList<ObjectRelation>();
+	private ArrayList<Relation> relations = new ArrayList<Relation>();
+
 	protected HashMap<String, Entity> visibleNames = new HashMap<>();
-	ArrayList<Relation> relations;
+
 	Scope scope = null;
 	int visibilityLabel = 1;
 	int visibility = -1;
@@ -81,18 +92,7 @@ public abstract class Entity {
 		return id;
 	}
 
-	public void addRelation(Relation relation) {
-		if (relations == null)
-			relations = new ArrayList<>();
-		// if (relation.getEntity()==null) return;
-		relations.add(relation);
-	}
 
-	public ArrayList<Relation> getRelations() {
-		if (relations == null)
-			return new ArrayList<>();
-		return relations;
-	}
 
 	public void addChild(Entity child) {
 		children().add(child);
@@ -133,14 +133,14 @@ public abstract class Entity {
 	}
 	public void setLocation(Location location) {this.location = location;}
 
-	@Override
-	public String toString() {
-		if (parent == null)
-			return "Entity [id=" + id + ", qualifiedName=" + qualifiedName + "]";
-		return "Entity [id=" + id + ", Name=" + name + ", qualifiedName=" + qualifiedName + ",class="
-				+ this.getClass().toString() + ",parent=" + parent.qualifiedName + "]" + ",startline="
-				+ location.getStartLine(); // + ", rawName=" + rawName
-	}
+//	@Override
+//	public String toString() {
+//		if (parent == null)
+//			return "Entity [id=" + id + ", qualifiedName=" + qualifiedName + "]";
+//		return "Entity [id=" + id + ", Name=" + name + ", qualifiedName=" + qualifiedName + ",class="
+//				+ this.getClass().toString() + ",parent=" + parent.qualifiedName + "]" + ",startline="
+//				+ location.getStartLine(); // + ", rawName=" + rawName
+//	}
 
 	/**
 	 * Get ancestor of type.
@@ -246,32 +246,42 @@ public abstract class Entity {
 
 		return childlist;
 	}
+
+	public void addRelation(Relation relation) {
+		if (relations == null) relations = new ArrayList<>();
+		relations.add(relation);
+	}
+
+	public ArrayList<Relation> getRelations() {
+		if (relations == null) return new ArrayList<>();
+		return relations;
+	}
 	
 	/*
 	 * add and get relation by binding or scope resolution
 	 * 
 	 */
-	public void addBindingRelation(String retype, String entype, String eninfor) {
-		this.RelationListByBinding.add(new BindingRelation(retype, entype, eninfor));
+	public void addBindingRelation(String retype, String entype, String eninfor, Integer fileID, Integer line, Integer offset) {
+		this.RelationListByBinding.add(new BindingRelation(retype, entype, eninfor, fileID, line, offset));
 	}
 	
 	public List<BindingRelation> getRelationListByBinding(){
 		return this.RelationListByBinding;
 	}
 	
-	public void addScopeRelation(String retype, String entityName) {
-		this.RelationListByScope.add(new Tuple(retype, entityName));
+	public void addScopeRelation(String retype, String entityName, Integer fileID, Integer line, Integer offset) {
+		this.RelationListByScope.add(new ScopeRelation(this, entityName, retype, fileID, line, offset));
 	}
 
-	public void addRelationByObject(String relationType, String entityName, String object) {
-		this.RelationListByObject.add(new Tuple(relationType, new Tuple(entityName, object)));
+	public void addRelationByObject(String object, String entityName, String relationType, Integer fileID, Integer line, Integer offset) {
+		this.RelationListByObject.add(new ObjectRelation(object, this, entityName, relationType, fileID, line, offset));
 	}
 
-	public List<Tuple> getRelationListByScope(){
+	public List<ScopeRelation> getRelationListByScope(){
 		return this.RelationListByScope;
 	}
 
-	public List<Tuple> getRelationListByObject(){
+	public List<ObjectRelation> getRelationListByObject(){
 		return this.RelationListByObject;
 	}
 

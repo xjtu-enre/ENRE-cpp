@@ -1,5 +1,6 @@
 package entity;
 
+import relation.ScopeRelation;
 import symtab.BaseScope;
 import symtab.Scope;
 
@@ -13,7 +14,8 @@ public class DataAggregateEntity extends Entity{
 	boolean isTemplate = false;
 	boolean isSpecializationTemplate = false;
 	List<Entity> useList = new ArrayList<Entity>();
-	List<String> usingImport = new ArrayList<String>();
+	List<ScopeRelation> usingImport = new ArrayList<ScopeRelation>();
+	List<Integer> containEntity = new ArrayList<Integer>();
 
 	public DataAggregateEntity(String name, String qualifiedName, Entity parent, Integer id,BaseScope scope) {
 		super(name,qualifiedName, parent,id);
@@ -21,7 +23,7 @@ public class DataAggregateEntity extends Entity{
 		if(name.contains("::")) {
 			isScopeTrue = false;
 		}
-		this.usingImport = new ArrayList<String>();
+		this.usingImport = new ArrayList<ScopeRelation>();
 	}
 
 	public DataAggregateEntity(String name, String qualifiedName, Entity parent, Integer id,BaseScope scope, Location location) {
@@ -30,16 +32,16 @@ public class DataAggregateEntity extends Entity{
 		if(name.contains("::")) {
 			isScopeTrue = false;
 		}
-		this.usingImport = new ArrayList<String>();
+		this.usingImport = new ArrayList<ScopeRelation>();
 	}
-	
+
 	/*
 	 * set and gets the list of variables to use
 	 */
 	public void setUse(Entity entity) {
 		this.useList.add(entity);
 	}
-	
+
 	public List<Entity> getUse() {
 		return this.useList;
 	}
@@ -72,11 +74,14 @@ public class DataAggregateEntity extends Entity{
 	public Scope getScope(){return this.scope;}
 
 
-	public void setUsing(String using) {
-		if(using != null) this.usingImport.add(using);
+	public void setUsing(String using, Integer fileID, Integer line, Integer offset) {
+		if(using != null) this.usingImport.add(new ScopeRelation(this, using, "Using", fileID, line, offset));
 	}
-	public List<String> getUsingImport(){
+	public List<ScopeRelation> getUsingImport(){
 		return this.usingImport;
 	}
+
+	public void addContainEntity(Integer entityID){this.containEntity.add(entityID);}
+	public List<Integer> getContainEntity() {return this.containEntity;}
 
 }

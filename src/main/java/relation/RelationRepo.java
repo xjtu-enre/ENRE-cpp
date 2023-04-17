@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class RelationRepo {
 	
-	Map<String, List<Tuple<Integer, Integer>>> dep = new HashMap<String, List<Tuple<Integer, Integer>>>();
+	List<Relation> dep = new ArrayList<Relation>();
 	public RelationRepo() {
 		
 	}
@@ -24,21 +24,10 @@ public class RelationRepo {
 	* @throws: 
 	*/
 	public void addRelation(Relation re) {
-		String type = re.getType();
-		Integer from = re.getFromEntity().getId();
-
-		Integer to = re.getToEntity().getId();
-		if(!dep.containsKey(re.getType())) {
-			List<Tuple<Integer,Integer>> listNew = new ArrayList<Tuple<Integer,Integer>>();
-			listNew.add(new Tuple(from,to));
-			this.dep.put(re.getType(), listNew);
-		}
-		else {
-			this.dep.get(type).add(new Tuple(from,to));
-		}
+		this.dep.add(re);
 	}
 
-	public Map<String, List<Tuple<Integer, Integer>>> getrelationrepo(){
+	public List<Relation> getrelationrepo(){
 		return dep;
 	}
 

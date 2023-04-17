@@ -1,10 +1,11 @@
 package cdt;
 import entity.*;
-import entity.TypeRecord;
+import entity.FieldEntity;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTExpression;
 import org.eclipse.cdt.internal.core.dom.parser.ProblemBinding;
 import org.eclipse.cdt.internal.core.dom.parser.ProblemType;
 import relation.Relation;
+import relation.ScopeRelation;
 import util.Configure;
 import util.Tuple;
 import symtab.*;
@@ -96,6 +97,9 @@ public class HandlerContext {
 		else{
 			this.currentScope.define(symbol, Configure.Function);
 		}
+		for(ParameterEntity parameterEntity:parameterList){
+			parameterEntity.setParent(functionEntity);
+		}
 		entityRepo.add(functionEntity);
 		return functionEntity;
 	}
@@ -139,12 +143,14 @@ public class HandlerContext {
 			FunctionEntity scopeFunctionEntity = (FunctionEntity) entityRepo.getEntity(scopeID);
 			List<String> parameterLists = new ArrayList<String>();
 			for(ParameterEntity parameterEntity:parameterList){
-				parameterLists.add(parameterEntity.getType().getTypeName());
+				parameterLists.add(parameterEntity.getType());
 			}
 			if(scopeFunctionEntity.equals(name, parameterLists)){
 				shouldNewEntity = false;
 				scopeFunctionEntity.setLocation(location);
-				this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), scopeFunctionEntity, "Define"));
+				this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), scopeFunctionEntity,
+						"Define", this.currentFileEntity.getId(), scopeFunctionEntity.getStartLine(),
+						scopeFunctionEntity.getLocation().getStartOffset()));
 				entityStack.push(scopeFunctionEntity);
 			}else if(this.overloadSet.isInSet(scopeID)){
 				for(Integer id: this.overloadSet.getNodes(scopeID)){
@@ -152,7 +158,9 @@ public class HandlerContext {
 					if(scopeFunctionEntity.equals(name, parameterLists)) {
 						shouldNewEntity = false;
 						scopeFunctionEntity.setLocation(location);
-						this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), scopeFunctionEntity, "Define"));
+						this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(),
+								scopeFunctionEntity, "Define", this.currentFileEntity.getId(),
+								scopeFunctionEntity.getLocation().getStartLine(), scopeFunctionEntity.getLocation().getStartOffset()));
 						entityStack.push(scopeFunctionEntity);
 						break;
 					}
@@ -177,10 +185,15 @@ public class HandlerContext {
 				((ClassEntity) this.latestValidContainer()).addContainEntity(id);
 			}
 			this.latestValidContainer().addRelation(
-					new Relation(this.latestValidContainer(), functionEntity, "Define"));
+					new Relation(this.latestValidContainer(), functionEntity, "Define",
+							this.currentFileEntity.getId(), functionEntity.getLocation().getStartLine(),
+							functionEntity.getLocation().getStartOffset()));
 			functionEntity.setReturn(returnType);
 			entityRepo.add(functionEntity);
 			entityStack.push(functionEntity);
+		}
+		for(ParameterEntity parameterEntity:parameterList){
+			parameterEntity.setParent(functionEntity);
 		}
 		return functionEntity;
 	}
@@ -210,7 +223,9 @@ public class HandlerContext {
 		if(this.currentScope.getSymbolByKind(symbol.getName(), Configure.Namespace) == null){
 			this.currentScope.define(symbol, Configure.Namespace);
 		}
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), nsEntity, "Define"));
+
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), nsEntity, "Define",
+				this.currentFileEntity.getId(), new Integer(startLine),  -1));
 		nsEntity.addScale(endLine - startLine);
 		entityStack.push(nsEntity);
 		return nsEntity;
@@ -225,7 +240,7 @@ public class HandlerContext {
 	* @param:  String ClassName,List<String> baseClass, Location location
 	* @return: ClassEntity
 	*/
-	public ClassEntity foundClassDefinition(String ClassName,List<String> baseClass, Location location, boolean isTemplate){
+	public ClassEntity foundClassDefinition(String ClassName, Location location, boolean isTemplate){
 		this.currentScope = this.entityStack.peek().getScope();
 		int id = entityRepo.generateId();
 		ClassSymbol symbol = new ClassSymbol(ClassName, id);
@@ -237,11 +252,9 @@ public class HandlerContext {
 		}
 		ClassEntity classEntity = new ClassEntity(ClassName, resolveName(ClassName),
 				this.latestValidContainer(),id,symbol, location);
-		classEntity.addRelation(new Relation(this.currentFileEntity, classEntity,"Contain"));
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), classEntity, "Define"));
-		if(baseClass!= null) {
-			classEntity.addBaseClass(baseClass);
-		}
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), classEntity, "Define",
+				this.currentFileEntity.getId(), classEntity.getLocation().getStartLine(), classEntity.getLocation().getStartOffset()));
+
 		classEntity.setTemplate(isTemplate);
 		entityRepo.add(classEntity);
 		entityStack.push(classEntity);
@@ -255,7 +268,7 @@ public class HandlerContext {
 	* @param:  String StructName, List<String> baseStruct, Location location
 	* @return: StructEntity
 	*/
-	public StructEntity foundStructDefinition(String StructName, List<String> baseStruct, Location location, boolean isTemplate) {
+	public StructEntity foundStructDefinition(String StructName, Location location, boolean isTemplate) {
 		this.currentScope = this.entityStack.peek().getScope();
 		int id = entityRepo.generateId();
 		if(StructName.equals("")) {
@@ -271,10 +284,8 @@ public class HandlerContext {
 
 		StructEntity structEntity = new StructEntity(StructName, resolveName(StructName),
 				this.latestValidContainer(), id, symbol, location);
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), structEntity, "Define"));
-		if(baseStruct!= null) {
-			structEntity.addBaseStruct(baseStruct);
-		}
+		structEntity.addRelation(new Relation(this.latestValidContainer(), structEntity, "Define",
+				this.currentFileEntity.getId(), structEntity.getLocation().getStartLine(), structEntity.getLocation().getStartOffset()));
 		structEntity.setTemplate(isTemplate);
 		entityRepo.add(structEntity);
 		entityStack.push(structEntity);
@@ -302,7 +313,8 @@ public class HandlerContext {
 
 		UnionEntity unionEntity = new UnionEntity(UnionName, resolveName(UnionName),
 				this.latestValidContainer(), id, symbol, location);
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), unionEntity, "Define"));
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), unionEntity, "Define",
+				this.currentFileEntity.getId(), unionEntity.getLocation().getStartLine(), unionEntity.getLocation().getStartOffset()));
 		entityRepo.add(unionEntity);
 		entityStack.push(unionEntity);
 		return unionEntity;
@@ -332,7 +344,8 @@ public class HandlerContext {
 		
 		EnumEntity enumeration = new EnumEntity(enumName, resolveName(enumName),
 				this.latestValidContainer(), id, symbol, location);
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), enumeration, "Define"));
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), enumeration, "Define",
+				this.currentFileEntity.getId(), enumeration.getLocation().getStartLine(), enumeration.getLocation().getStartOffset()));
 		entityRepo.add(enumeration);
 		entityStack.push(enumeration);
 		return enumeration;
@@ -354,7 +367,8 @@ public class HandlerContext {
 		if(this.latestValidContainer() instanceof EnumEntity) {
 			((EnumEntity)this.latestValidContainer()).addEnumerator(enumertorEntity);
 		}
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), enumertorEntity, "Define"));
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), enumertorEntity, "Define",
+				this.currentFileEntity.getId(), enumertorEntity.getLocation().getStartLine(), enumertorEntity.getLocation().getStartOffset()));
 		return enumertorEntity;
 	}
 	
@@ -372,6 +386,7 @@ public class HandlerContext {
 			CPPASTBinaryExpression binaryExp = (CPPASTBinaryExpression)expression;
 			this.dealExpressionNode(binaryExp.getOperand1(), "Set");
 			this.dealExpressionNode(binaryExp.getOperand2(), "Use");
+
 		}
 		if(expression instanceof CPPASTCastExpression) {
 			CPPASTCastExpression castExp = (CPPASTCastExpression) expression;
@@ -400,7 +415,8 @@ public class HandlerContext {
 				ICPPASTExpression fieldExpression = ((CPPASTFieldReference) functionNameExpression).getFieldOwner();
 				if(fieldExpression instanceof CPPASTIdExpression){
 					String fieldName = ((CPPASTIdExpression) fieldExpression).getName().toString();
-					this.latestValidContainer().addRelationByObject("call", callFunctionName, fieldName);
+					this.latestValidContainer().addRelationByObject(fieldName, callFunctionName, "call", this.currentFileEntity.getId(),
+							expression.getFileLocation().getStartingLineNumber(), ((CPPASTFunctionCallExpression) expression).getOffset());
 				}else if(fieldExpression instanceof CPPASTFieldReference){
 					String text = expression.getRawSignature();
 				}
@@ -417,6 +433,7 @@ public class HandlerContext {
 		}
 		if(expression instanceof CPPASTLiteralExpression){
 			// TODO extract nullptr type
+//			System.out.println(((CPPASTLiteralExpression) expression).getEvaluation().getType().toString());
 //			System.out.println(((CPPASTLiteralExpression) expression).getBasicCharKind());
 //			System.out.println(((CPPASTLiteralExpression) expression).getKind());
 //			System.out.println(IASTLiteralExpression.lk_nullptr);
@@ -435,11 +452,15 @@ public class HandlerContext {
 		if(expression instanceof CPPASTIdExpression) {
 			Tuple entityInformation = this.getEntityInforbyBinding((CPPASTIdExpression)expression);
 			if(entityInformation == null) {
-				this.latestValidContainer().addScopeRelation(expressionType, expression.getRawSignature());
+				this.latestValidContainer().addScopeRelation(expressionType, expression.getRawSignature(),
+						this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+						expression.getFileLocation().getNodeOffset());
 			}
 			else {
 				this.latestValidContainer().addBindingRelation(expressionType, 
-						(String)entityInformation.getSecond(), (String)entityInformation.getFirst());
+						(String)entityInformation.getSecond(), (String)entityInformation.getFirst(),
+						this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+						expression.getFileLocation().getNodeOffset());
 			}
 		}
 		else {
@@ -506,6 +527,7 @@ public class HandlerContext {
 	}
 
 	public Entity findTheTypedEntity(String name){
+		if(name == null) return null;
 		String[] scopeManages = name.split("::");
 		Scope current = this.currentScope;
 		if(scopeManages.length == 1){
@@ -568,7 +590,8 @@ public class HandlerContext {
 		if(this.latestValidContainer() instanceof ClassEntity){
 			((ClassEntity) this.latestValidContainer()).addContainEntity(id);
 		}
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), varEntity, "Define"));
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), varEntity, "Define",
+				this.currentFileEntity.getId(), varEntity.getLocation().getStartLine(), varEntity.getLocation().getStartOffset()));
 		return varEntity;
 	}
 
@@ -581,22 +604,21 @@ public class HandlerContext {
 		FieldEntity entity = new FieldEntity(varName, qualifiedName,  this.latestValidContainer(), id, location, type);
 		Entity typeEntity = this.findTheTypedEntity(type);
 		if(typeEntity != null){
-			entity.setType(new TypeRecord(typeEntity.getId()));
+			entity.setTypeID(typeEntity.getId());
 		}
 		entity.setVisiblity(visibility);
 		entityRepo.add(entity);
-		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
+		if(this.latestValidContainer() != null) {
 			if(this.currentScope instanceof DataAggregateSymbol) {
 				if(this.currentScope.getSymbolByKind(varName, Configure.Variable)==null) {
 					VariableSymbol v = new VariableSymbol(varName, id);
 					this.currentScope.define(v, Configure.Variable);
 				}
 			}
+			this.latestValidContainer().addContainEntity(id);
 		}
-		if(this.latestValidContainer() instanceof ClassEntity){
-			((ClassEntity) this.latestValidContainer()).addContainEntity(id);
-		}
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), entity, "Define"));
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), entity, "Define",
+				this.currentFileEntity.getId(), entity.getLocation().getStartLine(), entity.getLocation().getStartOffset()));
 		return entity;
 	}
 
@@ -613,7 +635,8 @@ public class HandlerContext {
 				}
 			}
 		}
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), labelEntity, "Define"));
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), labelEntity, "Define",
+				this.currentFileEntity.getId(), labelEntity.getLocation().getStartLine(), labelEntity.getLocation().getStartOffset()));
 		return labelEntity;
 	}
 	
@@ -628,7 +651,14 @@ public class HandlerContext {
 		TypedefEntity typedefEntity = new TypedefEntity(Name, resolveName(Name),this.latestValidContainer(),
 				entityRepo.generateId(),  location );
 		entityRepo.add(typedefEntity);
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), typedefEntity, "Define"));
+		Integer startLine = -1;
+		Integer startOffset = -1;
+		if(typedefEntity.getLocation() != null){
+			startLine = typedefEntity.getLocation().getStartLine();
+			startOffset = typedefEntity.getLocation().getStartOffset();
+		}
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), typedefEntity, "Define",
+				this.currentFileEntity.getId(), startLine, startOffset));
 		return typedefEntity;		
 	}
 	
@@ -645,8 +675,10 @@ public class HandlerContext {
 		AliasEntity currentTypeEntity = new AliasEntity(aliasName, 
 				this.resolveName(aliasName), this.latestValidContainer(),
 				entityRepo.generateId(), originalName, location );
-		currentTypeEntity.addBindingRelation("Alias", null, originalName);
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), currentTypeEntity, "Define"));
+		currentTypeEntity.addBindingRelation("Alias", null, originalName,
+				this.currentFileEntity.getId(), location.getStartLine(), location.getStartOffset());
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), currentTypeEntity, "Define",
+				this.currentFileEntity.getId(), currentTypeEntity.getLocation().getStartLine(), currentTypeEntity.getLocation().getStartOffset()));
 		entityRepo.add(currentTypeEntity);
 		return currentTypeEntity;		
 	}
@@ -657,7 +689,8 @@ public class HandlerContext {
 		NamespaceAliasEntity currentTypeEntity = new NamespaceAliasEntity(aliasName,
 				this.resolveName(aliasName), this.latestValidContainer(),
 				entityRepo.generateId(), originalName, location);
-		currentTypeEntity.addBindingRelation("Alias", "Namespace", originalName);
+		currentTypeEntity.addBindingRelation("Alias", "Namespace", originalName,
+				this.currentFileEntity.getId(), location.getStartLine(), location.getStartOffset());
 		entityRepo.add(currentTypeEntity);
 		return currentTypeEntity;
 	}
@@ -676,19 +709,7 @@ public class HandlerContext {
 		entityRepo.add(currentTypeEntity);
 		return currentTypeEntity;		
 	}
-	
 
-
-	public void addFriendClass(String className) {
-		if(this.latestValidContainer() instanceof ClassEntity) {
-			((ClassEntity) this.latestValidContainer()).addFriendClass(className);
-		}
-	}
-	public void addFriendFunction(String functionName) {
-		if(this.latestValidContainer() instanceof ClassEntity) {
-			((ClassEntity) this.latestValidContainer()).addFriendFunction(functionName);
-		}
-	}
 	
 	/**
 	* @methodsName: foundCodeScope
@@ -700,13 +721,9 @@ public class HandlerContext {
 		BaseScope scope = new LocalScope(this.currentScope);
 		BlockEntity entity = new BlockEntity("", "", this.latestValidContainer(),
 				-1, scope, new Location(-1, -1, -1, -1,
-				this.currentFileEntity.getQualifiedName()));
+				this.currentFileEntity.getId()));
 	}
-	
-	
-	public void foundUsingImport(String usingname) {
-		this.latestValidContainer().setUsing(usingname);
-	}
+
 	
 	/**
 	* @methodsName: currentFunction()

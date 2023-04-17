@@ -10,7 +10,6 @@ public class MacroRepo {
 		this.MacroMap.put(key, value);
 	}
 	
-	
 	public Map<String, String> getDefaultMap() {
 		return MacroMap;
 	}

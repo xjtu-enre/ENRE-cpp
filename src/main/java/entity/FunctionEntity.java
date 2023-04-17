@@ -46,7 +46,7 @@ public class FunctionEntity extends DataAggregateEntity{
 		if(this.nameWithSignature!=null) return this.nameWithSignature;
 		this.nameWithSignature = this.name;
 		for(int i=0;i<this.parameter.size();i++){
-			this.nameWithSignature = this.nameWithSignature + "_" + this.parameter.get(i).getType().getTypeName();
+			this.nameWithSignature = this.nameWithSignature + "_" + this.parameter.get(i).getType();
 		}
 		return this.nameWithSignature;
 	}
@@ -59,6 +59,9 @@ public class FunctionEntity extends DataAggregateEntity{
 	public Entity getReturnEntity() {
 		if(this.returnEntity == null) return null;
 		return this.returnEntity;
+	}
+	public String getReturnType(){
+		return this.returnType;
 	}
 	
 	

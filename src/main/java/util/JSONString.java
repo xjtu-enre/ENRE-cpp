@@ -10,6 +10,7 @@ import entity.*;
 import org.eclipse.cdt.core.dom.ast.IASTDeclSpecifier;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPMember;
 import org.json.JSONObject;
+import relation.Relation;
 import symtab.FunctionSymbol;
 
 import java.io.IOException;
@@ -61,7 +62,7 @@ public class JSONString {
 			resolvedName = "Variable";
 			break;
 		case "class entity.FieldEntity":
-			resolvedName = "Field";
+			resolvedName = "Variable";
 			break;
 		case "class entity.FunctionEntityDefine":
 			resolvedName = "Function";
@@ -125,65 +126,45 @@ public class JSONString {
 	class EntityTemp {
 		private String qualifiedName;
 		private Integer id;
-		private String entityType;
-		private String entityFile;
+		private String category;
+		private Integer entityFile;
 		private Integer parentID;
 		private Integer startLine;
-		private Integer startColumn;
+		private Integer startOffset;
 		private Integer endLine;
-		private Integer endColumn;
+		private Integer endOffset;
 		private Integer scale;
-		private String storage_class;
+		private String storageClass;
 		private String visibility;
-		public EntityTemp(){}
-		public EntityTemp(String name, Integer key, String type, String entityFile){
-			this.qualifiedName = name;
-			this.id = key;
-			this.entityType = type;
-			this.entityFile = entityFile;
-		}
+		private Integer type;
+		private String returnType;
+		private String typedefType;
+		private Integer parameterIndex = null;
 
-		public EntityTemp(String name, Integer key, String type, String entityFile, Integer parentid){
+		public EntityTemp(String name, Integer key, String category, Integer entityFile){
 			this.qualifiedName = name;
 			this.id = key;
-			this.entityType = type;
+			this.category = category;
 			this.entityFile = entityFile;
-			this.parentID = parentid;
 		}
-		public EntityTemp(String name, Integer key, String type, String entityFile, 
-				int startLine, int startColumn, int endLine, int endColumn, Integer parentid){
-			this.qualifiedName = name;
-			this.id = key;
-			this.entityType = type;
-			this.entityFile = entityFile;
-			this.startLine = startLine;
-			this.startColumn = startColumn;
-			this.endLine = endLine;
-			this.endColumn = endColumn;
-			this.parentID = parentid;
+		public void setParentID(Integer parentid) { this.parentID = parentid; }
+		public void setStartLine(Integer startLine) { this.startLine = startLine; }
+		public void setStartOffset(Integer startOffset){ this.startOffset = startOffset; }
+		public void setEndLine(Integer endLine) { this.endLine = endLine; }
+		public void setEndOffset(Integer endOffset ){ this.endOffset = endOffset; }
+		public void setScale(Integer scale){this.scale = scale; }
+		public void setStorageClass(String storageClass) { this.storageClass = storageClass; }
+		public void setVisibility(String visibility) { this.visibility = visibility; }
+		public void setType(Integer typeId){
+			this.type = typeId;
 		}
-		public EntityTemp(String name, Integer key, String type, String entityFile, Integer parentid, Integer scale){
-			this.qualifiedName = name;
-			this.id = key;
-			this.entityType = type;
-			this.entityFile = entityFile;
-			this.parentID = parentid;
-			this.scale = scale;
+		public void setReturnType(String returnType){
+			this.returnType = returnType;
 		}
-		public EntityTemp(String name, Integer key, String type, String entityFile, int startLine,
-						  int startColumn, int endLine, int endColumn, Integer parentid, String storage_class, String visibility){
-			this.qualifiedName = name;
-			this.id = key;
-			this.entityType = type;
-			this.entityFile = entityFile;
-			this.startLine = startLine;
-			this.startColumn = startColumn;
-			this.endLine = endLine;
-			this.endColumn = endColumn;
-			this.parentID = parentid;
-			this.storage_class = storage_class;
-			this.visibility = visibility;
+		public void setTypedefType(String typedefType){
+			this.typedefType = typedefType;
 		}
+		public void setParameterIndex(int index) {this.parameterIndex = index;}
 	}
 	
 	public EntityTemp resolveEntity(Entity entity) {
@@ -197,32 +178,56 @@ public class JSONString {
     	
     	String entityType = this.resolveTypeName(entity);
 
-    	String entityFile = "null";
+    	Integer entityFile = null;
     	
     	EntityTemp entitytemp;
 		if(entity instanceof NamespaceEntity){
-			entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile, entity.getParentId(),
-					((NamespaceEntity) entity).getScale());
+			entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile);
+			entitytemp.setParentID(entity.getParentId());
+			entitytemp.setScale(((NamespaceEntity) entity).getScale());
 		}else if(entity instanceof FileEntity){
 			entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile);
 		} else if(entity.getLocation() != null) {
-    		entityFile = entity.getLocation().getFileName();
-    		entityFile = entityFile.replace(configure.getInputSrcPath()+"\\", "");
-    		entityFile = entityFile.replace("\\", "/");
+    		entityFile = entity.getLocation().getFile();
         	
     		if(entity.getLocation().getStartLine() != null) {
-
-				entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile,
-						entity.getLocation().getStartLine(), entity.getLocation().getStartColumn(),
-						entity.getLocation().getEndLine(), entity.getLocation().getEndColumn(), entity.getParentId(),
-						resolveStorage_class(entity.getStorgae_class()), resolveVisibility(entity.getVisiblity()));
+				entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile);
+				entitytemp.setStartLine(entity.getLocation().getStartLine());
+				entitytemp.setStartOffset(entity.getLocation().getStartOffset());
+				entitytemp.setEndLine(entity.getLocation().getEndLine());
+				entitytemp.setEndOffset(entity.getLocation().getEndOffset());
+				entitytemp.setParentID(entity.getParentId());
+				entitytemp.setStorageClass(resolveStorage_class(entity.getStorgae_class()));
+				entitytemp.setVisibility(resolveVisibility(entity.getVisiblity()));
 
     		}
-    		else entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile, entity.getParentId());
+    		else{
+				entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile);
+				entitytemp.setParentID(entity.getParentId());
+			}
     	}
     	else {
-    		entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile, entity.getParentId());
+    		entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile);
+			entitytemp.setParentID(entity.getParentId());
     	}
+		if(entity instanceof VarEntity){
+			if(((VarEntity) entity).getTypeID() != -1){
+				entitytemp.setType(((VarEntity) entity).getTypeID());
+			}
+		}
+		if(entity instanceof TypedefEntity){
+			if(((TypedefEntity) entity).getType() != null){
+				entitytemp.setTypedefType(((TypedefEntity) entity).getType());
+			}
+		}
+		if(entity instanceof FunctionEntity){
+			if(((FunctionEntity) entity).getReturnType() != null){
+				entitytemp.setReturnType(((FunctionEntity) entity).getReturnType());
+			}
+		}
+		if(entity instanceof ParameterEntity){
+			entitytemp.setParameterIndex(((ParameterEntity) entity).getIndex());
+		}
     	return entitytemp;
 	}
 	
@@ -242,13 +247,36 @@ public class JSONString {
     }
 
 	class RelationTemp {
-		private String type;
-		private Integer src;
-		private Integer dest;
+		private String category;
+		private Integer from;
+		private Integer to;
+
+		class Location{
+			private Integer file = null;
+			private Integer line = null;
+			private Integer offset = null;
+		}
+		private Location loc;
+
 		public RelationTemp(String type, Integer from, Integer to){
-			this.type = type;
-			this.src = from;
-			this.dest = to;
+			this.category = type;
+			this.from = from;
+			this.to = to;
+		}
+
+		public void setFile(Integer fileID) {
+			if(this.loc == null) this.loc = new Location();
+			this.loc.file = fileID;
+		}
+
+		public void setLine(Integer line) {
+			if(this.loc == null) this.loc = new Location();
+			this.loc.line = line;
+		}
+
+		public void setOffset(Integer Offset) {
+			if(this.loc == null) this.loc = new Location();
+			this.loc.offset = Offset;
 		}
 	}
 
@@ -260,7 +288,7 @@ public class JSONString {
         for (String Type: relationList.keySet()) {
         	List<Tuple<Integer, Integer>> relationListByType = relationList.get(Type);
         	for(Tuple<Integer, Integer> relation:relationListByType) {
-        		String jsonString = "{\"type\":\""+Type+"\", \"src\":"+relation.getFirst()+", \"dest\":\""+ relation.getSecond() +"\"}";
+        		String jsonString = "{\"category\":\""+Type+"\", \"src\":"+relation.getFirst()+", \"dest\":\""+ relation.getSecond() +"\"}";
             	GsonBuilder builder = new GsonBuilder();
                 builder.setPrettyPrinting();
                 Gson gson = builder.create();
@@ -284,7 +312,7 @@ public class JSONString {
 
 
 	public void writeJsonStream(OutputStream out, Map<Integer, Entity> entityList,
-										Map<String, List<Tuple<Integer, Integer>>> relationList) throws IOException {
+										List<Relation> relationList) throws IOException {
 		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
 		writer.setIndent("  ");
 		writer.beginArray();
@@ -297,37 +325,22 @@ public class JSONString {
         	Entity entity = entityList.get(en);
 			builder.setPrettyPrinting();
 			entityTempList.add(this.resolveEntity(entity));
-//			if(entity instanceof FunctionEntity){
-//				if(entity.getScope() instanceof FunctionSymbol){
-//					FunctionSymbol symbol = (FunctionSymbol)(entity.getScope());
-//					if(symbol.isOverload()){
-//						if(overload.get(entity.getQualifiedName())!=null){
-//							overload.get(entity.getQualifiedName()).add(entity.getId());
-//						}else{
-//							List<Integer> list = new ArrayList<Integer>();
-//							list.add(entity.getId());
-//							overload.put(entity.getQualifiedName(), list);
-//						}
-//					}
-//				}
-//			}
 		}
-//		System.out.println("Overload Function Lists:");
-//		for(List<Integer> list: overload.values()){
-//			System.out.print("{");
-//			System.out.print(Arrays.toString(list.toArray()));
-//			System.out.print("}, ");
-//		}
-//		System.out.println();
 
 		List<RelationTemp> relationTempList = new ArrayList<RelationTemp>();
-		for (String Type: relationList.keySet()) {
-			List<Tuple<Integer, Integer>> relationListByType = relationList.get(Type);
-			for(Tuple<Integer, Integer> relation:relationListByType) {
-				builder.setPrettyPrinting();
-				RelationTemp relationtemp = new RelationTemp(Type, relation.first, relation.second);
-				relationTempList.add(relationtemp);
+		for (Relation relation: relationList) {
+			RelationTemp relationtemp = new RelationTemp(relation.getType(), relation.getFromEntity().getId(),
+					relation.getToEntity().getId());
+			if(relation.getFileID() != -1){
+				relationtemp.setFile(relation.getFileID());
 			}
+			if(relation.getStartLine() != -1){
+				relationtemp.setLine(relation.getStartLine());
+			}
+			if(relation.getStartOffset() != -1){
+				relationtemp.setOffset(relation.getStartOffset());
+			}
+			relationTempList.add(relationtemp);
 		}
 		AllTemp allTemp = new AllTemp(entityTempList, relationTempList);
 		gson.toJson(allTemp, AllTemp.class, writer);

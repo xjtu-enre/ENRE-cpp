@@ -7,6 +7,7 @@ import entity.Location;
 import entity.MacroEntity;
 import org.eclipse.cdt.internal.core.parser.IMacroDictionary;
 import org.eclipse.cdt.internal.core.parser.SavedFilesProvider;
+import relation.Relation;
 import util.Configure;
 
 import org.eclipse.cdt.core.dom.ast.*;
@@ -46,7 +47,7 @@ public class FileParser {
 	 * @throws:
 	 */
 	public void parse( ) throws Exception {
-		try{
+//		try{
 			if(exitFile(filepath)) {
 				if(isFileParse(filepath)) {
 					return ;
@@ -68,9 +69,9 @@ public class FileParser {
 
 			CppVisitor visitor = new CppVisitor(entityrepo, filepath);
 			fileEntity = visitor.getfile();
-			HashSet<String> includePathset = getdirectedinclude(tu);
+			HashMap<String, Integer> includePathset = getdirectedinclude(tu);
 
-			for(String includePath:includePathset) {
+			for(String includePath:includePathset.keySet()) {
 
 				if(!isFileParse(includePath)) {
 					FileParser fileparse = new FileParser(includePath, entityrepo, fileList, Program_environment);
@@ -78,13 +79,15 @@ public class FileParser {
 				}
 				if(entityrepo.getEntityByName(includePath)!=null && entityrepo.getEntityByName(includePath) instanceof FileEntity) {
 					FileEntity includeFileEntity = (FileEntity)entityrepo.getEntityByName(includePath);
-					fileEntity.addincludeEntity(includeFileEntity);
-					definedMacros.putAll(includeFileEntity.getMacroRepo());
-					fileEntity.getMacroRepo().putAll(includeFileEntity.getMacroRepo());
+					if(includePath.endsWith(".h"))
+						fileEntity.addincludeEntity(includeFileEntity);
+						fileEntity.addRelation(new Relation(fileEntity, includeFileEntity, "Include", fileEntity.getId(),
+								includePathset.get(includePath), -1));
+						definedMacros.putAll(includeFileEntity.getMacroRepo());
+						fileEntity.getMacroRepo().putAll(includeFileEntity.getMacroRepo());
 				}
 				isIncludePath = true;
 			}
-
 			getMacro(filepath);
 			if(isIncludePath) {
 				tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
@@ -95,9 +98,9 @@ public class FileParser {
 			getallstatements(statements);
 
 			tu.accept(visitor);
-		}catch (NullPointerException exception){
-
-		}
+//		}catch (NullPointerException exception){
+//
+//		}
 	}
 	
 	/**
@@ -147,9 +150,12 @@ public class FileParser {
 						statement.getFileLocation().getStartingLineNumber(),
 						statement.getFileLocation().getEndingLineNumber(),
 						statement.getFileLocation().getNodeOffset(),
-						statement.getFileLocation().getFileName().toString());
+						this.fileEntity.getId());
 				MacroEntity macroEntity = new MacroEntity(statement.getRawSignature(),
 						macroname, fileEntity, entityrepo.generateId(), location);
+				this.fileEntity.addRelation(new Relation(fileEntity, macroEntity, "Define", fileEntity.getId(),
+						statement.getFileLocation().getStartingLineNumber(),
+						statement.getFileLocation().getNodeOffset()));
 				entityrepo.add(macroEntity);
 			}
 		}
@@ -212,17 +218,17 @@ public class FileParser {
 	 * @return: HashSet<String>
 	 * @throws:
 	 */
-	public HashSet<String> getdirectedinclude(IASTTranslationUnit tu) {
+	public HashMap<String, Integer> getdirectedinclude(IASTTranslationUnit tu) {
 		IASTPreprocessorIncludeStatement[] statements = tu.getIncludeDirectives();
-		HashSet<String> includeFile = new HashSet<String>();
-		for(IASTPreprocessorIncludeStatement includefile:statements) {
-			String path = includefile.getName().toString();
-			File file = new File(includefile.getContainingFilename());
+		HashMap<String, Integer> includeFile = new LinkedHashMap<String, Integer>();
+		for(IASTPreprocessorIncludeStatement includeStatement:statements) {
+			String path = includeStatement.getName().toString();
+			File file = new File(includeStatement.getContainingFilename());
 			String filePath = file.getParent();
 			String checkPath = uniformPath(ScannerUtility.reconcilePath(filePath), ScannerUtility.reconcilePath(path));
 			checkPath =  uniformPath(checkPath);
 			if(exitFile(checkPath)) {
-				includeFile.add(checkPath);
+				includeFile.put(checkPath, includeStatement.getFileLocation().getStartingLineNumber());
 				continue;
 			}
 			else {
@@ -230,7 +236,7 @@ public class FileParser {
 					checkPath = ScannerUtility.createReconciledPath(en_path, path);
 					checkPath = uniformPath(checkPath);
 					if(exitFile(checkPath)) {
-						includeFile.add(checkPath);
+						includeFile.put(checkPath, includeStatement.getFileLocation().getStartingLineNumber());
 						break;
 					}
 				}

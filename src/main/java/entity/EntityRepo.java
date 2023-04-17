@@ -68,8 +68,9 @@ public class EntityRepo {
 			allEntitiesByLocation.put(entity.getQualifiedName(), entity);
 		}
 		else{
-			allEntitiesByLocation.put(entity.getLocation().getFileName() + entity.getLocation().getStartLine()
-					+ entity.getLocation().getStartColumn(), entity);
+			allEntitiesByLocation.put(allEntitiesById.get(entity.getLocation().getFile()).getQualifiedName()
+					+ entity.getLocation().getStartLine()
+					+ entity.getLocation().getStartOffset(), entity);
 		}
 		String Qualifiedname = entity.getQualifiedName();
 		if (entity.getQualifiedName() != null && !(entity.getQualifiedName().isEmpty())) {
@@ -98,14 +99,6 @@ public class EntityRepo {
 
 	public Map<Integer, Entity> getEntities() {
 		return allEntitiesById;
-	}
-
-	public void printAllEntities() {
-		for (Integer entityId : allEntitiesById.keySet()) {
-			Entity entity = allEntitiesById.get(entityId);
-			System.out.println(entity.getName() + entity.getLocation().getFileName()
-					+ entity.getLocation().getStartLine() + entity.getLocation().getStartColumn());
-		}
 	}
 
 	public Integer getNamespace(String name){

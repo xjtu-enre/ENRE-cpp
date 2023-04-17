@@ -1,6 +1,8 @@
 import cdt.CDTParser;
+import cdt.TypeBinding;
 import entity.EntityRepo;
 import relation.RelationContext;
+import symtab.Type;
 import util.FileTraversal;
 import util.FileUtil;
 import util.JSONString;
@@ -19,7 +21,7 @@ public class Processor {
 	public Processor(Set<String> Program_environment) {
 		Processor.cdtparser = new CDTParser(Program_environment);
 	}
-
+	TypeBinding typeBinding;
 	RelationContext relationcontext ;
 	
 	/**
@@ -69,21 +71,21 @@ public class Processor {
 		this.relationcontext = new RelationContext(entityrepo);
 		this.relationcontext.relationListDeal();
 		this.relationcontext.AggregateDeal();
-		this.relationcontext.FileDeal();
 		this.relationcontext.ClassDeal();
 		this.relationcontext.FunctionDeal();
 		this.relationcontext.NamespaceAliasDeal();
+		this.relationcontext.relationListDealAfter();
+	}
+
+	public void typeBinding() throws Exception{
+		EntityRepo entityrepo = cdtparser.getEntityRepo();
+		this.typeBinding = new TypeBinding(entityrepo);
+		this.typeBinding.typeBindingDeal();
 	}
 
 	public void outputFile(String projectName) throws Exception {
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
 		JSONString node_str = new JSONString();
-//		FileOutputStream outputEntityStream = new FileOutputStream(projectName + "_node.json");
-//		node_str.writeEntityJsonStream(outputEntityStream, entityrepo.getEntities());
-//
-//		FileOutputStream outputRelationStream = new FileOutputStream(projectName + "_edge.json");
-//		node_str.writeRelationJsonStream(outputRelationStream, this.relationcontext.getRelationRepo().getrelationrepo());
-
 		FileOutputStream outputStream = new FileOutputStream(projectName + "_out.json");
 		node_str.writeJsonStream(outputStream, entityrepo.getEntities(), this.relationcontext.getRelationRepo().getrelationrepo());
 

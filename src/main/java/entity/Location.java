@@ -7,18 +7,18 @@ public class Location implements Serializable{
 	Integer length;
 	Integer startLine;
 	Integer endLine;
-	Integer startColumn;
+	Integer startOffset;
 	
-	String filePath;
-	public Location(String filePath) {
-		this.filePath = filePath;
+	Integer fileID;
+	public Location(Integer fileID) {
+		this.fileID = fileID;
 	}
-	public Location(int length, int startLine, int endLine, int startColumn, String filePath) {
+	public Location(int length, int startLine, int endLine, int startOffset, Integer fileID) {
 		this.length = length;
 		this.startLine = startLine;
 		this.endLine = endLine;
-		this.startColumn = startColumn;
-		this.filePath = filePath;
+		this.startOffset = startOffset;
+		this.fileID = fileID;
 	}
 	public Integer getStartLine(){
         return startLine;
@@ -32,14 +32,14 @@ public class Location implements Serializable{
     public void setEndLine(int endLine){
         this.endLine = endLine;
     }
-    public Integer getStartColumn(){
-        return startColumn;
+    public Integer getStartOffset(){
+        return startOffset;
     }
-    public String getFileName() {
-    	return this.filePath;
+    public Integer getFile() {
+    	return this.fileID;
     }
-    public Integer getEndColumn(){
-        return startColumn;
+    public Integer getEndOffset(){
+        return startOffset;
     }
 
 }

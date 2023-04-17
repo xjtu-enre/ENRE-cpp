@@ -37,6 +37,7 @@ public class CDTParser {
 		List<String> wordList = new ArrayList<String>();
 		wordList.add("lib");
 		wordList.add("src");
+		wordList.add("include");
 		for(String path:fileList.keySet()) {
 			for(String word:wordList) {
 				if(path.contains(word)) {
