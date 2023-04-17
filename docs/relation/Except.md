@@ -30,7 +30,7 @@ std::optional<bilingual_str> LoadAddrman(){
 ```yaml
 name: Try Catch Exception
 relation:
-    type: Throw
+    type: Except
     items:
         -   from: Function:'LoadAddrman'
             to: Class:'DbNotFoundError'
@@ -52,7 +52,7 @@ void CallRPC()
 ```yaml
 name: Throw Exception
 relation:
-    type: Throw Exception
+    type: Except
     items:
         -   from: Function:'CallRPC'
             to: Class:'CConnectionFailed'

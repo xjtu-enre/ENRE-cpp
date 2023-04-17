@@ -65,6 +65,7 @@ int main(){}
 name: Include occur in Function Body
 relation:
     type: Include
+    extra: false
     items:
         -   from: Function:'main'
             to: File:'file0.h'

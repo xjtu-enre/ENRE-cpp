@@ -77,9 +77,10 @@ int j = i++;
 ```yaml
 name: File Modify
 relation:
+    type: Modify
+    extra: false
     items:
-        -   type: Modify
-            from: File:'file0'
+        -   from: File:'file0.cpp'
             to: Variable:'i'
             loc: file0:2:9
 ```
@@ -96,9 +97,10 @@ void func(){
 ```yaml
 name: Template Modify
 relation:
+    type: Modify
+    extra: false
     items:
-        -   type: Modify
-            from: Template:'func'
+        -   from: Template:'func'
             to: Variable:'i'
             loc: file0:4:5
 ```
@@ -112,11 +114,12 @@ void main(){
 ```
 
 ```yaml
-name: Template Modify
+name: Modify in for loop
 relation:
+    type: Modify
+    extra: false
     items:
-        -   type: Modify
-            from: Function:'main'
+        -   from: Function:'main'
             to: Variable:'i'
             loc: file0:2:22
 ```

@@ -28,7 +28,7 @@ void func(){
 ```yaml
 name: Function using Namespace
 relation:
-  type: Call
+  type: Using
   items:
     -   from: Function:'func'
         to: Namespace:'ns'
@@ -45,9 +45,9 @@ using namespace ns;
 ```yaml
 name: File using Namespace
 relation:
-  type: Call
+  type: Using
   items:
-    -   from: File:'file0'
+    -   from: File:'file0.cpp'
         to: Namespace:'ns'
         loc: file0:2:17:2:18
 ```
@@ -68,7 +68,7 @@ public:
 ```yaml
 name: Class Using Function
 relation:
-  type: Call
+  type: Using
   items:
     -   from: Class:'Derived'
         to: Function:'func'
@@ -91,7 +91,7 @@ public:
 ```yaml
 name: Class Using Variable
 relation:
-  type: Call
+  type: Using
   items:
     -   from: Class:'Derived'
         to: Variable:'value'

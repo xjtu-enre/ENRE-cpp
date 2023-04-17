@@ -54,6 +54,7 @@ namespace f = foo;
 ```yaml
 name: Using Alias
 relation:
+    type: alias
     items:
       -   from: Alias:'fbz'
           to: Namespace:'baz'
@@ -76,6 +77,7 @@ using Vec = vector;
 ```yaml
 name: template alias
 relation:
+    type: alias
     items:
       -   from: Alias:'Vec'
           to: Variable:'vector'

@@ -28,7 +28,7 @@ name: Macro
     entity:
         items:
             -   name: F
-                loc: 1:9:1:9
+                loc: 1:9
                 type: Macro
 ```
 

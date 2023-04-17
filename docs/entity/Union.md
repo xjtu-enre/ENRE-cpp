@@ -45,7 +45,7 @@ struct widget{
 name: Anonymous Union
 entity:
     items:
-        -   name: unnamed
+        -   name: <Anonymous as="Union">
             loc: 2:10:2:10
             type: Union
 ```
@@ -63,6 +63,6 @@ name: Unrestricted unions
 entity:
     items:
         -   name: U
-            loc: 2:7:2:7
+            loc: 2:7:2:8
             type: Union
 ```
