@@ -3,15 +3,17 @@ import picocli.CommandLine;
 import util.Configure;
 import util.UnionFind;
 
+import java.util.Arrays;
 import java.util.Set;
 
 public class Main {
 
 	/**
-	* @methodsName: main
-	* @description: main function
-	*/
+	 * @methodsName: main
+	 * @description: main function
+	 */
 	public static void main(String[] args) throws Exception {
+		System.out.println(Arrays.toString(args));
 		final Configure CliParam = new Configure();
 		final CommandLine commandLine = new CommandLine(CliParam);
 		try {

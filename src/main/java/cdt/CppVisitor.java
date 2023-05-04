@@ -318,13 +318,15 @@ public class CppVisitor extends ASTVisitor {
 				for(IASTDeclarator declarator : simpleDeclaration.getDeclarators()){
 					String name = declarator.getName().toString();
 					switch (type) {
-						case CPPASTElaboratedTypeSpecifier.k_struct, CPPASTElaboratedTypeSpecifier.k_union, CPPASTElaboratedTypeSpecifier.k_class -> {
+						case CPPASTElaboratedTypeSpecifier.k_struct:
+						case CPPASTElaboratedTypeSpecifier.k_union:
+						case CPPASTElaboratedTypeSpecifier.k_class:
 							if(declSpec.getParent() instanceof CPPASTSimpleDeclaration){
 								String typeName = this.getType(declSpec);
 								this.specifierEntity = context.foundFieldDefinition(name, getLocation(elaboratedTypeSpecifier),
 										typeName, getVisibility((IASTSimpleDeclaration) declSpec.getParent()));
 							}
-						}
+
 					}
 				}
 				for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
@@ -444,18 +446,17 @@ public class CppVisitor extends ASTVisitor {
 
 				boolean isTemplate = isTemplate(declSpec);
 				switch (type) {
-					case IASTCompositeTypeSpecifier.k_struct -> {
+					case IASTCompositeTypeSpecifier.k_struct:
 						this.specifierEntity = context.foundStructDefinition(methodName,
 								getLocation(typeSpecifier), isTemplate);
-					}
-					case IASTCompositeTypeSpecifier.k_union -> {
+						break;
+					case IASTCompositeTypeSpecifier.k_union:
 						this.specifierEntity = context.foundUnionDefinition(methodName,
 								getLocation(typeSpecifier));
-					}
-					case 3 -> {
+						break;
+					case 3:
 						this.specifierEntity = context.foundClassDefinition(methodName,
 								getLocation(typeSpecifier), isTemplate);
-					}
 				}
 				for (ICPPASTBaseSpecifier baseSpecifier : baseSpecifiers) {
 					this.specifierEntity.addScopeRelation("Extend",

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class UnionFind {
-    public HashMap<Integer, Integer> fatherMap; // 用来存放每个节点的头节点
-    public HashMap<Integer, Integer> sizeMap; // 用来保存每个集合的大小
+    public HashMap<Integer, Integer> fatherMap;
+    public HashMap<Integer, Integer> sizeMap;
 
     public UnionFind() {
         fatherMap = new HashMap<Integer, Integer>();
@@ -24,14 +24,14 @@ public class UnionFind {
     private Integer findHead(Integer node) {
         Integer father = fatherMap.get(node);
         if(father == null){
-            fatherMap.put(node, node); // 每个节点单独成为一个集合，头节点指向自己
-            sizeMap.put(node, 1); // 初始化时每个集合的大小为1
+            fatherMap.put(node, node);
+            sizeMap.put(node, 1);
         }
         father = fatherMap.get(node);
         while (father != node) {
-            father = findHead(father); // 递归向上找
+            father = findHead(father);
         }
-        fatherMap.put(node, father); // 每次递归时都把每个节点的父节点直接指向头节点
+        fatherMap.put(node, father);
         return father;
     }
 

@@ -19,6 +19,20 @@
 
 > ENRE-cpp has been tested to be worked with [Java 17]((https://docs.oracle.com/javase/7/docs/webnotes/install/)).
 
+## Build & Installation
+in case on the GNU/Linux and Mac platform:
+```
+./install.sh
+```
+in case on the Windows platfrom:
+```
+./install.bat
+```
+After installed the required libraries, you can build the jar file by using:
+```
+mvn clean package assembly:single
+```
+
 ## Usage
 
 Append `-h` or `--help` without any other arguments to see list
@@ -41,6 +55,11 @@ Use ENRE to analyze a demo project "**electron**" written in *C++*:
 
 ```cmd
 java -jar ENRE-CPP.jar  demo-projects/electron electron -p electron/src 
+```
+
+To increase the memory heap, you can add -Xmx before -jar, like:
+```cmd
+java -jar -Xmx64g -Xms8g ENRE-CPP.jar  demo-projects/electron electron
 ```
 
 ## Documentation

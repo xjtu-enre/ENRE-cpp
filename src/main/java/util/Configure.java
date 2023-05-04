@@ -10,7 +10,8 @@ import java.util.Set;
 
 @CommandLine.Command(name = "ENRE-CPP", mixinStandardHelpOptions = true, version = "1.0.2")
 
-public class Configure {
+public class
+Configure {
 
     private static Configure configure = new Configure();
     public Configure() {}
