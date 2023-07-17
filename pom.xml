@@ -138,7 +138,7 @@
         <dependency>
             <groupId>eclipse-photon</groupId>
             <artifactId>org.eclipse.core.runtime</artifactId>
-            <version>3.14.0.v20180417-0825</version>
+            <version>3.16.0.v20190823-1314</version>
         </dependency>
         <dependency>
             <groupId>eclipse-photon</groupId>
