@@ -26,17 +26,17 @@ public class JSONString {
 	Configure configure = Configure.getConfigureInstance();
 	public String resolveStorage_class(int tag){
 		switch(tag) {
-			case IASTDeclSpecifier.sc_typedef:
+			case IASTDeclSpecifier.sc_typedef: // 1
 				return "typedef";
-			case IASTDeclSpecifier.sc_extern:
+			case IASTDeclSpecifier.sc_extern: // 2
 				return "extern";
-			case IASTDeclSpecifier.sc_static:
+			case IASTDeclSpecifier.sc_static: // 3
 				return "static";
-			case IASTDeclSpecifier.sc_auto:
+			case IASTDeclSpecifier.sc_auto: // 4
 				return "auto";
-			case IASTDeclSpecifier.sc_register:
+			case IASTDeclSpecifier.sc_register: // 5
 				return "register";
-			case IASTDeclSpecifier.sc_mutable:
+			case IASTDeclSpecifier.sc_mutable: // 6
 				return "mutable";
 		}
 		return null;
@@ -68,6 +68,10 @@ public class JSONString {
 			resolvedName = "Function";
 			break;
 		case "class entity.FunctionEntity":
+			if(entity.getPointer()){
+				resolvedName = "Function Pointer";
+				break;
+			}
 			resolvedName = "Function";
 			break;
 		case "class entity.ClassEntity":
@@ -140,6 +144,8 @@ public class JSONString {
 		private String returnType;
 		private String typedefType;
 		private Integer parameterIndex = null;
+		private Boolean isGlobal;
+		private Boolean isPointer;
 
 		public EntityTemp(String name, Integer key, String category, Integer entityFile){
 			this.qualifiedName = name;
@@ -165,6 +171,8 @@ public class JSONString {
 			this.typedefType = typedefType;
 		}
 		public void setParameterIndex(int index) {this.parameterIndex = index;}
+		public void setIsGlobal(boolean isGlobal) {this.isGlobal = isGlobal;}
+		public void setIsPointer(boolean isPointer) {this.isPointer = isPointer; }
 	}
 	
 	public EntityTemp resolveEntity(Entity entity) {
@@ -181,6 +189,7 @@ public class JSONString {
     	Integer entityFile = null;
     	
     	EntityTemp entitytemp;
+
 		if(entity instanceof NamespaceEntity){
 			entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile);
 			entitytemp.setParentID(entity.getParentId());
@@ -228,6 +237,8 @@ public class JSONString {
 		if(entity instanceof ParameterEntity){
 			entitytemp.setParameterIndex(((ParameterEntity) entity).getIndex());
 		}
+		if(entity.getGlobal()) entitytemp.setIsGlobal(true);
+		if(entity.getPointer() && entity instanceof VarEntity) entitytemp.setIsPointer(true);
     	return entitytemp;
 	}
 	

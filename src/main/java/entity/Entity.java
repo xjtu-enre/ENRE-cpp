@@ -57,6 +57,9 @@ public abstract class Entity {
 	int visibility = -1;
 	int storage_class = -1;
 
+	boolean global = false;
+	boolean isPointer = false;
+
 
 	public Entity(String name, String qualifiedName, Entity parent, Integer id) {
 		this.name = name;
@@ -230,6 +233,14 @@ public abstract class Entity {
 	public void setStorage_class(int tag) { this.storage_class = tag; }
 
 	public int getStorgae_class() { return this.storage_class; }
+
+	public void setGlobal(){ this.global = true; }
+
+	public boolean getGlobal() { return this.global; }
+
+	public void setPointer(){ this.isPointer = true; }
+	public boolean getPointer() {return this.isPointer; }
+
 
 	public List<Entity> getChild() {
 		List<Entity> childlist = new ArrayList<Entity>();

@@ -9,6 +9,7 @@ import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTCompositeTypeSpecifier.ICPPASTBas
 import org.eclipse.cdt.internal.core.dom.parser.cpp.*;
 import org.eclipse.cdt.internal.core.model.CElement;
 import org.eclipse.cdt.internal.core.model.CElementInfo;
+import org.eclipse.cdt.internal.core.model.TranslationUnit;
 import relation.ScopeRelation;
 import util.BuiltInDeal;
 
@@ -220,39 +221,37 @@ public class CppVisitor extends ASTVisitor {
 			}
 		}
 		if (declarator instanceof IASTFunctionDeclarator) {
-			// function declarator
+			FunctionEntity functionEntity = null;
 			String rawName = declarator.getName().toString();
 			String returnType = getType(declSpecifier);
 			// function pointer
 			if (declarator.getName().toString().equals("")) {
-				System.out.println("Pointer in:" + declarator.getRawSignature());
-				IASTDeclarator declarator1 = declarator.getNestedDeclarator();
-				IASTPointerOperator[] pointerOperators = declarator1.getPointerOperators();
-				for(IASTPointerOperator pointerOperator:pointerOperators){
-					if(pointerOperator instanceof CPPASTPointer){
-						CPPASTPointer pointer = (CPPASTPointer) pointerOperator;
-					}
-				}
-				if(declarator.getParent() instanceof CPPASTSimpleDeclaration){
-					if(((CPPASTSimpleDeclaration)declarator.getParent()).getDeclSpecifier().getStorageClass() == IASTDeclSpecifier.sc_typedef){
-						rawName = declarator.getName().toString();
-						TypedefEntity typedefEntity = context.foundTypedefDefinition(rawName, "null", getLocation(declarator.getName()));
-
-					}
-				}
 				for (IASTNode node : declarator.getChildren()) {
 					if (node instanceof CPPASTDeclarator) {
 						rawName = ((CPPASTDeclarator) node).getName().toString();
-						VarEntity varEntity = context.foundVarDefinition(rawName, getLocation(declarator), "null");
-						varEntity.setPoint(true);
+						functionEntity = context.foundFunctionDeclare(rawName, returnType, getLocation(declarator), parameterLists);
+						IASTDeclarator declarator1 = declarator.getNestedDeclarator();
+						if(declarator1.getPointerOperators().length > 0 ){
+							functionEntity.setPointer();
+						}
+					}
+				}
+			}else{
+				functionEntity = context.foundFunctionDeclare(rawName, returnType, getLocation(declarator), parameterLists);
+				if(declarator instanceof CPPASTDeclarator){
+					if(declarator.getPointerOperators().length > 0 ){
+						functionEntity.setPointer();
 					}
 				}
 			}
-			FunctionEntity functionEntity = context.foundFunctionDeclare(rawName, returnType, getLocation(declarator), parameterLists);
-			if(declarator.isPureVirtual()) functionEntity.setPureVirtual();
-			if(isTemplate(declarator)) functionEntity.setTemplate(true);
-			return functionEntity;
+			if(functionEntity != null){
+				if(declarator.isPureVirtual()) functionEntity.setPureVirtual();
+				if(isTemplate(declarator)) functionEntity.setTemplate(true);
+				functionEntity.setStorage_class(declSpecifier.getStorageClass());
+				return functionEntity;
+			}
 		}
+
 		return null;
 	}
 
@@ -478,20 +477,25 @@ public class CppVisitor extends ASTVisitor {
 				if (declSpecifier.getStorageClass() == IASTDeclSpecifier.sc_typedef) {
 					String varType = declSpecifier.getRawSignature().toString();
 					String varName = declarator.getName().toString();
-					if(declarator instanceof CPPASTFunctionDeclarator){
-						if(declarator.getNestedDeclarator() != null) varName = declarator.getNestedDeclarator().getName().toString();
-					}
-					entity = context.foundTypedefDefinition(varName, varType, getLocation(declarator));
-					((TypedefEntity) entity).setType("Function Pointer");
+					if(!(declarator instanceof CPPASTFunctionDeclarator))
+						entity = context.foundTypedefDefinition(varName, varType, getLocation(declarator));
 				} else if (!(declarator instanceof IASTFunctionDeclarator)) {
 					String varType = declSpecifier.getRawSignature().toString();
 					String varName = declarator.getName().toString();
+				}
+				if(declarator instanceof CPPASTDeclarator){
+					if(declarator.getPointerOperators().length > 0 ){
+						entity.setPointer();
+					}
 				}
 			}
 		}
 		if(entity!=null){
 			entity.setVisiblity(visibility);
 			entity.setStorage_class(storage_class);
+			if(entity instanceof VarEntity & simpleDeclaration.getParent() instanceof CPPASTTranslationUnit){
+				entity.setGlobal();
+			}
 		}
 	}
 
@@ -523,8 +527,9 @@ public class CppVisitor extends ASTVisitor {
 								getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
 						entityrepo.add(var);
 					}
+
 				}
-				if (declaratorChild.length <= 3) {
+				else if (declaratorChild.length <= 3) {
 					for (IASTNode node : declaratorChild) {
 						if (node instanceof CPPASTPointer) {
 							if (getLocation(parameterDeclaration.getDeclarator().getName()) != null) {
@@ -543,9 +548,6 @@ public class CppVisitor extends ASTVisitor {
 									parameterDeclaration.getDeclarator().getName().toString(),
 									null, context.entityRepo.generateId(),
 									getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
-						}else{
-//							System.out.println(parameterDeclaration.getRawSignature());
-//							System.err.println("NOT RESOLVE TYPE: " + node.getRawSignature());
 						}
 					}
 				}

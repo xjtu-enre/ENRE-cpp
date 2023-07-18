@@ -225,7 +225,7 @@ public class HandlerContext {
 		}
 
 		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), nsEntity, "Define",
-				this.currentFileEntity.getId(), new Integer(startLine),  -1));
+				this.currentFileEntity.getId(), startLine,  -1));
 		nsEntity.addScale(endLine - startLine);
 		entityStack.push(nsEntity);
 		return nsEntity;
