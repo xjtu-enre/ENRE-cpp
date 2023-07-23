@@ -13,5 +13,5 @@ call mvn install:install-file -DgroupId=org.json -DartifactId=json -Dversion=202
 call mvn install:install-file -DgroupId=com.google.code.gson -DartifactId=gson -Dversion=2.8.8 -Dpackaging=jar -Dfile=./jars/gson-2.8.8.jar -DgeneratePom=true
 call mvn install:install-file -DgroupId=info.picocli -DartifactId=picocli -Dversion=4.6.2 -Dpackaging=jar -Dfile=./jars/picocli-4.6.2.jar -DgeneratePom=true
 call mvn install:install-file -DgroupId=org.eclipse.core.filesystem.linux -DartifactId=x86 -Dversion=1.1.0-v20070416 -Dpackaging=jar -Dfile=./jars/x86-1.1.0-v20070416.jar	-DgeneratePom=true
-call mvn install:install-file -DgroupId=com.fasterxml.jackson.core -DartifactId= jackson-annotations -Dversion=2.9.10.1 -Dpackaging=jar -Dfile=./jars/jackson-annotations-2.9.10.jar -DgeneratePom=true
-call mvn install:install-file -DgroupId=com.fasterxml.jackson.core -DartifactId= jackson-core -Dversion=2.9.10.1 -Dpackaging=jar -Dfile=./jars/jackson-core-2.9.10.jar -DgeneratePom=true
+call mvn install:install-file -DgroupId=com.fasterxml.jackson.core -DartifactId=jackson-annotations -Dversion=2.9.10.1 -Dpackaging=jar -Dfile=./jars/jackson-annotations-2.9.10.jar -DgeneratePom=true
+call mvn install:install-file -DgroupId=com.fasterxml.jackson.core -DartifactId=jackson-core -Dversion=2.9.10.1 -Dpackaging=jar -Dfile=./jars/jackson-core-2.9.10.jar -DgeneratePom=true
