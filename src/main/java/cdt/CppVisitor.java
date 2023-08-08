@@ -10,6 +10,7 @@ import org.eclipse.cdt.internal.core.dom.parser.cpp.*;
 import org.eclipse.cdt.internal.core.model.CElement;
 import org.eclipse.cdt.internal.core.model.CElementInfo;
 import org.eclipse.cdt.internal.core.model.TranslationUnit;
+import relation.Relation;
 import relation.ScopeRelation;
 import util.BuiltInDeal;
 
@@ -355,6 +356,7 @@ public class CppVisitor extends ASTVisitor {
 							String type = this.getType(declSpecifier);
 							entity = context.foundFieldDefinition(varName, getLocation(declarator), type, visibility);
 							if(declarator.getInitializer() instanceof CPPASTEqualsInitializer){
+								entity.addRelation(new Relation(entity.getParent(), entity, "Set", currentfile.getId(), entity.getStartLine(), entity.getLocation().getStartOffset()));
 								CPPASTEqualsInitializer equalsInitializer = (CPPASTEqualsInitializer)(declarator.getInitializer());
 								context.dealExpressionNode(equalsInitializer.getExpression(), "Use");
 							}

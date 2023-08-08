@@ -385,9 +385,30 @@ public class HandlerContext {
 	public void dealExpression(IASTExpression expression) {
 		if(expression instanceof CPPASTBinaryExpression) {
 			CPPASTBinaryExpression binaryExp = (CPPASTBinaryExpression)expression;
-			this.dealExpressionNode(binaryExp.getOperand1(), "Set");
-			this.dealExpressionNode(binaryExp.getOperand2(), "Use");
+			if(binaryExp.getOperator() == IASTBinaryExpression.op_assign){
+				this.dealExpressionNode(binaryExp.getOperand1(), "Set");
+				this.dealExpressionNode(binaryExp.getOperand2(), "Use");
+			}else if(binaryExp.getOperator() <= IASTBinaryExpression.op_binaryOrAssign &
+					binaryExp.getOperator() >= IASTBinaryExpression.op_multiplyAssign){
+				// op_multiplyAssign = 18, op_divideAssign = 19, op_moduloAssign = 20, op_plusAssign = 21,
+				// op_minusAssign = 22, op_shiftLeftAssign = 23, op_shiftRightAssign = 24,
+				// op_binaryAndAssign = 25, op_binaryXorAssign = 26, op_binaryOrAssign = 27
+				this.dealExpressionNode(binaryExp.getOperand1(), "Set");
+				this.dealExpressionNode(binaryExp.getOperand1(), "Use");
+				this.dealExpressionNode(binaryExp.getOperand2(), "Use");
+			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmdot){
+				// TODO: operand1.operand2
 
+			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmarrow){
+				// TODO: operand1 -> operand2
+
+			}else{
+				// *， /， %， +， -， <<， >>， <， >， <=， >=，
+				// &， ^， |， &&， ||， ==， !=， .，
+				// ->， max()， min()， ...
+				this.dealExpressionNode(binaryExp.getOperand1(), "Use");
+				this.dealExpressionNode(binaryExp.getOperand2(), "Use");
+			}
 		}
 		if(expression instanceof CPPASTCastExpression) {
 			CPPASTCastExpression castExp = (CPPASTCastExpression) expression;
@@ -399,10 +420,10 @@ public class HandlerContext {
 		}
 		if(expression instanceof CPPASTUnaryExpression) {
 			CPPASTUnaryExpression unaryExp = (CPPASTUnaryExpression)expression;
-			if(unaryExp.getOperator() == IASTUnaryExpression.op_postFixIncr ||
-					unaryExp.getOperator() == IASTUnaryExpression.op_postFixDecr ||
-					unaryExp.getOperator() == IASTUnaryExpression.op_tilde ||
-					unaryExp.getOperator() == IASTUnaryExpression.op_prefixIncr){
+			if(unaryExp.getOperator() == IASTUnaryExpression.op_postFixIncr ||     // i++
+					unaryExp.getOperator() == IASTUnaryExpression.op_postFixDecr ||   //--
+					unaryExp.getOperator() == IASTUnaryExpression.op_tilde || //～
+					unaryExp.getOperator() == IASTUnaryExpression.op_prefixIncr){  // ++i
 				this.dealExpressionNode(unaryExp.getOperand(), "Modify");
 			}
 		}
@@ -465,8 +486,10 @@ public class HandlerContext {
 						this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
 						expression.getFileLocation().getNodeOffset());
 			}
-		}
-		else {
+		}else if(expression instanceof CPPASTLiteralExpression){
+			// 自然数值
+
+		}else {
 			dealExpression(expression);
 		}
 	}
