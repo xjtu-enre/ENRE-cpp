@@ -110,17 +110,12 @@ public class FileParser {
 				IScannerInfo scannerInfo = new ExtendedScannerInfo(macroMap, includePath, macroFiles, includeFiles);;
 				IncludeFileContentProvider ifcp = createInternalFileContentProvider(true);
 				tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
-//						new ScannerInfo(definedMacros, includeFiles), IncludeFileContentProvider.getEmptyFilesProvider(),
-						scannerInfo, ifcp,
-						EmptyCIndex.INSTANCE, 0, log);
+						scannerInfo, ifcp, EmptyCIndex.INSTANCE, 0, log);
 			}
 			IASTPreprocessorStatement[] statements= tu.getAllPreprocessorStatements();
 			getallstatements(statements);
 
 			tu.accept(visitor);
-//		}catch (NullPointerException exception){
-//
-//		}
 	}
 
 
@@ -332,14 +327,6 @@ public class FileParser {
 	 * @throws:
 	 */
 	public void getMacro(String file) {
-
-//		String content = "";
-//		try {
-//			CodeReader cr = new CodeReader(file);
-//			content = new String(cr.buffer);
-//
-//		} catch (IOException e) {
-//		}
 		final FileContent content = FileContent.createForExternalFileLocation(file);
 		IScanner scanner = new CPreprocessor(content, new ScannerInfo(),
 				ParserLanguage.CPP,new NullLogService(), GPPScannerExtensionConfiguration.getInstance(new ScannerInfo()),
@@ -347,12 +334,6 @@ public class FileParser {
 		scanner.setProcessInactiveCode(true);
 		if (scanner==null) return;
 		Map<String, IMacroBinding> macros = scanner.getMacroDefinitions();
-//		for (String key : macros.keySet()) {
-//			IMacroBinding imb = macros.get(key);
-//			String exp = new String(macros.get(key).getName());
-//			fileEntity.getMacroRepo().put(macros.get(key).toString(), exp);
-//		}
-
 	}
 	
 	
