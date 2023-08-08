@@ -1,6 +1,7 @@
 package cdt;
 import entity.*;
 import entity.FieldEntity;
+import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTDeclSpecifier;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTExpression;
 import org.eclipse.cdt.internal.core.dom.parser.ProblemBinding;
 import org.eclipse.cdt.internal.core.dom.parser.ProblemType;
@@ -450,6 +451,8 @@ public class HandlerContext {
 	*/
 	public void dealExpressionNode(IASTExpression expression, String expressionType) {
 		if(expression instanceof CPPASTIdExpression) {
+			((CPPASTIdExpression) expression).getName().resolveBinding();
+			IBinding iBinding = ((CPPASTIdExpression) expression).getName().getBinding();
 			Tuple entityInformation = this.getEntityInforbyBinding((CPPASTIdExpression)expression);
 			if(entityInformation == null) {
 				this.latestValidContainer().addScopeRelation(expressionType, expression.getRawSignature(),
@@ -646,10 +649,22 @@ public class HandlerContext {
 	* @param: String Name, Location location
 	* @return: TypedefEntity
 	*/
-	public TypedefEntity foundTypedefDefinition(String Name, String originalName, Location location) {
+	public TypedefEntity foundTypedefDefinition(String Name, ICPPASTDeclSpecifier declSpecifier, Location location) {
 		this.currentScope = this.entityStack.peek().getScope();
-		TypedefEntity typedefEntity = new TypedefEntity(Name, resolveName(Name),this.latestValidContainer(),
-				entityRepo.generateId(),  location );
+		Entity parent = this.latestValidContainer();
+		String qualifiedName = resolveName(Name);
+		if(declSpecifier instanceof CPPASTCompositeTypeSpecifier){
+			parent = parent.getParent();
+			this.currentScope = this.entityStack.peek().getScope();
+			if(this.currentScope instanceof Symbol){
+				Entity en = this.entityStack.peek().getParent();
+				if(en == null || en instanceof FileEntity|| en.getQualifiedName().equals("")
+						|| en.getQualifiedName().equals("[unnamed]")) qualifiedName = Name;
+				else qualifiedName =  en.getQualifiedName() + "::" + Name;
+			}
+		}
+		TypedefEntity typedefEntity = new TypedefEntity(Name, qualifiedName, parent,
+				entityRepo.generateId(), location);
 		entityRepo.add(typedefEntity);
 		Integer startLine = -1;
 		Integer startOffset = -1;
@@ -657,7 +672,7 @@ public class HandlerContext {
 			startLine = typedefEntity.getLocation().getStartLine();
 			startOffset = typedefEntity.getLocation().getStartOffset();
 		}
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), typedefEntity, "Define",
+		this.latestValidContainer().addRelation(new Relation(parent, typedefEntity, "Define",
 				this.currentFileEntity.getId(), startLine, startOffset));
 		return typedefEntity;		
 	}
@@ -764,7 +779,6 @@ public class HandlerContext {
 			if (t instanceof EnumEntity) {
 				return (EnumEntity)t;
 			}
-				
 		}
 		return null;
 	}

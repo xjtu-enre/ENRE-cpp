@@ -560,15 +560,6 @@ public class CppVisitor extends ASTVisitor {
 				}
 			}else{
 				String parameterType = this.getType(parameterDeclaration.getDeclSpecifier());
-				// TODO: test
-				IASTDeclSpecifier declSpecifier = parameterDeclaration.getDeclSpecifier();
-//				System.out.println(declSpecifier.getClass().toString());
-				if(declSpecifier instanceof CPPASTNamedTypeSpecifier){
-					CPPASTNamedTypeSpecifier namedTypeSpecifier = (CPPASTNamedTypeSpecifier)declSpecifier;
-					namedTypeSpecifier.getName().resolveBinding();
-					IBinding binding = namedTypeSpecifier.getName().getBinding();
-//					System.out.println("TESE");
-				}
 				var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
 						parameterDeclaration.getDeclarator().getName().toString(),  null, context.entityRepo.generateId(),
 						getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
@@ -626,9 +617,6 @@ public class CppVisitor extends ASTVisitor {
 		} else if (declSpeci instanceof IASTNamedTypeSpecifier) {
 			final IASTNamedTypeSpecifier namedTypeSpec = (IASTNamedTypeSpecifier) declSpeci;
 			type = namedTypeSpec.getName().toString();
-			namedTypeSpec.getName().resolveBinding();
-			IBinding binding = namedTypeSpec.getName().getBinding();
-			System.out.println("TEST:");
 		}
 		return type;
 	}

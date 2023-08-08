@@ -5,8 +5,12 @@ import entity.EntityRepo;
 import entity.FileEntity;
 import entity.Location;
 import entity.MacroEntity;
+import org.eclipse.cdt.core.index.IIndexFileLocation;
 import org.eclipse.cdt.internal.core.parser.IMacroDictionary;
+import org.eclipse.cdt.internal.core.parser.InternalParserUtil;
 import org.eclipse.cdt.internal.core.parser.SavedFilesProvider;
+import org.eclipse.cdt.internal.core.parser.scanner.InternalFileContent;
+import org.eclipse.cdt.internal.core.parser.scanner.InternalFileContentProvider;
 import relation.Relation;
 import util.Configure;
 
@@ -19,7 +23,6 @@ import org.eclipse.cdt.core.parser.*;
 import org.eclipse.cdt.internal.core.index.EmptyCIndex;
 import org.eclipse.cdt.internal.core.parser.scanner.CPreprocessor;
 import org.eclipse.cdt.internal.core.parser.scanner.ScannerUtility;
-
 import java.io.*;
 import java.util.*;
 public class FileParser {
@@ -71,6 +74,7 @@ public class FileParser {
 			fileEntity = visitor.getfile();
 			HashMap<String, Integer> includePathset = getdirectedinclude(tu);
 
+			ArrayList<String> includeFilePathsArray = new ArrayList<>();
 			for(String includePath:includePathset.keySet()) {
 
 				if(!isFileParse(includePath)) {
@@ -83,6 +87,7 @@ public class FileParser {
 						fileEntity.addincludeEntity(includeFileEntity);
 						fileEntity.addRelation(new Relation(fileEntity, includeFileEntity, "Include", fileEntity.getId(),
 								includePathset.get(includePath), -1));
+						includeFilePathsArray.add(includeFileEntity.getQualifiedName());
 						definedMacros.putAll(includeFileEntity.getMacroRepo());
 						fileEntity.getMacroRepo().putAll(includeFileEntity.getMacroRepo());
 				}
@@ -90,8 +95,23 @@ public class FileParser {
 			}
 			getMacro(filepath);
 			if(isIncludePath) {
+				final String[] EMPTY_ARRAY_STRING = new String[0];
+				Map<String, String> macroMap = new HashMap<>();
+				// Returns an array of paths that are searched when processing an include directive.
+				String[] includePath = new String[includeFilePathsArray.size()];
+				String[] includeFiles = new String[includeFilePathsArray.size()];
+				for(int i=0; i<includeFilePathsArray.size();i++){
+					String filePath = includeFilePathsArray.get(i);
+					File file = new File(filePath);
+					includePath[i] = file.getParent();
+					includeFiles[i] = file.getName();
+				}
+				String[] macroFiles = EMPTY_ARRAY_STRING;
+				IScannerInfo scannerInfo = new ExtendedScannerInfo(macroMap, includePath, macroFiles, includeFiles);;
+				IncludeFileContentProvider ifcp = createInternalFileContentProvider(true);
 				tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
-						new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
+//						new ScannerInfo(definedMacros, includeFiles), IncludeFileContentProvider.getEmptyFilesProvider(),
+						scannerInfo, ifcp,
 						EmptyCIndex.INSTANCE, 0, log);
 			}
 			IASTPreprocessorStatement[] statements= tu.getAllPreprocessorStatements();
@@ -102,7 +122,31 @@ public class FileParser {
 //
 //		}
 	}
-	
+
+
+	private InternalFileContentProvider createInternalFileContentProvider(boolean shouldScanInclusionFiles)
+	{
+		InternalFileContentProvider ifcp = new InternalFileContentProvider() {
+			@Override
+			public InternalFileContent getContentForInclusion(String filePath, IMacroDictionary macroDictionary) {
+				InternalFileContent ifc = null;
+				if (!shouldScanInclusionFiles) {
+					ifc =  new InternalFileContent(filePath, InternalFileContent.InclusionKind.SKIP_FILE);
+				}else {
+					ifc = (InternalFileContent) FileContent.createForExternalFileLocation(filePath);
+				}
+
+				return ifc;
+			}
+
+			@Override
+			public InternalFileContent getContentForInclusion(IIndexFileLocation ifl, String astPath) {
+				InternalFileContent c = InternalParserUtil.createFileContent(ifl);
+				return c;
+			}
+		};
+		return ifcp;
+	}
 	/**
 	 * @methodsName: exitFile
 	 * @description: Check whether the file exists based on the path
@@ -189,7 +233,7 @@ public class FileParser {
 	 */
 	public IASTTranslationUnit getTranslationUnit(File source) throws Exception{
 		FileContent reader = FileContent.create(source.getAbsolutePath(), getContentFile(source).toCharArray());
-		return GCCLanguage.getDefault().getASTTranslationUnit( reader, new ScannerInfo(), IncludeFileContentProvider.getSavedFilesProvider(), null,  ILanguage.OPTION_IS_SOURCE_UNIT, new DefaultLogService());
+		return GCCLanguage.getDefault().getASTTranslationUnit( reader, new ScannerInfo(), IncludeFileContentProvider.getSavedFilesProvider(), null,  ILanguage.OPTION_NO_IMAGE_LOCATIONS, new DefaultLogService());
 	}
 
 	/**
@@ -288,13 +332,16 @@ public class FileParser {
 	 * @throws:
 	 */
 	public void getMacro(String file) {
-		String content = "";
-		try {
-			CodeReader cr = new CodeReader(file);
-			content = new String(cr.buffer);
-		} catch (IOException e) {
-		}
-		IScanner scanner = new CPreprocessor(FileContent.create(file, content.toCharArray()), new ScannerInfo(),
+
+//		String content = "";
+//		try {
+//			CodeReader cr = new CodeReader(file);
+//			content = new String(cr.buffer);
+//
+//		} catch (IOException e) {
+//		}
+		final FileContent content = FileContent.createForExternalFileLocation(file);
+		IScanner scanner = new CPreprocessor(content, new ScannerInfo(),
 				ParserLanguage.CPP,new NullLogService(), GPPScannerExtensionConfiguration.getInstance(new ScannerInfo()),
 				IncludeFileContentProvider.getEmptyFilesProvider());
 		scanner.setProcessInactiveCode(true);
