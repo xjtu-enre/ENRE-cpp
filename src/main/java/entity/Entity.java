@@ -28,9 +28,8 @@ public abstract class Entity {
 		Integer startLine;
 		Integer startOffset;
 		Integer fileID;
-		public BindingRelation(String retype, String entype, String eninfor, Integer fileID, Integer line, Integer Offset) {
+		public BindingRelation(String retype,  String eninfor, Integer fileID, Integer line, Integer Offset) {
 			this.RelationType = retype;
-			this.EntityType = entype;
 			this.EntityLocationInfor = eninfor;
 			this.fileID = fileID;
 			this.startLine = line;
@@ -272,8 +271,8 @@ public abstract class Entity {
 	 * add and get relation by binding or scope resolution
 	 * 
 	 */
-	public void addBindingRelation(String retype, String entype, String eninfor, Integer fileID, Integer line, Integer offset) {
-		this.RelationListByBinding.add(new BindingRelation(retype, entype, eninfor, fileID, line, offset));
+	public void addBindingRelation(String retype,  String eninfor, Integer fileID, Integer line, Integer offset) {
+		this.RelationListByBinding.add(new BindingRelation(retype,  eninfor, fileID, line, offset));
 	}
 	
 	public List<BindingRelation> getRelationListByBinding(){

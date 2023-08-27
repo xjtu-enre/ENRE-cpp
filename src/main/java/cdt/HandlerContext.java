@@ -398,10 +398,12 @@ public class HandlerContext {
 				this.dealExpressionNode(binaryExp.getOperand2(), "Use");
 			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmdot){
 				// TODO: operand1.operand2
-
+				this.dealExpressionNode(binaryExp.getOperand1(), "Test");
+				this.dealExpressionNode(binaryExp.getOperand2(), "Test");
 			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmarrow){
 				// TODO: operand1 -> operand2
-
+				this.dealExpressionNode(binaryExp.getOperand1(), "Test");
+				this.dealExpressionNode(binaryExp.getOperand2(), "Test");
 			}else{
 				// *， /， %， +， -， <<， >>， <， >， <=， >=，
 				// &， ^， |， &&， ||， ==， !=， .，
@@ -453,12 +455,18 @@ public class HandlerContext {
 				this.dealExpression(exp);
 			}
 		}
-		if(expression instanceof CPPASTLiteralExpression){
-			// TODO extract nullptr type
-//			System.out.println(((CPPASTLiteralExpression) expression).getEvaluation().getType().toString());
-//			System.out.println(((CPPASTLiteralExpression) expression).getBasicCharKind());
-//			System.out.println(((CPPASTLiteralExpression) expression).getKind());
-//			System.out.println(IASTLiteralExpression.lk_nullptr);
+		if(expression instanceof CPPASTLiteralExpression){}
+		if(expression instanceof CPPASTFieldReference){
+			CPPASTFieldReference fieldReference = (CPPASTFieldReference)expression;
+			IASTExpression expression1 = fieldReference.getFieldOwner();
+			IType type = fieldReference.getFieldOwnerType();
+			IASTName fieldName = fieldReference.getFieldName();
+			String entityInformation = getBinding(fieldName);
+			String relationType = "Use";
+			// TODO : 待处理依赖类型
+			this.latestValidContainer().addBindingRelation(relationType,
+					entityInformation, this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+					expression.getFileLocation().getNodeOffset());
 		}
 
 	}
@@ -472,9 +480,7 @@ public class HandlerContext {
 	*/
 	public void dealExpressionNode(IASTExpression expression, String expressionType) {
 		if(expression instanceof CPPASTIdExpression) {
-			((CPPASTIdExpression) expression).getName().resolveBinding();
-			IBinding iBinding = ((CPPASTIdExpression) expression).getName().getBinding();
-			Tuple entityInformation = this.getEntityInforbyBinding((CPPASTIdExpression)expression);
+			String entityInformation = this.getBinding(((CPPASTIdExpression) expression).getName());
 			if(entityInformation == null) {
 				this.latestValidContainer().addScopeRelation(expressionType, expression.getRawSignature(),
 						this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
@@ -482,7 +488,7 @@ public class HandlerContext {
 			}
 			else {
 				this.latestValidContainer().addBindingRelation(expressionType, 
-						(String)entityInformation.getSecond(), (String)entityInformation.getFirst(),
+						entityInformation,
 						this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
 						expression.getFileLocation().getNodeOffset());
 			}
@@ -501,54 +507,43 @@ public class HandlerContext {
 	* @param: CPPASTIdExpression idExpression
 	* @return: Tuple
 	*/
-	public Tuple getEntityInforbyBinding(CPPASTIdExpression idExpression) {
-		idExpression.getName().resolveBinding();
-		if(idExpression.getName().getBinding() == null) {
+	public String getBinding(IASTName name){
+		name.resolveBinding();
+		IBinding node = name.getBinding();
+		if(node == null) {
 			return null;
 		}
-		IBinding node = idExpression.getName().getBinding();	
 		IASTNode definitionNode = null;
-		String type = "unknown";
 		switch(node.getClass().toString()) {
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPVariable":
 				definitionNode = ((CPPVariable)node).getDefinition();
-				type = "var";
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPParameter":
 				definitionNode = ((CPPParameter)node).getPhysicalNode();
-				type = "parameter";
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPField":
 				definitionNode = ((CPPField)node).getDefinition();
-				type = "field";
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPFunction":
 				definitionNode = ((CPPFunction)node).getDefinition();
-				type = "function";
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPMethod":
 				definitionNode = ((CPPMethod)node).getDefinition();
-				type = "method";
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPEnumerator":
 				definitionNode = ((CPPEnumerator)node).getDefinition();
-				type = "enumerator";
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPTypedef":
 				definitionNode = ((CPPTypedef)node).getDefinition();
 				break;
-			//case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPLambdaExpressionParameter":
-
+			case "class org.eclipse.cdt.internal.core.dom.parser.ProblemBinding":
+				break;
 			default:
-//				System.out.println(idExpression.getRawSignature());
-//				System.out.println(node.getClass().toString());
+				System.out.println("Haven't resolve binding type: " + node.getClass().toString());
 		}
 		if(definitionNode != null && definitionNode.getFileLocation() != null) {
-			return new Tuple(definitionNode.getFileLocation().getFileName()+
-					definitionNode.getFileLocation().getStartingLineNumber()+
-					definitionNode.getFileLocation().getNodeOffset(), type);
+			return definitionNode.getFileLocation().getFileName() + definitionNode.getFileLocation().getNodeOffset();
 		}
-		
 		return null;
 	}
 
@@ -713,7 +708,7 @@ public class HandlerContext {
 		AliasEntity currentTypeEntity = new AliasEntity(aliasName, 
 				this.resolveName(aliasName), this.latestValidContainer(),
 				entityRepo.generateId(), originalName, location );
-		currentTypeEntity.addBindingRelation("Alias", null, originalName,
+		currentTypeEntity.addBindingRelation("Alias",  originalName,
 				this.currentFileEntity.getId(), location.getStartLine(), location.getStartOffset());
 		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), currentTypeEntity, "Define",
 				this.currentFileEntity.getId(), currentTypeEntity.getLocation().getStartLine(), currentTypeEntity.getLocation().getStartOffset()));
@@ -727,7 +722,7 @@ public class HandlerContext {
 		NamespaceAliasEntity currentTypeEntity = new NamespaceAliasEntity(aliasName,
 				this.resolveName(aliasName), this.latestValidContainer(),
 				entityRepo.generateId(), originalName, location);
-		currentTypeEntity.addBindingRelation("Alias", "Namespace", originalName,
+		currentTypeEntity.addBindingRelation("Alias",  originalName,
 				this.currentFileEntity.getId(), location.getStartLine(), location.getStartOffset());
 		entityRepo.add(currentTypeEntity);
 		return currentTypeEntity;

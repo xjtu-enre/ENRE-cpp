@@ -22,6 +22,7 @@
 ## Build & Installation
 in case on the GNU/Linux and Mac platform:
 ```
+// chmod a+x install.sh
 ./install.sh
 ```
 in case on the Windows platfrom:

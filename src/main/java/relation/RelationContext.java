@@ -36,14 +36,17 @@ public class RelationContext {
 		while (iterator.hasNext()) {
 			Entity entity = iterator.next();
 			for(BindingRelation bindingre :entity.getRelationListByBinding()) {
-				Entity toEntity = entityRepo.getEntityByLocation(bindingre.getLocationInfor());
-				if(toEntity == null) {
-					toEntity = this.findTheEntity(bindingre.getLocationInfor(), entity);
-					if(toEntity == null) continue;
+				if(bindingre.getLocationInfor() != null){
+					Entity toEntity = entityRepo.getEntityByLocation(bindingre.getLocationInfor());
+					if(toEntity == null) {
+						toEntity = this.findTheEntity(bindingre.getLocationInfor(), entity);
+						if(toEntity == null) continue;
+					}
+					Relation re = new Relation(entity, toEntity, bindingre.getRelationType(), bindingre.getFileID(),
+							bindingre.getStartLine(), bindingre.getStartOffset());
+					relationRepo.addRelation(re);
 				}
-				Relation re = new Relation(entity, toEntity, bindingre.getRelationType(), bindingre.getFileID(),
-						bindingre.getStartLine(), bindingre.getStartOffset());
-				relationRepo.addRelation(re);
+
 			}
 			for(ScopeRelation relation :entity.getRelationListByScope()) {
 				Entity toEntity = this.findTheEntity(relation.getToEntity(), entity);

@@ -83,13 +83,13 @@ public class FileParser {
 				}
 				if(entityrepo.getEntityByName(includePath)!=null && entityrepo.getEntityByName(includePath) instanceof FileEntity) {
 					FileEntity includeFileEntity = (FileEntity)entityrepo.getEntityByName(includePath);
-					if(includePath.endsWith(".h"))
-						fileEntity.addincludeEntity(includeFileEntity);
-						fileEntity.addRelation(new Relation(fileEntity, includeFileEntity, "Include", fileEntity.getId(),
-								includePathset.get(includePath), -1));
-						includeFilePathsArray.add(includeFileEntity.getQualifiedName());
-						definedMacros.putAll(includeFileEntity.getMacroRepo());
-						fileEntity.getMacroRepo().putAll(includeFileEntity.getMacroRepo());
+//					if(includePath.endsWith(".h"))
+					fileEntity.addincludeEntity(includeFileEntity);
+					fileEntity.addRelation(new Relation(fileEntity, includeFileEntity, "Include", fileEntity.getId(),
+							includePathset.get(includePath), -1));
+					includeFilePathsArray.add(includeFileEntity.getQualifiedName());
+					definedMacros.putAll(includeFileEntity.getMacroRepo());
+					fileEntity.getMacroRepo().putAll(includeFileEntity.getMacroRepo());
 				}
 				isIncludePath = true;
 			}

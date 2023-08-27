@@ -77,6 +77,8 @@ public class CppVisitor extends ASTVisitor {
 
 	@Override
 	public int visit(ICPPASTNamespaceDefinition namespaceDefinition) {
+		if(!namespaceDefinition.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
+			return super.visit(namespaceDefinition);
 		String namespaceName = namespaceDefinition.getName().toString();
 		if(namespaceName.equals("")) namespaceName = "[unnamed]";
 		try{
@@ -92,6 +94,8 @@ public class CppVisitor extends ASTVisitor {
 
 	@Override
 	public int leave(ICPPASTNamespaceDefinition namespaceDefinition) {
+		if(!namespaceDefinition.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
+			return super.leave(namespaceDefinition);
 		if(namespaceDefinition.getName().toString().length() == 0) return super.leave(namespaceDefinition);
 		context.exitLastedEntity();
 		context.popScope();
@@ -100,6 +104,8 @@ public class CppVisitor extends ASTVisitor {
 
 	@Override
 	public int visit(IASTEnumerator enumerator) {
+		if(!enumerator.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
+			return super.visit(enumerator);
 		String enumeratorName = enumerator.getName().toString();
 		EnumeratorEntity var = context.foundEnumeratorDefinition(enumeratorName, getLocation(enumerator));
 		return super.visit(enumerator);
@@ -109,6 +115,8 @@ public class CppVisitor extends ASTVisitor {
 	// set, use, try block
 	@Override
 	public int visit(IASTStatement statement) {
+		if(!statement.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
+			return super.visit(statement);
 		if (statement instanceof IASTForStatement || statement instanceof IASTIfStatement
 				|| statement instanceof IASTWhileStatement || statement instanceof IASTSwitchStatement) {
 			context.foundCodeScope(statement);
@@ -124,6 +132,8 @@ public class CppVisitor extends ASTVisitor {
 
 	@Override
 	public int leave(IASTStatement statement) {
+		if(!statement.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
+			return super.leave(statement);
 		if (statement instanceof IASTForStatement || statement instanceof IASTIfStatement
 				|| statement instanceof IASTWhileStatement || statement instanceof IASTSwitchStatement) {
 			context.popScope();
@@ -133,6 +143,8 @@ public class CppVisitor extends ASTVisitor {
 
 	@Override
 	public int visit(IASTDeclaration declaration) {
+		if(!declaration.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
+			return super.visit(declaration);
 		if (declaration instanceof ICPPASTUsingDeclaration) {
 			String ns = ((ICPPASTUsingDeclaration) declaration).getName().toString();
 			context.latestValidContainer().setUsing(ns, this.currentfile.getId(), declaration.getFileLocation().getStartingLineNumber(),
@@ -258,6 +270,8 @@ public class CppVisitor extends ASTVisitor {
 
 	@Override
 	public int leave(IASTDeclaration declaration) {
+		if(!declaration.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
+			return super.leave(declaration);
 		if (declaration instanceof IASTSimpleDeclaration) {
 			IASTSimpleDeclaration simpleDeclaration = (IASTSimpleDeclaration) declaration;
 			IASTDeclSpecifier declSpec = simpleDeclaration.getDeclSpecifier();
@@ -283,6 +297,8 @@ public class CppVisitor extends ASTVisitor {
 
 	@Override
 	public int visit(IASTExpression expression) {
+		if(!expression.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
+			return super.visit(expression);
 		if(expression instanceof CPPASTLambdaExpression){
 			CPPASTLambdaExpression lambdaExpression = (CPPASTLambdaExpression) expression;
 		}
@@ -357,8 +373,6 @@ public class CppVisitor extends ASTVisitor {
 							entity = context.foundFieldDefinition(varName, getLocation(declarator), type, visibility);
 							if(declarator.getInitializer() instanceof CPPASTEqualsInitializer){
 								entity.addRelation(new Relation(entity.getParent(), entity, "Set", currentfile.getId(), entity.getStartLine(), entity.getLocation().getStartOffset()));
-								CPPASTEqualsInitializer equalsInitializer = (CPPASTEqualsInitializer)(declarator.getInitializer());
-								context.dealExpressionNode(equalsInitializer.getExpression(), "Use");
 							}
 						}
 					}else{
