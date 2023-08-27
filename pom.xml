@@ -160,6 +160,11 @@
             <artifactId>org.eclipse.core.jobs</artifactId>
             <version>3.10.500.v20190620-1426</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.orbit.bundles</groupId>
+            <artifactId>com.ibm.icu</artifactId>
+            <version>64.2.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 

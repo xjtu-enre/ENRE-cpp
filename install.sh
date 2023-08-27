@@ -15,3 +15,4 @@ mvn install:install-file -DgroupId=info.picocli -DartifactId=picocli -Dversion=4
 mvn install:install-file -DgroupId=org.eclipse.core.filesystem.linux -DartifactId=x86 -Dversion=1.1.0-v20070416 -Dpackaging=jar -Dfile=./jars/x86-1.1.0-v20070416.jar	-DgeneratePom=true
 mvn install:install-file -DgroupId=com.fasterxml.jackson.core -DartifactId=jackson-annotations -Dversion=2.9.10.1 -Dpackaging=jar -Dfile=./jars/jackson-annotations-2.9.10.jar -DgeneratePom=true
 mvn install:install-file -DgroupId=com.fasterxml.jackson.core -DartifactId=jackson-core -Dversion=2.9.10.1 -Dpackaging=jar -Dfile=./jars/jackson-core-2.9.10.jar -DgeneratePom=true
+mvn install:install-file -DgroupId=org.eclipse.orbit.bundles -DartifactId=com.ibm.icu -Dversion=64.2.0-SNAPSHOT  -Dpackaging=jar -Dfile=./jars/com.ibm.icu_64.2.0.v20190507-1337.jar -DgeneratePom=true
