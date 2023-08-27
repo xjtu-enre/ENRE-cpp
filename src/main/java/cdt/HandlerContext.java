@@ -464,7 +464,8 @@ public class HandlerContext {
 			String entityInformation = getBinding(fieldName);
 			String relationType = "Use";
 			// TODO : 待处理依赖类型
-			this.latestValidContainer().addBindingRelation(relationType,
+			if(expression.getFileLocation() != null)
+				this.latestValidContainer().addBindingRelation(relationType,
 					entityInformation, this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
 					expression.getFileLocation().getNodeOffset());
 		}
@@ -481,16 +482,18 @@ public class HandlerContext {
 	public void dealExpressionNode(IASTExpression expression, String expressionType) {
 		if(expression instanceof CPPASTIdExpression) {
 			String entityInformation = this.getBinding(((CPPASTIdExpression) expression).getName());
-			if(entityInformation == null) {
-				this.latestValidContainer().addScopeRelation(expressionType, expression.getRawSignature(),
-						this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
-						expression.getFileLocation().getNodeOffset());
-			}
-			else {
-				this.latestValidContainer().addBindingRelation(expressionType, 
-						entityInformation,
-						this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
-						expression.getFileLocation().getNodeOffset());
+			if(expression.getFileLocation() != null){
+				if(entityInformation == null) {
+					this.latestValidContainer().addScopeRelation(expressionType, expression.getRawSignature(),
+							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+							expression.getFileLocation().getNodeOffset());
+				}
+				else {
+					this.latestValidContainer().addBindingRelation(expressionType,
+							entityInformation,
+							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+							expression.getFileLocation().getNodeOffset());
+				}
 			}
 		}else if(expression instanceof CPPASTLiteralExpression){
 			// 自然数值

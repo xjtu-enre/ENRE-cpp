@@ -42,7 +42,7 @@ public class CppVisitor extends ASTVisitor {
 //		// TODO: should be try and throw exception
 //		// this.shouldVisitImplicitDestructorNames = true;
 		this.shouldVisitImplicitNameAlternates = true;
-		this.shouldVisitImplicitNames = true;
+//		this.shouldVisitImplicitNames = true;
 		this.shouldVisitInitializers = true;
 		this.shouldVisitNames = true;
 		this.shouldVisitNamespaces = true;
@@ -297,8 +297,9 @@ public class CppVisitor extends ASTVisitor {
 
 	@Override
 	public int visit(IASTExpression expression) {
-		if(!expression.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
-			return super.visit(expression);
+		if(expression.getFileLocation()!=null)
+			if(!expression.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
+				return super.visit(expression);
 		if(expression instanceof CPPASTLambdaExpression){
 			CPPASTLambdaExpression lambdaExpression = (CPPASTLambdaExpression) expression;
 		}

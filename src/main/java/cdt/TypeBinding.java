@@ -94,6 +94,7 @@ public class TypeBinding {
                 }
                 if(current.getEnclosingScope() == null) return null;
                 if(current.getEnclosingScope() != null)
+                    if(current.getEnclosingScope() == current) return null;
                     current = current.getEnclosingScope();
             }while( current != null);
         }
