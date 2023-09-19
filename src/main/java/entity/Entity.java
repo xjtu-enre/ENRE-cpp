@@ -1,5 +1,6 @@
 package entity;
 
+import relation.BindingRelation;
 import relation.ObjectRelation;
 import relation.Relation;
 import relation.ScopeRelation;
@@ -20,29 +21,6 @@ public abstract class Entity {
 	Entity parent;
 	Set<Entity> children;
 	private Location location;
-
-	public class BindingRelation {
-		String RelationType;
-		String EntityType;
-		String EntityLocationInfor;
-		Integer startLine;
-		Integer startOffset;
-		Integer fileID;
-		public BindingRelation(String retype,  String eninfor, Integer fileID, Integer line, Integer Offset) {
-			this.RelationType = retype;
-			this.EntityLocationInfor = eninfor;
-			this.fileID = fileID;
-			this.startLine = line;
-			this.startOffset = Offset;
-		}
-		public String getLocationInfor() {
-			return this.EntityLocationInfor;
-		}
-		public String getRelationType() {return this.RelationType;}
-		public Integer getFileID() {return this.fileID;}
-		public Integer getStartLine() {return this.startLine; }
-		public Integer getStartOffset() {return this.startOffset; }
-	}
 
 	private List<BindingRelation> RelationListByBinding = new ArrayList<BindingRelation>();
 	private ArrayList<ScopeRelation> RelationListByScope = new ArrayList<ScopeRelation>();

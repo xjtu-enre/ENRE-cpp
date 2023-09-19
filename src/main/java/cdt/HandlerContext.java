@@ -5,8 +5,7 @@ import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTDeclSpecifier;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTExpression;
 import org.eclipse.cdt.internal.core.dom.parser.ProblemBinding;
 import org.eclipse.cdt.internal.core.dom.parser.ProblemType;
-import relation.Relation;
-import relation.ScopeRelation;
+import relation.*;
 import util.Configure;
 import util.Tuple;
 import symtab.*;
@@ -21,14 +20,16 @@ import java.util.Stack;
 
 public class HandlerContext {
 	protected EntityRepo entityRepo;
+	protected RelationRepo relationRepo;
 	protected FileEntity currentFileEntity;
 	protected Stack<Entity> entityStack = new Stack<Entity>();
 	protected UnionFind overloadSet = new UnionFind();
 	Scope currentScope;
 	List<Scope> includeScope;
 
-	public HandlerContext(EntityRepo entityrepo) {
+	public HandlerContext(EntityRepo entityrepo, RelationRepo relationRepo) {
 		this.entityRepo = entityrepo;
+		this.relationRepo = relationRepo;
 		this.entityStack = new Stack<Entity>();
 		this.includeScope = new ArrayList<Scope>();
 	}
@@ -447,7 +448,9 @@ public class HandlerContext {
 			}
 			else if(functionNameExpression instanceof CPPASTFunctionCallExpression){}
 			else if(functionNameExpression instanceof CPPASTIdExpression){}
-			this.dealExpressionNode(functionCallExpression.getFunctionNameExpression(), "Call");
+			IASTInitializerClause[] iastInitializerClause = functionCallExpression.getArguments();
+			this.dealFunctionExpressionNode(functionCallExpression.getFunctionNameExpression(), "Call", iastInitializerClause);
+
 		}
 		if(expression instanceof CPPASTExpressionList) {
 			CPPASTExpressionList expressionList = (CPPASTExpressionList)expression;
@@ -471,7 +474,62 @@ public class HandlerContext {
 		}
 
 	}
-	
+
+	public void dealFunctionExpressionNode(IASTExpression expression, String expressionType, IASTInitializerClause[] iastInitializerClauses){
+		if(expression instanceof CPPASTIdExpression) {
+			// Deal With Arguments
+			String[] arguementsInformation = new String[iastInitializerClauses.length];
+			for(int i=0;i<iastInitializerClauses.length;i++){
+				IASTInitializerClause initializerClause = iastInitializerClauses[i];
+				if(initializerClause instanceof CPPASTUnaryExpression){
+					if(((CPPASTUnaryExpression) initializerClause).getOperator() == IASTUnaryExpression.op_amper){
+						if(((CPPASTUnaryExpression) initializerClause).getOperand() instanceof CPPASTIdExpression)
+							arguementsInformation[i] = this.getBinding(((CPPASTIdExpression) ((CPPASTUnaryExpression) initializerClause).getOperand()).getName());
+					}
+				}
+			}
+
+			String entityInformation = this.getBinding(((CPPASTIdExpression) expression).getName());
+			if(expression.getFileLocation() != null){
+				if(entityInformation == null) {
+					this.latestValidContainer().addScopeRelation(expressionType, expression.getRawSignature(),
+							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+							expression.getFileLocation().getNodeOffset());
+					for(int i=0;i<iastInitializerClauses.length;i++){
+						if(arguementsInformation[i] != null){
+							this.relationRepo.addScopeBindingRelation(new ScopeBindingRelation("Addr Parameter Use",
+									expression.getRawSignature(),
+									arguementsInformation[i],
+									this.currentFileEntity.getId(),
+									expression.getFileLocation().getStartingLineNumber(),
+									expression.getFileLocation().getNodeOffset(),
+									this.latestValidContainer()
+									));
+						}
+					}
+				}
+				else {
+					this.latestValidContainer().addBindingRelation(expressionType,
+							entityInformation,
+							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+							expression.getFileLocation().getNodeOffset());
+					for(int i=0;i<iastInitializerClauses.length;i++){
+						if(arguementsInformation[i] != null){
+							this.relationRepo.addBindingRelation(new BindingRelation("Addr parameter use",
+									entityInformation, arguementsInformation[i],
+									this.currentFileEntity.getId(),
+									iastInitializerClauses[i].getFileLocation().getStartingLineNumber(),
+									iastInitializerClauses[i].getFileLocation().getNodeOffset()));
+						}
+					}
+				}
+
+			}
+
+		}else {
+			dealExpression(expression);
+		}
+	}
 	
 	/**
 	* @methodsName: dealExpressionNode

@@ -2,6 +2,7 @@ package cdt;
 
 import entity.Entity;
 import entity.EntityRepo;
+import relation.RelationRepo;
 
 import java.util.*;
 
@@ -9,16 +10,21 @@ import java.util.*;
 public class CDTParser {
 
 	EntityRepo entityrepo;
+	RelationRepo relationrepo;
 	HashMap<String,Integer> fileList;
 	Set<String> Program_environment;
 	
 	public CDTParser(Set<String> Program_environment) {
 		this.entityrepo = new EntityRepo();
+		this.relationrepo = new RelationRepo();
 		this.Program_environment = Program_environment;
 	}
 
 	public EntityRepo getEntityRepo() {
 		return entityrepo;
+	}
+	public RelationRepo getRelationRepo() {
+		return relationrepo;
 	}
 
 	
@@ -61,7 +67,7 @@ public class CDTParser {
 	* @throws: 
 	*/
 	public void parseFile(String filefullpath) throws Exception {
-		FileParser cdt = new FileParser(filefullpath,entityrepo,fileList, Program_environment);
+		FileParser cdt = new FileParser(filefullpath,entityrepo, relationrepo, fileList, Program_environment);
 		cdt.parse();
 	}
 

@@ -1,7 +1,7 @@
 package relation;
 
 import entity.*;
-import entity.Entity.BindingRelation;
+
 import org.eclipse.cdt.core.model.IFunction;
 import symtab.*;
 import util.Configure;
@@ -17,10 +17,10 @@ public class RelationContext {
 	List<FileEntity> FileList;
 	int entityRepoSize;
 
-	public RelationContext(EntityRepo entityrepo) {
+	public RelationContext(EntityRepo entityrepo, RelationRepo relationRepo) {
 		this.entityRepo = entityrepo;
 		entityRepoSize = entityrepo.generateId();
-		this.relationRepo = new RelationRepo();
+		this.relationRepo = relationRepo;
 		this.FileList = entityrepo.getFileEntities();
 	}
 
@@ -46,7 +46,6 @@ public class RelationContext {
 							bindingre.getStartLine(), bindingre.getStartOffset());
 					relationRepo.addRelation(re);
 				}
-
 			}
 			for(ScopeRelation relation :entity.getRelationListByScope()) {
 				Entity toEntity = this.findTheEntity(relation.getToEntity(), entity);
@@ -80,6 +79,28 @@ public class RelationContext {
 			}
 			for(Relation relation :entity.getRelations()) {
 				relationRepo.addRelation(relation);
+			}
+		}
+		for(BindingRelation bindingRelation: relationRepo.getBindingList()){
+			if(bindingRelation.getFromEntityInfo() != null && bindingRelation.getLocationInfor()!=null){
+				Entity FromEntity = entityRepo.getEntityByLocation(bindingRelation.getFromEntityInfo());
+				Entity toEntity = entityRepo.getEntityByLocation(bindingRelation.getLocationInfor());
+				if(FromEntity!= null && toEntity != null) {
+					Relation re = new Relation(FromEntity, toEntity, bindingRelation.getRelationType(), bindingRelation.getFileID(),
+							bindingRelation.getStartLine(),bindingRelation.getStartOffset());
+					relationRepo.addRelation(re);
+				}
+			}
+		}
+		for(ScopeBindingRelation scopeBindingRelation: relationRepo.getScopeBindingList()){
+			Entity fromEntity = this.findTheEntity(scopeBindingRelation.getFromEntityInfo(), scopeBindingRelation.getDataAggregateEntity());
+			if(fromEntity == null) fromEntity = entityRepo.getEntityByName(scopeBindingRelation.getFromEntityInfo());
+			if(fromEntity == null) continue;
+			Entity toEntity = entityRepo.getEntityByLocation(scopeBindingRelation.getLocationInfor());
+			if(toEntity != null) {
+				Relation re = new Relation(fromEntity, toEntity, scopeBindingRelation.getRelationType(), scopeBindingRelation.getFileID(),
+						scopeBindingRelation.getStartLine(),scopeBindingRelation.getStartOffset());
+				relationRepo.addRelation(re);
 			}
 		}
 	}

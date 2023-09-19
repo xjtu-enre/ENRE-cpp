@@ -12,6 +12,7 @@ import org.eclipse.cdt.internal.core.parser.SavedFilesProvider;
 import org.eclipse.cdt.internal.core.parser.scanner.InternalFileContent;
 import org.eclipse.cdt.internal.core.parser.scanner.InternalFileContentProvider;
 import relation.Relation;
+import relation.RelationRepo;
 import util.Configure;
 
 import org.eclipse.cdt.core.dom.ast.*;
@@ -28,15 +29,17 @@ import java.util.*;
 public class FileParser {
 	String filepath;
 	EntityRepo entityrepo;
+	RelationRepo relationrepo;
 	FileEntity fileEntity;
 	HashMap<String, String> macrorepo;
 	HashMap<String,Integer> fileList;
 	Map<String, String> definedMacros = new HashMap<>();
 	Set<String> Program_environment;
 	Configure configure = Configure.getConfigureInstance();
-	public FileParser(String filepath, EntityRepo entityrepo,HashMap<String,Integer> fileList, Set<String> environment) {
+	public FileParser(String filepath, EntityRepo entityrepo,RelationRepo relationrepo, HashMap<String,Integer> fileList, Set<String> environment) {
 		this.filepath = filepath;
 		this.entityrepo = entityrepo;
+		this.relationrepo = relationrepo;
 		this.macrorepo = new HashMap<String, String>();
 		this.fileList = fileList;
 		this.Program_environment = environment;
@@ -70,7 +73,7 @@ public class FileParser {
 					new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
 					EmptyCIndex.INSTANCE, 0, log);
 
-			CppVisitor visitor = new CppVisitor(entityrepo, filepath);
+			CppVisitor visitor = new CppVisitor(entityrepo, relationrepo, filepath);
 			fileEntity = visitor.getfile();
 			HashMap<String, Integer> includePathset = getdirectedinclude(tu);
 
@@ -78,7 +81,7 @@ public class FileParser {
 			for(String includePath:includePathset.keySet()) {
 
 				if(!isFileParse(includePath)) {
-					FileParser fileparse = new FileParser(includePath, entityrepo, fileList, Program_environment);
+					FileParser fileparse = new FileParser(includePath, entityrepo, relationrepo, fileList, Program_environment);
 					fileparse.parse();
 				}
 				if(entityrepo.getEntityByName(includePath)!=null && entityrepo.getEntityByName(includePath) instanceof FileEntity) {

@@ -2,6 +2,7 @@ import cdt.CDTParser;
 import cdt.TypeBinding;
 import entity.EntityRepo;
 import relation.RelationContext;
+import relation.RelationRepo;
 import symtab.Type;
 import util.FileTraversal;
 import util.FileUtil;
@@ -68,7 +69,8 @@ public class Processor {
 	*/
 	public void dependencyBuild() throws Exception {
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
-		this.relationcontext = new RelationContext(entityrepo);
+		RelationRepo relationRepo = cdtparser.getRelationRepo();
+		this.relationcontext = new RelationContext(entityrepo, relationRepo);
 		this.relationcontext.relationListDeal();
 		this.relationcontext.AggregateDeal();
 		this.relationcontext.ClassDeal();

@@ -11,6 +11,7 @@ import org.eclipse.cdt.internal.core.model.CElement;
 import org.eclipse.cdt.internal.core.model.CElementInfo;
 import org.eclipse.cdt.internal.core.model.TranslationUnit;
 import relation.Relation;
+import relation.RelationRepo;
 import relation.ScopeRelation;
 import util.BuiltInDeal;
 
@@ -21,12 +22,13 @@ import java.util.Objects;
 
 public class CppVisitor extends ASTVisitor {
 	private EntityRepo entityrepo;
+	private RelationRepo relationRepo;
 	private FileEntity currentfile;
 	private HandlerContext context;
 	private MacroRepo macrorepo;
 	private Entity specifierEntity = null;
 
-	public CppVisitor(EntityRepo entityrepo, String filefullpath) {
+	public CppVisitor(EntityRepo entityrepo, RelationRepo relationrepo, String filefullpath) {
 		this.shouldVisitAmbiguousNodes = true;
 		this.shouldVisitArrayModifiers = true;
 		this.shouldVisitAttributes = true;
@@ -56,7 +58,8 @@ public class CppVisitor extends ASTVisitor {
 		this.shouldVisitTypeIds = true;
 		this.shouldVisitVirtSpecifiers = true;
 		this.entityrepo = entityrepo;
-		this.context = new HandlerContext(entityrepo);
+		this.relationRepo = relationrepo;
+		this.context = new HandlerContext(entityrepo, relationrepo);
 		this.currentfile = context.makeFile(filefullpath);
 	}
 
