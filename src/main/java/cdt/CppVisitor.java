@@ -343,7 +343,7 @@ public class CppVisitor extends ASTVisitor {
 						case CPPASTElaboratedTypeSpecifier.k_class:
 							if(declSpec.getParent() instanceof CPPASTSimpleDeclaration){
 								String typeName = this.getType(declSpec);
-								this.specifierEntity = context.foundFieldDefinition(name, getLocation(elaboratedTypeSpecifier),
+								this.specifierEntity = context.foundFieldDefinition(name, getLocation(declarator),
 										typeName, getVisibility((IASTSimpleDeclaration) declSpec.getParent()));
 								if(declarator instanceof CPPASTDeclarator){
 									if(declarator.getPointerOperators().length > 0 ){

@@ -1,6 +1,7 @@
 package cdt;
 import entity.*;
 import entity.FieldEntity;
+import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTCastExpression;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTDeclSpecifier;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTExpression;
 import org.eclipse.cdt.internal.core.dom.parser.ProblemBinding;
@@ -477,18 +478,24 @@ public class HandlerContext {
 
 	public void dealFunctionExpressionNode(IASTExpression expression, String expressionType, IASTInitializerClause[] iastInitializerClauses){
 		if(expression instanceof CPPASTIdExpression) {
-			// Deal With Arguments
+			// Begin of arguments processing
 			String[] arguementsInformation = new String[iastInitializerClauses.length];
+			String[] argReCatInfor = new String[iastInitializerClauses.length];
 			for(int i=0;i<iastInitializerClauses.length;i++){
 				IASTInitializerClause initializerClause = iastInitializerClauses[i];
 				if(initializerClause instanceof CPPASTUnaryExpression){
 					if(((CPPASTUnaryExpression) initializerClause).getOperator() == IASTUnaryExpression.op_amper){
-						if(((CPPASTUnaryExpression) initializerClause).getOperand() instanceof CPPASTIdExpression)
+						if(((CPPASTUnaryExpression) initializerClause).getOperand() instanceof CPPASTIdExpression) {
 							arguementsInformation[i] = this.getBinding(((CPPASTIdExpression) ((CPPASTUnaryExpression) initializerClause).getOperand()).getName());
+							argReCatInfor[i] = "Addr Parameter Use";
+						}
 					}
+				}else if(initializerClause instanceof CPPASTIdExpression){
+					arguementsInformation[i] = this.getBinding(((CPPASTIdExpression)initializerClause).getName());
+					argReCatInfor[i] = "Parameter Use";
 				}
 			}
-
+			// End of arguments processing
 			String entityInformation = this.getBinding(((CPPASTIdExpression) expression).getName());
 			if(expression.getFileLocation() != null){
 				if(entityInformation == null) {
@@ -497,7 +504,7 @@ public class HandlerContext {
 							expression.getFileLocation().getNodeOffset());
 					for(int i=0;i<iastInitializerClauses.length;i++){
 						if(arguementsInformation[i] != null){
-							this.relationRepo.addScopeBindingRelation(new ScopeBindingRelation("Addr Parameter Use",
+							this.relationRepo.addScopeBindingRelation(new ScopeBindingRelation(argReCatInfor[i],
 									expression.getRawSignature(),
 									arguementsInformation[i],
 									this.currentFileEntity.getId(),
@@ -515,7 +522,7 @@ public class HandlerContext {
 							expression.getFileLocation().getNodeOffset());
 					for(int i=0;i<iastInitializerClauses.length;i++){
 						if(arguementsInformation[i] != null){
-							this.relationRepo.addBindingRelation(new BindingRelation("Addr parameter use",
+							this.relationRepo.addBindingRelation(new BindingRelation(argReCatInfor[i],
 									entityInformation, arguementsInformation[i],
 									this.currentFileEntity.getId(),
 									iastInitializerClauses[i].getFileLocation().getStartingLineNumber(),
