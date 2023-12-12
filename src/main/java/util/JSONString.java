@@ -11,6 +11,7 @@ import org.eclipse.cdt.core.dom.ast.IASTDeclSpecifier;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPMember;
 import org.json.JSONObject;
 import relation.Relation;
+import relation.RelationType;
 import symtab.FunctionSymbol;
 
 import java.io.IOException;
@@ -146,6 +147,7 @@ public class JSONString {
 		private Integer parameterIndex = null;
 		private Boolean isGlobal;
 		private Boolean isPointer;
+		private Boolean isTaskNode;
 
 		public EntityTemp(String name, Integer key, String category, Integer entityFile){
 			this.qualifiedName = name;
@@ -173,6 +175,7 @@ public class JSONString {
 		public void setParameterIndex(int index) {this.parameterIndex = index;}
 		public void setIsGlobal(boolean isGlobal) {this.isGlobal = isGlobal;}
 		public void setIsPointer(boolean isPointer) {this.isPointer = isPointer; }
+		public void setIsTaskNode(boolean isTaskNode) {this.isTaskNode = isTaskNode; }
 	}
 	
 	public EntityTemp resolveEntity(Entity entity) {
@@ -239,6 +242,7 @@ public class JSONString {
 		}
 		if(entity.getGlobal()) entitytemp.setIsGlobal(true);
 		if(entity.getPointer() && entity instanceof VarEntity) entitytemp.setIsPointer(true);
+		if(entity instanceof FunctionEntity && ((FunctionEntity)entity).isTaskNode()) entitytemp.setIsTaskNode(true);
     	return entitytemp;
 	}
 	
@@ -261,6 +265,7 @@ public class JSONString {
 		private String category;
 		private Integer from;
 		private Integer to;
+		private Integer parameterIndex;
 
 		class Location{
 			private Integer file = null;
@@ -269,8 +274,9 @@ public class JSONString {
 		}
 		private Location loc;
 
-		public RelationTemp(String type, Integer from, Integer to){
-			this.category = type;
+		public RelationTemp(int type, Integer from, Integer to){
+			String typeName = RelationType.getRelationCategory(type);
+			this.category = typeName;
 			this.from = from;
 			this.to = to;
 		}
@@ -288,6 +294,10 @@ public class JSONString {
 		public void setOffset(Integer Offset) {
 			if(this.loc == null) this.loc = new Location();
 			this.loc.offset = Offset;
+		}
+
+		public void setParameterIndex(Integer parameterIndex){
+			this.parameterIndex = parameterIndex;
 		}
 	}
 
@@ -342,6 +352,9 @@ public class JSONString {
 		for (Relation relation: relationList) {
 			RelationTemp relationtemp = new RelationTemp(relation.getType(), relation.getFromEntity().getId(),
 					relation.getToEntity().getId());
+			if(relation.getFileID() == null){
+				System.out.println("TEST");
+			}
 			if(relation.getFileID() != -1){
 				relationtemp.setFile(relation.getFileID());
 			}
@@ -350,6 +363,9 @@ public class JSONString {
 			}
 			if(relation.getStartOffset() != -1){
 				relationtemp.setOffset(relation.getStartOffset());
+			}
+			if(relation.getParameterIndex() != null && relation.getParameterIndex() != -1){
+				relationtemp.setParameterIndex(relation.getParameterIndex());
 			}
 			relationTempList.add(relationtemp);
 		}

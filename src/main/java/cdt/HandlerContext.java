@@ -27,6 +27,13 @@ public class HandlerContext {
 	protected UnionFind overloadSet = new UnionFind();
 	Scope currentScope;
 	List<Scope> includeScope;
+	/*
+		currentRelationType 用于处理嵌套表达式里的依赖类型，需要注意在给定值信息后重新设置为空
+		currentRelationFromEntityName 用于处理当前最高层表达式所代表的实体名称
+	 */
+	int currentRelationType = 0;
+	String currentRelationFromEntityName = null;
+
 
 	public HandlerContext(EntityRepo entityrepo, RelationRepo relationRepo) {
 		this.entityRepo = entityrepo;
@@ -34,7 +41,76 @@ public class HandlerContext {
 		this.entityStack = new Stack<Entity>();
 		this.includeScope = new ArrayList<Scope>();
 	}
-	
+
+	// 私有辅助类用于收集 IdExpression 节点
+	private static class IdExpressionCollector extends ASTVisitor {
+		private List<IASTIdExpression> idExpressions;
+
+		public IdExpressionCollector() {
+			shouldVisitExpressions = true;
+			idExpressions = new ArrayList<>();
+		}
+
+		@Override
+		public int visit(IASTExpression expression) {
+			if (expression instanceof IASTIdExpression) {
+				idExpressions.add((IASTIdExpression) expression);
+			}
+			return PROCESS_CONTINUE;
+		}
+
+		public List<IASTIdExpression> getIdExpressions() {
+			return idExpressions;
+		}
+	}
+
+	// 公共方法，接收一个 IASTExpression 并返回其中的所有 IdExpression 节点
+	public List<IASTIdExpression> findAllIdExpressions(IASTExpression expression) {
+		IdExpressionCollector collector = new IdExpressionCollector();
+		expression.accept(collector);
+		return collector.getIdExpressions();
+	}
+
+	// 私有辅助类用于收集 IdExpression 节点
+	private static class FieldReferenceCollector extends ASTVisitor {
+		private List<CPPASTFieldReference> fieldReferences;
+
+		public FieldReferenceCollector() {
+			shouldVisitExpressions = true;
+			fieldReferences = new ArrayList<>();
+		}
+
+		@Override
+		public int visit(IASTExpression expression) {
+			if (expression instanceof CPPASTFieldReference) {
+				CPPASTFieldReference fieldReference = (CPPASTFieldReference)expression;
+				IASTName name = fieldReference.getFieldName();
+				name.resolveBinding();
+//				String bindinginfo1 = getBinding(name);
+				ICPPASTExpression expression1 = fieldReference.getFieldOwner();
+				IType type = fieldReference.getFieldOwnerType();
+				if(expression1 instanceof  CPPASTIdExpression){
+					CPPASTIdExpression idExpression2 = (CPPASTIdExpression) expression1;
+					idExpression2.getName().resolveBinding();
+					String bindinginfo = getBinding(idExpression2.getName());
+				}
+				fieldReferences.add((CPPASTFieldReference) expression);
+			}
+			return PROCESS_CONTINUE;
+		}// CPPQualifierType, CPPTypedef, CPPClassType,
+		// CPPASTUnaryExpression, CPPASTIdExpression, CPPASTArraySubscriptExpression,
+
+		public List<CPPASTFieldReference> getFieldReferences() {
+			return fieldReferences;
+		}
+	}
+	// 公共方法，接收一个 IASTExpression 并返回其中的所有 IdExpression 节点
+	public List<CPPASTFieldReference> findAllFieldReferences(IASTExpression expression) {
+		FieldReferenceCollector collector = new FieldReferenceCollector();
+		expression.accept(collector);
+		return collector.getFieldReferences();
+	}
+
 	/**
 	* @methodsName: makeFile
 	* @param:  String filefullpath
@@ -89,6 +165,8 @@ public class HandlerContext {
 		name = scopeManages[scopeManages.length - 1];
 		FunctionSymbol symbol = new FunctionSymbol(name, id);
 		FunctionEntity functionEntity = new FunctionEntity(name, resolveName(name), this.latestValidContainer(), id, symbol, location);
+		functionEntity.addRelation(new Relation(this.latestValidContainer(), functionEntity, RelationType.DECLARE, this.currentFileEntity.getId(),
+				location.getStartLine(), location.getStartOffset()));
 		if(parameterList.size()>0){
 			for(ParameterEntity parameter:parameterList){
 				functionEntity.addParameter(parameter);
@@ -152,7 +230,7 @@ public class HandlerContext {
 				shouldNewEntity = false;
 				scopeFunctionEntity.setLocation(location);
 				this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), scopeFunctionEntity,
-						"Define", this.currentFileEntity.getId(), scopeFunctionEntity.getStartLine(),
+						RelationType.DEFINE, this.currentFileEntity.getId(), scopeFunctionEntity.getStartLine(),
 						scopeFunctionEntity.getLocation().getStartOffset()));
 				entityStack.push(scopeFunctionEntity);
 			}else if(this.overloadSet.isInSet(scopeID)){
@@ -162,7 +240,7 @@ public class HandlerContext {
 						shouldNewEntity = false;
 						scopeFunctionEntity.setLocation(location);
 						this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(),
-								scopeFunctionEntity, "Define", this.currentFileEntity.getId(),
+								scopeFunctionEntity, RelationType.DEFINE, this.currentFileEntity.getId(),
 								scopeFunctionEntity.getLocation().getStartLine(), scopeFunctionEntity.getLocation().getStartOffset()));
 						entityStack.push(scopeFunctionEntity);
 						break;
@@ -188,7 +266,7 @@ public class HandlerContext {
 				((ClassEntity) this.latestValidContainer()).addContainEntity(id);
 			}
 			this.latestValidContainer().addRelation(
-					new Relation(this.latestValidContainer(), functionEntity, "Define",
+					new Relation(this.latestValidContainer(), functionEntity, RelationType.DEFINE,
 							this.currentFileEntity.getId(), functionEntity.getLocation().getStartLine(),
 							functionEntity.getLocation().getStartOffset()));
 			functionEntity.setReturn(returnType);
@@ -227,7 +305,7 @@ public class HandlerContext {
 			this.currentScope.define(symbol, Configure.Namespace);
 		}
 
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), nsEntity, "Define",
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), nsEntity, RelationType.DEFINE,
 				this.currentFileEntity.getId(), startLine,  -1));
 		nsEntity.addScale(endLine - startLine);
 		entityStack.push(nsEntity);
@@ -255,7 +333,7 @@ public class HandlerContext {
 		}
 		ClassEntity classEntity = new ClassEntity(ClassName, resolveName(ClassName),
 				this.latestValidContainer(),id,symbol, location);
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), classEntity, "Define",
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), classEntity, RelationType.DEFINE,
 				this.currentFileEntity.getId(), classEntity.getLocation().getStartLine(), classEntity.getLocation().getStartOffset()));
 
 		classEntity.setTemplate(isTemplate);
@@ -287,7 +365,7 @@ public class HandlerContext {
 
 		StructEntity structEntity = new StructEntity(StructName, resolveName(StructName),
 				this.latestValidContainer(), id, symbol, location);
-		structEntity.addRelation(new Relation(this.latestValidContainer(), structEntity, "Define",
+		structEntity.addRelation(new Relation(this.latestValidContainer(), structEntity, RelationType.DEFINE,
 				this.currentFileEntity.getId(), structEntity.getLocation().getStartLine(), structEntity.getLocation().getStartOffset()));
 		structEntity.setTemplate(isTemplate);
 		entityRepo.add(structEntity);
@@ -316,7 +394,7 @@ public class HandlerContext {
 
 		UnionEntity unionEntity = new UnionEntity(UnionName, resolveName(UnionName),
 				this.latestValidContainer(), id, symbol, location);
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), unionEntity, "Define",
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), unionEntity, RelationType.DEFINE,
 				this.currentFileEntity.getId(), unionEntity.getLocation().getStartLine(), unionEntity.getLocation().getStartOffset()));
 		entityRepo.add(unionEntity);
 		entityStack.push(unionEntity);
@@ -347,7 +425,7 @@ public class HandlerContext {
 		
 		EnumEntity enumeration = new EnumEntity(enumName, resolveName(enumName),
 				this.latestValidContainer(), id, symbol, location);
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), enumeration, "Define",
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), enumeration, RelationType.DEFINE,
 				this.currentFileEntity.getId(), enumeration.getLocation().getStartLine(), enumeration.getLocation().getStartOffset()));
 		entityRepo.add(enumeration);
 		entityStack.push(enumeration);
@@ -370,7 +448,7 @@ public class HandlerContext {
 		if(this.latestValidContainer() instanceof EnumEntity) {
 			((EnumEntity)this.latestValidContainer()).addEnumerator(enumertorEntity);
 		}
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), enumertorEntity, "Define",
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), enumertorEntity, RelationType.DEFINE,
 				this.currentFileEntity.getId(), enumertorEntity.getLocation().getStartLine(), enumertorEntity.getLocation().getStartOffset()));
 		return enumertorEntity;
 	}
@@ -378,49 +456,52 @@ public class HandlerContext {
 	
 	/**
 	* @methodsName: dealExpression
-	* @description: Abstraction handles all expressions.
-	*  such as: CPPASTBinaryExpression, CPPASTCastExpression, CPPASTDeleteExpression,
+	* @description: 处理表达式信息，表达式类型如下：
+	*   CPPASTBinaryExpression, CPPASTCastExpression, CPPASTDeleteExpression,
 	*   CPPASTUnaryExpression, CPPASTFunctionCallExpression, CPPASTExpressionList
 	* @param:  IASTExpression expression
 	* @return: void
 	*/
 	public void dealExpression(IASTExpression expression) {
+		/*
+			使用currentRelationType进行设置依赖类型
+		 */
 		if(expression instanceof CPPASTBinaryExpression) {
 			CPPASTBinaryExpression binaryExp = (CPPASTBinaryExpression)expression;
 			if(binaryExp.getOperator() == IASTBinaryExpression.op_assign){
-				this.dealExpressionNode(binaryExp.getOperand1(), "Set");
-				this.dealExpressionNode(binaryExp.getOperand2(), "Use");
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.SET);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
 			}else if(binaryExp.getOperator() <= IASTBinaryExpression.op_binaryOrAssign &
 					binaryExp.getOperator() >= IASTBinaryExpression.op_multiplyAssign){
 				// op_multiplyAssign = 18, op_divideAssign = 19, op_moduloAssign = 20, op_plusAssign = 21,
 				// op_minusAssign = 22, op_shiftLeftAssign = 23, op_shiftRightAssign = 24,
 				// op_binaryAndAssign = 25, op_binaryXorAssign = 26, op_binaryOrAssign = 27
-				this.dealExpressionNode(binaryExp.getOperand1(), "Set");
-				this.dealExpressionNode(binaryExp.getOperand1(), "Use");
-				this.dealExpressionNode(binaryExp.getOperand2(), "Use");
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.SET);
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.USE);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
 			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmdot){
 				// TODO: operand1.operand2
-				this.dealExpressionNode(binaryExp.getOperand1(), "Test");
-				this.dealExpressionNode(binaryExp.getOperand2(), "Test");
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.UNRESOLVED);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.UNRESOLVED);
 			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmarrow){
 				// TODO: operand1 -> operand2
-				this.dealExpressionNode(binaryExp.getOperand1(), "Test");
-				this.dealExpressionNode(binaryExp.getOperand2(), "Test");
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.UNRESOLVED);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.UNRESOLVED);
 			}else{
 				// *， /， %， +， -， <<， >>， <， >， <=， >=，
 				// &， ^， |， &&， ||， ==， !=， .，
 				// ->， max()， min()， ...
-				this.dealExpressionNode(binaryExp.getOperand1(), "Use");
-				this.dealExpressionNode(binaryExp.getOperand2(), "Use");
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.USE);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
 			}
 		}
 		if(expression instanceof CPPASTCastExpression) {
 			CPPASTCastExpression castExp = (CPPASTCastExpression) expression;
-			this.dealExpressionNode(castExp.getOperand(), "Cast");
+			this.dealExpressionNode(castExp.getOperand(), RelationType.CAST);
 		}
 		if(expression instanceof CPPASTDeleteExpression) {
 			CPPASTDeleteExpression deleteExp = (CPPASTDeleteExpression)expression;
-			this.dealExpressionNode(deleteExp.getOperand(), "Delete");
+			this.dealExpressionNode(deleteExp.getOperand(), RelationType.DELETE);
 		}
 		if(expression instanceof CPPASTUnaryExpression) {
 			CPPASTUnaryExpression unaryExp = (CPPASTUnaryExpression)expression;
@@ -428,7 +509,7 @@ public class HandlerContext {
 					unaryExp.getOperator() == IASTUnaryExpression.op_postFixDecr ||   //--
 					unaryExp.getOperator() == IASTUnaryExpression.op_tilde || //～
 					unaryExp.getOperator() == IASTUnaryExpression.op_prefixIncr){  // ++i
-				this.dealExpressionNode(unaryExp.getOperand(), "Modify");
+				this.dealExpressionNode(unaryExp.getOperand(), RelationType.DELETE);
 			}
 		}
 		if(expression instanceof CPPASTFunctionCallExpression) {
@@ -441,7 +522,7 @@ public class HandlerContext {
 				ICPPASTExpression fieldExpression = ((CPPASTFieldReference) functionNameExpression).getFieldOwner();
 				if(fieldExpression instanceof CPPASTIdExpression){
 					String fieldName = ((CPPASTIdExpression) fieldExpression).getName().toString();
-					this.latestValidContainer().addRelationByObject(fieldName, callFunctionName, "call", this.currentFileEntity.getId(),
+					this.latestValidContainer().addRelationByObject(fieldName, callFunctionName, RelationType.CALL, this.currentFileEntity.getId(),
 							expression.getFileLocation().getStartingLineNumber(), ((CPPASTFunctionCallExpression) expression).getOffset());
 				}else if(fieldExpression instanceof CPPASTFieldReference){
 					String text = expression.getRawSignature();
@@ -449,9 +530,21 @@ public class HandlerContext {
 			}
 			else if(functionNameExpression instanceof CPPASTFunctionCallExpression){}
 			else if(functionNameExpression instanceof CPPASTIdExpression){}
-			IASTInitializerClause[] iastInitializerClause = functionCallExpression.getArguments();
-			this.dealFunctionExpressionNode(functionCallExpression.getFunctionNameExpression(), "Call", iastInitializerClause);
-
+			IASTInitializerClause[] iastInitializerClauses = functionCallExpression.getArguments();
+			this.dealFunctionExpressionNode(functionCallExpression.getFunctionNameExpression(), RelationType.CALL, iastInitializerClauses);
+//
+////			IASTInitializerClause[] iastInitializerClauses = functionCallExpression.getArguments();
+//			String entityInformation = this.getBinding(functionCallExpression.getFunctionNameExpression());
+//			for(IASTInitializerClause iastInitializerClause:iastInitializerClauses){
+//				System.out.println(iastInitializerClause.getClass().toString());
+//				if(iastInitializerClause instanceof IASTExpression){
+//					this.currentRelationType = "Parameter Use";
+//					this.currentRelationFromEntityName = entityInformation;
+//					dealExpression((IASTExpression) iastInitializerClause);
+//					this.currentRelationFromEntityName = null;
+//					this.currentRelationType = null;
+//				}
+//			}
 		}
 		if(expression instanceof CPPASTExpressionList) {
 			CPPASTExpressionList expressionList = (CPPASTExpressionList)expression;
@@ -466,7 +559,7 @@ public class HandlerContext {
 			IType type = fieldReference.getFieldOwnerType();
 			IASTName fieldName = fieldReference.getFieldName();
 			String entityInformation = getBinding(fieldName);
-			String relationType = "Use";
+			int relationType = RelationType.USE;
 			// TODO : 待处理依赖类型
 			if(expression.getFileLocation() != null)
 				this.latestValidContainer().addBindingRelation(relationType,
@@ -476,23 +569,53 @@ public class HandlerContext {
 
 	}
 
-	public void dealFunctionExpressionNode(IASTExpression expression, String expressionType, IASTInitializerClause[] iastInitializerClauses){
+	public void dealFunctionExpressionNode(IASTExpression expression,int expressionType, IASTInitializerClause[] iastInitializerClauses){
+
 		if(expression instanceof CPPASTIdExpression) {
 			// Begin of arguments processing
-			String[] arguementsInformation = new String[iastInitializerClauses.length];
-			String[] argReCatInfor = new String[iastInitializerClauses.length];
+			ArrayList<String> arguementsInformation = new ArrayList<>();
+			ArrayList<Integer> argReCatInfor = new ArrayList<>();
+			ArrayList<Integer> argIndex = new ArrayList<>();
+
 			for(int i=0;i<iastInitializerClauses.length;i++){
 				IASTInitializerClause initializerClause = iastInitializerClauses[i];
+				List<CPPASTFieldReference> fieldReferences = findAllFieldReferences((IASTExpression) initializerClause);
+
 				if(initializerClause instanceof CPPASTUnaryExpression){
 					if(((CPPASTUnaryExpression) initializerClause).getOperator() == IASTUnaryExpression.op_amper){
 						if(((CPPASTUnaryExpression) initializerClause).getOperand() instanceof CPPASTIdExpression) {
-							arguementsInformation[i] = this.getBinding(((CPPASTIdExpression) ((CPPASTUnaryExpression) initializerClause).getOperand()).getName());
-							argReCatInfor[i] = "Addr Parameter Use";
+							arguementsInformation.add( this.getBinding(((CPPASTIdExpression) ((CPPASTUnaryExpression) initializerClause).getOperand()).getName()) );
+							argReCatInfor.add( RelationType.ADDR_PARAMETER_USE);
+							argIndex.add(i+1);
 						}
 					}
 				}else if(initializerClause instanceof CPPASTIdExpression){
-					arguementsInformation[i] = this.getBinding(((CPPASTIdExpression)initializerClause).getName());
-					argReCatInfor[i] = "Parameter Use";
+					arguementsInformation.add( this.getBinding(((CPPASTIdExpression)initializerClause).getName()) );
+					argReCatInfor.add(RelationType.PARAMETER_USE);
+					argIndex.add(i+1);
+				}else if(initializerClause instanceof CPPASTFieldReference){
+					// 对类或结构体成员变量的访问
+					CPPASTFieldReference fieldReference = (CPPASTFieldReference)initializerClause;
+					IASTName name = fieldReference.getFieldName();
+					name.resolveBinding();
+					String binding = this.getBinding(name);
+					arguementsInformation.add(binding);
+					argReCatInfor.add(RelationType.PARAMETER_USE_FIELD_REFERENCE);
+					argIndex.add(i+1);
+
+				}else if(initializerClause instanceof  CPPASTLiteralExpression){
+					// 常数
+				}else if(initializerClause instanceof CPPASTBinaryExpression){
+					// 双目运算符处理，获取内部全部的IDExpression
+					List<IASTIdExpression> idExpressions = findAllIdExpressions((IASTExpression) initializerClause);
+					for(IASTIdExpression idExpression:idExpressions){
+						String binding = this.getBinding(idExpression.getName());
+						arguementsInformation.add(binding);
+						argReCatInfor.add( RelationType.PARAMETER_USE);
+						argIndex.add(i+1);
+					}
+				}else{
+					// System.out.println("Haven't processing to \" " + initializerClause.getClass().toString() + "\" type parameters");
 				}
 			}
 			// End of arguments processing
@@ -502,15 +625,18 @@ public class HandlerContext {
 					this.latestValidContainer().addScopeRelation(expressionType, expression.getRawSignature(),
 							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
 							expression.getFileLocation().getNodeOffset());
-					for(int i=0;i<iastInitializerClauses.length;i++){
-						if(arguementsInformation[i] != null){
-							this.relationRepo.addScopeBindingRelation(new ScopeBindingRelation(argReCatInfor[i],
+					for(int i=0;i<arguementsInformation.size();i++){
+					// for(int i=0;i<iastInitializerClauses.length;i++){
+						if(arguementsInformation.get(i) != null){
+							this.relationRepo.addScopeBindingRelation(new ScopeBindingRelation(
+									argReCatInfor.get(i),
 									expression.getRawSignature(),
-									arguementsInformation[i],
+									arguementsInformation.get(i),
 									this.currentFileEntity.getId(),
 									expression.getFileLocation().getStartingLineNumber(),
 									expression.getFileLocation().getNodeOffset(),
-									this.latestValidContainer()
+									this.latestValidContainer(),
+									argIndex.get(i)
 									));
 						}
 					}
@@ -520,19 +646,53 @@ public class HandlerContext {
 							entityInformation,
 							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
 							expression.getFileLocation().getNodeOffset());
-					for(int i=0;i<iastInitializerClauses.length;i++){
-						if(arguementsInformation[i] != null){
-							this.relationRepo.addBindingRelation(new BindingRelation(argReCatInfor[i],
-									entityInformation, arguementsInformation[i],
-									this.currentFileEntity.getId(),
-									iastInitializerClauses[i].getFileLocation().getStartingLineNumber(),
-									iastInitializerClauses[i].getFileLocation().getNodeOffset()));
+					for(int i=0;i<arguementsInformation.size();i++){
+					// for(int i=0;i<iastInitializerClauses.length;i++){
+						if(arguementsInformation.get(i) != null){
+							this.relationRepo.addBindingRelation(
+									new BindingRelation(argReCatInfor.get(i),
+										entityInformation, arguementsInformation.get(i),
+										this.currentFileEntity.getId(),
+										iastInitializerClauses[i].getFileLocation().getStartingLineNumber(),
+										iastInitializerClauses[i].getFileLocation().getNodeOffset(),
+										argIndex.get(i)
+									)
+							);
 						}
 					}
 				}
 
 			}
 
+		}
+		else if(expression instanceof CPPASTBinaryExpression) {
+			CPPASTBinaryExpression binaryExp = (CPPASTBinaryExpression)expression;
+			if(binaryExp.getOperator() == IASTBinaryExpression.op_assign){
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.SET);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
+			}else if(binaryExp.getOperator() <= IASTBinaryExpression.op_binaryOrAssign &
+					binaryExp.getOperator() >= IASTBinaryExpression.op_multiplyAssign){
+				// op_multiplyAssign = 18, op_divideAssign = 19, op_moduloAssign = 20, op_plusAssign = 21,
+				// op_minusAssign = 22, op_shiftLeftAssign = 23, op_shiftRightAssign = 24,
+				// op_binaryAndAssign = 25, op_binaryXorAssign = 26, op_binaryOrAssign = 27
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.SET);
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.USE);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
+			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmdot){
+				// TODO: operand1.operand2
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.UNRESOLVED);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.UNRESOLVED);
+			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmarrow){
+				// TODO: operand1 -> operand2
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.UNRESOLVED);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.UNRESOLVED);
+			}else{
+				// *， /， %， +， -， <<， >>， <， >， <=， >=，
+				// &， ^， |， &&， ||， ==， !=， .，
+				// ->， max()， min()， ...
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.USE);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
+			}
 		}else {
 			dealExpression(expression);
 		}
@@ -544,11 +704,26 @@ public class HandlerContext {
 	* @param: IASTExpression expression, String expressionType
 	* @return: void
 	*/
-	public void dealExpressionNode(IASTExpression expression, String expressionType) {
+	public void dealExpressionNode(IASTExpression expression, int expressionType) {
+		/*
+			使用currentRelationType进行设置依赖类型
+		 */
+		if(this.currentRelationType == 0){
+			expressionType = currentRelationType;
+		}
+
 		if(expression instanceof CPPASTIdExpression) {
 			String entityInformation = this.getBinding(((CPPASTIdExpression) expression).getName());
+			IASTFileLocation location = expression.getFileLocation();
 			if(expression.getFileLocation() != null){
-				if(entityInformation == null) {
+				if(this.currentRelationType == 0){
+					this.relationRepo.addBindingRelation(new BindingRelation(expressionType,
+							this.currentRelationFromEntityName, entityInformation,
+							this.currentFileEntity.getId(),
+							expression.getFileLocation().getStartingLineNumber(),
+							expression.getFileLocation().getNodeOffset()));
+				}
+				else if(entityInformation == null) {
 					this.latestValidContainer().addScopeRelation(expressionType, expression.getRawSignature(),
 							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
 							expression.getFileLocation().getNodeOffset());
@@ -561,7 +736,7 @@ public class HandlerContext {
 				}
 			}
 		}else if(expression instanceof CPPASTLiteralExpression){
-			// 自然数值
+			/*   自然数值  */
 
 		}else {
 			dealExpression(expression);
@@ -575,7 +750,7 @@ public class HandlerContext {
 	* @param: CPPASTIdExpression idExpression
 	* @return: Tuple
 	*/
-	public String getBinding(IASTName name){
+	public static String getBinding(IASTName name){
 		name.resolveBinding();
 		IBinding node = name.getBinding();
 		if(node == null) {
@@ -607,7 +782,7 @@ public class HandlerContext {
 			case "class org.eclipse.cdt.internal.core.dom.parser.ProblemBinding":
 				break;
 			default:
-				System.out.println("Haven't resolve binding type: " + node.getClass().toString());
+				// System.out.println("Haven't resolve binding type: " + node.getClass().toString());
 		}
 		if(definitionNode != null && definitionNode.getFileLocation() != null) {
 			return definitionNode.getFileLocation().getFileName() + definitionNode.getFileLocation().getNodeOffset();
@@ -679,7 +854,7 @@ public class HandlerContext {
 		if(this.latestValidContainer() instanceof ClassEntity){
 			((ClassEntity) this.latestValidContainer()).addContainEntity(id);
 		}
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), varEntity, "Define",
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), varEntity, RelationType.DEFINE,
 				this.currentFileEntity.getId(), varEntity.getLocation().getStartLine(), varEntity.getLocation().getStartOffset()));
 		return varEntity;
 	}
@@ -706,7 +881,7 @@ public class HandlerContext {
 			}
 			this.latestValidContainer().addContainEntity(id);
 		}
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), entity, "Define",
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), entity, RelationType.DEFINE,
 				this.currentFileEntity.getId(), entity.getLocation().getStartLine(), entity.getLocation().getStartOffset()));
 		return entity;
 	}
@@ -724,7 +899,7 @@ public class HandlerContext {
 				}
 			}
 		}
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), labelEntity, "Define",
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), labelEntity, RelationType.DEFINE,
 				this.currentFileEntity.getId(), labelEntity.getLocation().getStartLine(), labelEntity.getLocation().getStartOffset()));
 		return labelEntity;
 	}
@@ -758,7 +933,7 @@ public class HandlerContext {
 			startLine = typedefEntity.getLocation().getStartLine();
 			startOffset = typedefEntity.getLocation().getStartOffset();
 		}
-		this.latestValidContainer().addRelation(new Relation(parent, typedefEntity, "Define",
+		this.latestValidContainer().addRelation(new Relation(parent, typedefEntity, RelationType.DEFINE,
 				this.currentFileEntity.getId(), startLine, startOffset));
 		return typedefEntity;		
 	}
@@ -776,9 +951,9 @@ public class HandlerContext {
 		AliasEntity currentTypeEntity = new AliasEntity(aliasName, 
 				this.resolveName(aliasName), this.latestValidContainer(),
 				entityRepo.generateId(), originalName, location );
-		currentTypeEntity.addBindingRelation("Alias",  originalName,
+		currentTypeEntity.addBindingRelation(RelationType.ALIAS,  originalName,
 				this.currentFileEntity.getId(), location.getStartLine(), location.getStartOffset());
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), currentTypeEntity, "Define",
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), currentTypeEntity, RelationType.DEFINE,
 				this.currentFileEntity.getId(), currentTypeEntity.getLocation().getStartLine(), currentTypeEntity.getLocation().getStartOffset()));
 		entityRepo.add(currentTypeEntity);
 		return currentTypeEntity;		
@@ -790,7 +965,7 @@ public class HandlerContext {
 		NamespaceAliasEntity currentTypeEntity = new NamespaceAliasEntity(aliasName,
 				this.resolveName(aliasName), this.latestValidContainer(),
 				entityRepo.generateId(), originalName, location);
-		currentTypeEntity.addBindingRelation("Alias",  originalName,
+		currentTypeEntity.addBindingRelation(RelationType.ALIAS,  originalName,
 				this.currentFileEntity.getId(), location.getStartLine(), location.getStartOffset());
 		entityRepo.add(currentTypeEntity);
 		return currentTypeEntity;

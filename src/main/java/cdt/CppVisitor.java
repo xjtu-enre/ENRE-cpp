@@ -12,6 +12,7 @@ import org.eclipse.cdt.internal.core.model.CElementInfo;
 import org.eclipse.cdt.internal.core.model.TranslationUnit;
 import relation.Relation;
 import relation.RelationRepo;
+import relation.RelationType;
 import relation.ScopeRelation;
 import util.BuiltInDeal;
 
@@ -127,7 +128,7 @@ public class CppVisitor extends ASTVisitor {
 		if(statement instanceof CPPASTReturnStatement){
 			if(((CPPASTReturnStatement) statement).getReturnArgument() instanceof CPPASTIdExpression){
 				context.dealExpressionNode((IASTExpression) ((CPPASTReturnStatement) statement).getReturnArgument(),
-						"Use");
+						RelationType.USE);
 			}
 		}
 		return super.visit(statement);
@@ -163,24 +164,48 @@ public class CppVisitor extends ASTVisitor {
 			dealWithSimpleDeclaration((IASTSimpleDeclaration) declaration);
 		}
 		else if (declaration instanceof IASTFunctionDefinition) {
-			// function definition
 			FunctionEntity functionEntity = null;
 			IASTFunctionDefinition functionDefinition = (IASTFunctionDefinition) declaration;
 			IASTDeclarator declarator = functionDefinition.getDeclarator();
-			String rawName = declarator.getName().toString();
-			IASTDeclSpecifier declSpeci = functionDefinition.getDeclSpecifier();
-			String returnType = getType(declSpeci);
-			List<ParameterEntity> parameterLists = new ArrayList<ParameterEntity>();
-			for(IASTNode node:declarator.getChildren()){
-				if(node instanceof IASTParameterDeclaration){
-					ParameterEntity parameter = foundParameterDeclaration(((IASTParameterDeclaration) node));
-					if (parameter != null) {
-						parameterLists.add(parameter);
-						parameter.setIndex(parameterLists.size());
-					}
+
+			IASTName cppastName = declarator.getName();
+			cppastName.resolveBinding();
+			IBinding iBinding = cppastName.getBinding();
+			IASTDeclarator[] declarators = null;
+			if(iBinding instanceof  CPPFunction){
+				CPPFunction cppFunction = (CPPFunction)iBinding;
+				cppFunction.isStatic();
+				declarators = cppFunction.getDeclarations();
+			}
+			if(declarators != null){
+				for(IASTDeclarator declarator1:declarators){
+					String name = declarator1.getFileLocation().getFileName() +
+							declarator1.getFileLocation().getNodeOffset();
+					Entity entityByLocation = this.entityrepo.getEntityByLocation(name);
+					if(entityByLocation instanceof FunctionEntity)
+						functionEntity = (FunctionEntity) entityByLocation;
 				}
 			}
-			functionEntity = context.foundFunctionDefine(rawName, returnType, getLocation(functionDefinition.getDeclarator()), parameterLists, true);
+			if(functionEntity != null){
+				functionEntity.setLocation(getLocation(functionDefinition.getDeclarator()));
+				context.entityStack.push(functionEntity);
+			}
+			else{
+				String rawName = declarator.getName().toString();
+				IASTDeclSpecifier declSpeci = functionDefinition.getDeclSpecifier();
+				String returnType = getType(declSpeci);
+				List<ParameterEntity> parameterLists = new ArrayList<ParameterEntity>();
+				for (IASTNode node : declarator.getChildren()) {
+					if (node instanceof IASTParameterDeclaration) {
+						ParameterEntity parameter = foundParameterDeclaration(((IASTParameterDeclaration) node));
+						if (parameter != null) {
+							parameterLists.add(parameter);
+							parameter.setIndex(parameterLists.size());
+						}
+					}
+				}
+				functionEntity = context.foundFunctionDefine(rawName, returnType, getLocation(functionDefinition.getDeclarator()), parameterLists, true);
+			}
 			int visibility = this.getVisibility(functionDefinition);
 			if(functionEntity != null) functionEntity.setVisiblity(visibility);
 			if(declaration != null){
@@ -188,7 +213,6 @@ public class CppVisitor extends ASTVisitor {
 					if(functionEntity != null) functionEntity.setTemplate(true);
 				}
 			}
-
 		}
 		else if (declaration instanceof ICPPASTAliasDeclaration) {
 			ICPPASTAliasDeclaration aliasDeclaration = (ICPPASTAliasDeclaration) declaration;
@@ -226,6 +250,30 @@ public class CppVisitor extends ASTVisitor {
 	}
 
 	public FunctionEntity FoundFunctionDeclaration(CPPASTFunctionDeclarator declarator, ICPPASTDeclSpecifier declSpecifier){
+		FunctionEntity functionEntity = null;
+		IASTName functionName = declarator.getName();
+		functionName.resolveBinding();
+		IBinding iBinding = functionName.getBinding();
+		IASTDeclarator[] declarators = null;
+		if(iBinding instanceof CPPFunction){
+			CPPFunction cppFunction = (CPPFunction)iBinding;
+			cppFunction.isStatic();
+			declarators = cppFunction.getDeclarations();
+		}
+		if(declarators != null){
+			for(IASTDeclarator declarator1:declarators){
+				String name = declarator1.getFileLocation().getFileName() +
+						declarator1.getFileLocation().getNodeOffset();
+				Entity entityByLocation = this.entityrepo.getEntityByLocation(name);
+				if(entityByLocation instanceof FunctionEntity){
+					functionEntity = (FunctionEntity) entityByLocation;
+					functionEntity.addRelation(new Relation(context.latestValidContainer(), functionEntity, RelationType.DECLARE, context.currentFileEntity.getId(),
+							declarator1.getFileLocation().getStartingLineNumber(), declarator1.getFileLocation().getNodeOffset()));
+					return functionEntity;
+				}
+			}
+		}
+
 		List<ParameterEntity> parameterLists = new ArrayList<ParameterEntity>();
 		for(IASTNode node:declarator.getChildren()){
 			if(node instanceof  IASTParameterDeclaration){
@@ -237,7 +285,6 @@ public class CppVisitor extends ASTVisitor {
 			}
 		}
 		if (declarator instanceof IASTFunctionDeclarator) {
-			FunctionEntity functionEntity = null;
 			String rawName = declarator.getName().toString();
 			String returnType = getType(declSpecifier);
 			// function pointer
@@ -328,7 +375,7 @@ public class CppVisitor extends ASTVisitor {
 					String className = ((CPPASTElaboratedTypeSpecifier) declSpec).getName().toString();
 					if(context.latestValidContainer() instanceof ClassEntity) {
 						((ClassEntity) context.latestValidContainer()).addFriendClass(new ScopeRelation(
-								context.latestValidContainer(), className, "Friend", this.currentfile.getId(),
+								context.latestValidContainer(), className, RelationType.FRIEND, this.currentfile.getId(),
 								declSpec.getFileLocation().getStartingLineNumber(), declSpec.getFileLocation().getNodeOffset()
 						));
 					}
@@ -376,7 +423,7 @@ public class CppVisitor extends ASTVisitor {
 							String type = this.getType(declSpecifier);
 							entity = context.foundFieldDefinition(varName, getLocation(declarator), type, visibility);
 							if(declarator.getInitializer() instanceof CPPASTEqualsInitializer){
-								entity.addRelation(new Relation(entity.getParent(), entity, "Set", currentfile.getId(), entity.getStartLine(), entity.getLocation().getStartOffset()));
+								entity.addRelation(new Relation(entity.getParent(), entity, RelationType.SET, currentfile.getId(), entity.getStartLine(), entity.getLocation().getStartOffset()));
 							}
 						}
 					}else{
@@ -388,7 +435,7 @@ public class CppVisitor extends ASTVisitor {
 						String className = declarator.getName().toString();
 						if(context.latestValidContainer() instanceof ClassEntity) {
 							((ClassEntity) context.latestValidContainer()).addFriendFunction(new ScopeRelation(
-									context.latestValidContainer(), className, "Friend", this.currentfile.getId(),
+									context.latestValidContainer(), className, RelationType.FRIEND, this.currentfile.getId(),
 									declSpec.getFileLocation().getStartingLineNumber(), declSpec.getFileLocation().getNodeOffset()
 							));
 						}
@@ -400,7 +447,7 @@ public class CppVisitor extends ASTVisitor {
 					String className = ((CPPASTNamedTypeSpecifier) declSpec).getName().toString();
 					if(context.latestValidContainer() instanceof ClassEntity) {
 						((ClassEntity) context.latestValidContainer()).addFriendClass(new ScopeRelation(
-								context.latestValidContainer(), className, "Friend", this.currentfile.getId(),
+								context.latestValidContainer(), className, RelationType.FRIEND, this.currentfile.getId(),
 								declSpec.getFileLocation().getStartingLineNumber(), declSpec.getFileLocation().getNodeOffset()
 						));
 					}
@@ -416,7 +463,7 @@ public class CppVisitor extends ASTVisitor {
 								if(binding instanceof CPPTypedef){
 									IASTNode definition = ((CPPTypedef) binding).getDefinition();
 									if(definition instanceof CPPASTName){
-										if(entity != null) entity.addScopeRelation("Type", definition.toString(),
+										if(entity != null) entity.addScopeRelation(RelationType.TYPE, definition.toString(),
 												this.currentfile.getId(), declarator.getFileLocation().getStartingLineNumber(),
 												declarator.getFileLocation().getNodeOffset());
 									}
@@ -483,7 +530,7 @@ public class CppVisitor extends ASTVisitor {
 								getLocation(typeSpecifier), isTemplate);
 				}
 				for (ICPPASTBaseSpecifier baseSpecifier : baseSpecifiers) {
-					this.specifierEntity.addScopeRelation("Extend",
+					this.specifierEntity.addScopeRelation(RelationType.EXTEND,
 							baseSpecifier.getNameSpecifier().toString(),
 							 this.currentfile.getId(), baseSpecifier.getFileLocation().getStartingLineNumber(),
 							baseSpecifier.getFileLocation().getNodeOffset());
@@ -711,9 +758,10 @@ public class CppVisitor extends ASTVisitor {
 				if(binding instanceof ICPPMember){
 					ICPPMember member = (ICPPMember)binding;
 					return member.getVisibility();
-				}else if(binding instanceof CPPMethod){
-					System.out.println("CPPMethod");
 				}
+//				else if(binding instanceof CPPMethod){
+//					System.out.println("CPPMethod");
+//				}
 				else if(binding instanceof CPPFunction){
 					CPPFunction cppFunction = (CPPFunction)binding;
 					ICPPFunctionType icppFunctionType = cppFunction.getType();

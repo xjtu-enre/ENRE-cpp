@@ -43,7 +43,7 @@ public class RelationContext {
 						if(toEntity == null) continue;
 					}
 					Relation re = new Relation(entity, toEntity, bindingre.getRelationType(), bindingre.getFileID(),
-							bindingre.getStartLine(), bindingre.getStartOffset());
+							bindingre.getStartLine(), bindingre.getStartOffset(), bindingre.getParameterIndex());
 					relationRepo.addRelation(re);
 				}
 			}
@@ -87,7 +87,7 @@ public class RelationContext {
 				Entity toEntity = entityRepo.getEntityByLocation(bindingRelation.getLocationInfor());
 				if(FromEntity!= null && toEntity != null) {
 					Relation re = new Relation(FromEntity, toEntity, bindingRelation.getRelationType(), bindingRelation.getFileID(),
-							bindingRelation.getStartLine(),bindingRelation.getStartOffset());
+							bindingRelation.getStartLine(),bindingRelation.getStartOffset(), bindingRelation.getParameterIndex());
 					relationRepo.addRelation(re);
 				}
 			}
@@ -99,7 +99,7 @@ public class RelationContext {
 			Entity toEntity = entityRepo.getEntityByLocation(scopeBindingRelation.getLocationInfor());
 			if(toEntity != null) {
 				Relation re = new Relation(fromEntity, toEntity, scopeBindingRelation.getRelationType(), scopeBindingRelation.getFileID(),
-						scopeBindingRelation.getStartLine(),scopeBindingRelation.getStartOffset());
+						scopeBindingRelation.getStartLine(),scopeBindingRelation.getStartOffset(), scopeBindingRelation.getParameterIndex());
 				relationRepo.addRelation(re);
 			}
 		}
@@ -124,7 +124,7 @@ public class RelationContext {
 						String usingEntity = relation.getToEntity();
 						Entity toEntity = this.findTheEntity(usingEntity, entity);
 						if(toEntity!=null) {
-							Relation re = new Relation(entity, toEntity, "Using", relation.getFileID(),
+							Relation re = new Relation(entity, toEntity, RelationType.USING, relation.getFileID(),
 									relation.getStartLine(), relation.getStartOffset());
 							relationRepo.addRelation(re);
 						}
@@ -149,7 +149,7 @@ public class RelationContext {
 				for (ScopeRelation friend_relation : friend_relations) {
 					Entity fromentity = this.findTheEntity(friend_relation.getToEntity(), entity);
 					if (fromentity != null) {
-						Relation re = new Relation(entity, fromentity,  "Friend",
+						Relation re = new Relation(entity, fromentity,  RelationType.FRIEND,
 								friend_relation.getFileID(), friend_relation.getStartLine(), friend_relation.getStartOffset());
 						relationRepo.addRelation(re);
 					}
@@ -158,7 +158,7 @@ public class RelationContext {
 				for (ScopeRelation friend_relation : friend_Functions) {
 					Entity fromentity = this.findTheEntity(friend_relation.getToEntity(), entity);
 					if (fromentity != null) {
-						Relation re = new Relation(entity, fromentity,  "Friend",
+						Relation re = new Relation(entity, fromentity,  RelationType.FRIEND,
 								friend_relation.getFileID(), friend_relation.getStartLine(), friend_relation.getStartOffset());
 						relationRepo.addRelation(re);
 					}
@@ -190,7 +190,7 @@ public class RelationContext {
 				for (Entity parameterEntity : ((FunctionEntity) entity).getParameter()) {
 					if (parameterEntity != null) {
 						if(parameterEntity.getLocation() != null){
-							Relation re = new Relation(entity, parameterEntity, "Parameter",
+							Relation re = new Relation(entity, parameterEntity, RelationType.PARAMETER,
 									parameterEntity.getLocation().getFile(),
 									parameterEntity.getLocation().getStartLine(), parameterEntity.getLocation().getStartOffset());
 							relationRepo.addRelation(re);
@@ -199,7 +199,7 @@ public class RelationContext {
 				}
 				Entity returnEntity = ((FunctionEntity) entity).getReturnEntity();
 				if (returnEntity != null) {
-					Relation re = new Relation(entity, returnEntity, "Return");
+					Relation re = new Relation(entity, returnEntity, RelationType.RETURN);
 					relationRepo.addRelation(re);
 				}
 //				if (entity instanceof FunctionEntity) {
@@ -226,7 +226,7 @@ public class RelationContext {
 					if(entity.getScope() == null) continue;
 					Entity namespace = this.findTheEntity(((NamespaceAliasEntity) entity).getToNamespaceName(), entity);
 					if(namespace != null){
-						Relation aliasDep= new Relation(entity, namespace, "Alias", entity.getLocation().getFile(),
+						Relation aliasDep= new Relation(entity, namespace, RelationType.ALIAS, entity.getLocation().getFile(),
 								entity.getLocation().getStartLine(), entity.getLocation().getStartOffset());
 						relationRepo.addRelation(aliasDep);
 					}
@@ -365,7 +365,7 @@ public class RelationContext {
 					Entity toEntity = entityRepo.getEntity(toScope.getSymbolByKind(function_name, Configure.Function).getEntityID());
 					Relation re = new Relation(
 							toEntity, entityRepo.getEntity(fromScope.getSymbolByKind(function_name, Configure.Function).getEntityID()),
-							 "Override", toEntity.getLocation().getFile(), toEntity.getLocation().getStartLine(),
+							 RelationType.OVERRIDE, toEntity.getLocation().getFile(), toEntity.getLocation().getStartLine(),
 							toEntity.getLocation().getStartOffset());
 					relationRepo.addRelation(re);
 				}
@@ -383,12 +383,12 @@ public class RelationContext {
 						Entity parent = entityRepo.getEntity(entity.getParentId());
 						Entity type = entityRepo.getEntity(((VarEntity) entity).getTypeID());
 						if(parent instanceof StructEntity & type instanceof StructEntity){
-							relationRepo.addRelation(new Relation(parent, type, "Embed",
+							relationRepo.addRelation(new Relation(parent, type, RelationType.EMBED,
 									entity.getLocation().getFile(), entity.getLocation().getStartLine(),
 									entity.getLocation().getStartOffset()));
 						}else if(parent instanceof FunctionEntity & type instanceof StructEntity){
 							if(entity.getLocation() != null)
-								relationRepo.addRelation(new Relation(parent, type, "typeUse",
+								relationRepo.addRelation(new Relation(parent, type, RelationType.TYPEUSE,
 										entity.getLocation().getFile(), entity.getLocation().getStartLine(),
 										entity.getLocation().getStartOffset()));
 						}

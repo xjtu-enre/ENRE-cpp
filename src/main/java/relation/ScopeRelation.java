@@ -6,11 +6,11 @@ public class ScopeRelation {
 
     Entity fromEntity;
     String toEntity;
-    String type;
+    int type;
     Integer startLine;
     Integer startOffset;
     Integer fileID;
-    public ScopeRelation(Entity fromEntity, String toEntity, String type, Integer fileID, Integer line, Integer Offset) {
+    public ScopeRelation(Entity fromEntity, String toEntity, int type, Integer fileID, Integer line, Integer Offset) {
         this.fromEntity = fromEntity;
         this.toEntity = toEntity;
         this.type = type;
@@ -25,7 +25,7 @@ public class ScopeRelation {
     public String getToEntity() {
         return this.toEntity;
     }
-    public String getType() {
+    public int getType() {
         return this.type;
     }
     public Integer getFileID() {return this.fileID;}

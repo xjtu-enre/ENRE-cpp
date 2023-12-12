@@ -249,7 +249,7 @@ public abstract class Entity {
 	 * add and get relation by binding or scope resolution
 	 * 
 	 */
-	public void addBindingRelation(String retype,  String eninfor, Integer fileID, Integer line, Integer offset) {
+	public void addBindingRelation(int retype,  String eninfor, Integer fileID, Integer line, Integer offset) {
 		this.RelationListByBinding.add(new BindingRelation(retype,  eninfor, fileID, line, offset));
 	}
 	
@@ -257,11 +257,11 @@ public abstract class Entity {
 		return this.RelationListByBinding;
 	}
 	
-	public void addScopeRelation(String retype, String entityName, Integer fileID, Integer line, Integer offset) {
+	public void addScopeRelation(int retype, String entityName, Integer fileID, Integer line, Integer offset) {
 		this.RelationListByScope.add(new ScopeRelation(this, entityName, retype, fileID, line, offset));
 	}
 
-	public void addRelationByObject(String object, String entityName, String relationType, Integer fileID, Integer line, Integer offset) {
+	public void addRelationByObject(String object, String entityName, int relationType, Integer fileID, Integer line, Integer offset) {
 		this.RelationListByObject.add(new ObjectRelation(object, this, entityName, relationType, fileID, line, offset));
 	}
 

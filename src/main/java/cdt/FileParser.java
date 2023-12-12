@@ -5,7 +5,10 @@ import entity.EntityRepo;
 import entity.FileEntity;
 import entity.Location;
 import entity.MacroEntity;
+import org.eclipse.cdt.core.index.IIndex;
 import org.eclipse.cdt.core.index.IIndexFileLocation;
+import org.eclipse.cdt.internal.core.index.CIndex;
+import org.eclipse.cdt.internal.core.index.IIndexFragment;
 import org.eclipse.cdt.internal.core.parser.IMacroDictionary;
 import org.eclipse.cdt.internal.core.parser.InternalParserUtil;
 import org.eclipse.cdt.internal.core.parser.SavedFilesProvider;
@@ -13,6 +16,7 @@ import org.eclipse.cdt.internal.core.parser.scanner.InternalFileContent;
 import org.eclipse.cdt.internal.core.parser.scanner.InternalFileContentProvider;
 import relation.Relation;
 import relation.RelationRepo;
+import relation.RelationType;
 import util.Configure;
 
 import org.eclipse.cdt.core.dom.ast.*;
@@ -86,9 +90,8 @@ public class FileParser {
 				}
 				if(entityrepo.getEntityByName(includePath)!=null && entityrepo.getEntityByName(includePath) instanceof FileEntity) {
 					FileEntity includeFileEntity = (FileEntity)entityrepo.getEntityByName(includePath);
-//					if(includePath.endsWith(".h"))
 					fileEntity.addincludeEntity(includeFileEntity);
-					fileEntity.addRelation(new Relation(fileEntity, includeFileEntity, "Include", fileEntity.getId(),
+					fileEntity.addRelation(new Relation(fileEntity, includeFileEntity, RelationType.INCLUDE, fileEntity.getId(),
 							includePathset.get(includePath), -1));
 					includeFilePathsArray.add(includeFileEntity.getQualifiedName());
 					definedMacros.putAll(includeFileEntity.getMacroRepo());
@@ -111,9 +114,23 @@ public class FileParser {
 				}
 				String[] macroFiles = EMPTY_ARRAY_STRING;
 				IScannerInfo scannerInfo = new ExtendedScannerInfo(macroMap, includePath, macroFiles, includeFiles);;
-				IncludeFileContentProvider ifcp = createInternalFileContentProvider(true);
-				tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
-						scannerInfo, ifcp, EmptyCIndex.INSTANCE, 0, log);
+				InternalFileContentProvider includeContentProvider = new InternalFileContentProvider() {
+					@Override
+					public InternalFileContent getContentForInclusion(String filePath, IMacroDictionary macroDictionary) {
+						InternalFileContent ifc = (InternalFileContent) FileContent.createForExternalFileLocation(filePath);
+						return ifc;
+					}
+					@Override
+					public InternalFileContent getContentForInclusion(IIndexFileLocation ifl, String astPath) {
+						InternalFileContent c = InternalParserUtil.createFileContent(ifl);
+						return c;
+					}
+				};
+
+				IIndex idx = new CIndex(new IIndexFragment[] {});
+				int options = ILanguage.OPTION_PARSE_INACTIVE_CODE;
+
+				tu = GPPLanguage.getDefault().getASTTranslationUnit(content, scannerInfo, includeContentProvider, idx, options, log);
 			}
 			IASTPreprocessorStatement[] statements= tu.getAllPreprocessorStatements();
 			getallstatements(statements);
@@ -122,29 +139,13 @@ public class FileParser {
 	}
 
 
-	private InternalFileContentProvider createInternalFileContentProvider(boolean shouldScanInclusionFiles)
-	{
-		InternalFileContentProvider ifcp = new InternalFileContentProvider() {
-			@Override
-			public InternalFileContent getContentForInclusion(String filePath, IMacroDictionary macroDictionary) {
-				InternalFileContent ifc = null;
-				if (!shouldScanInclusionFiles) {
-					ifc =  new InternalFileContent(filePath, InternalFileContent.InclusionKind.SKIP_FILE);
-				}else {
-					ifc = (InternalFileContent) FileContent.createForExternalFileLocation(filePath);
-				}
-
-				return ifc;
-			}
-
-			@Override
-			public InternalFileContent getContentForInclusion(IIndexFileLocation ifl, String astPath) {
-				InternalFileContent c = InternalParserUtil.createFileContent(ifl);
-				return c;
-			}
-		};
-		return ifcp;
+	private boolean isRightFile(String include, String toMatch) {
+		if (System.getProperty("os.name").contains("Win"))
+			return include.equalsIgnoreCase(toMatch);
+		return include.equals(toMatch);
 	}
+
+
 	/**
 	 * @methodsName: exitFile
 	 * @description: Check whether the file exists based on the path
@@ -195,7 +196,7 @@ public class FileParser {
 						this.fileEntity.getId());
 				MacroEntity macroEntity = new MacroEntity(statement.getRawSignature(),
 						macroname, fileEntity, entityrepo.generateId(), location);
-				this.fileEntity.addRelation(new Relation(fileEntity, macroEntity, "Define", fileEntity.getId(),
+				this.fileEntity.addRelation(new Relation(fileEntity, macroEntity, RelationType.DEFINE, fileEntity.getId(),
 						statement.getFileLocation().getStartingLineNumber(),
 						statement.getFileLocation().getNodeOffset()));
 				entityrepo.add(macroEntity);

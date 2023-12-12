@@ -6,11 +6,11 @@ public class ObjectRelation {
     Entity fromEntity;
     String object;
     String toEntity;
-    String type;
+    int type;
     Integer startLine;
     Integer startOffset;
     Integer fileID;
-    public ObjectRelation(String object, Entity fromEntity, String toEntity, String type, Integer fileID, Integer line, Integer Offset) {
+    public ObjectRelation(String object, Entity fromEntity, String toEntity, int type, Integer fileID, Integer line, Integer Offset) {
         this.object = object;
         this.fromEntity = fromEntity;
         this.toEntity = toEntity;
@@ -27,7 +27,7 @@ public class ObjectRelation {
     public String getToEntity() {
         return this.toEntity;
     }
-    public String getType() {
+    public int getType() {
         return this.type;
     }
     public Integer getFileID() {return this.fileID;}

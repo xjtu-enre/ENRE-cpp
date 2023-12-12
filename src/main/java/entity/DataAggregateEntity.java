@@ -1,5 +1,6 @@
 package entity;
 
+import relation.RelationType;
 import relation.ScopeRelation;
 import symtab.BaseScope;
 import symtab.Scope;
@@ -75,7 +76,7 @@ public class DataAggregateEntity extends Entity{
 
 
 	public void setUsing(String using, Integer fileID, Integer line, Integer offset) {
-		if(using != null) this.usingImport.add(new ScopeRelation(this, using, "Using", fileID, line, offset));
+		if(using != null) this.usingImport.add(new ScopeRelation(this, using, RelationType.USING, fileID, line, offset));
 	}
 	public List<ScopeRelation> getUsingImport(){
 		return this.usingImport;
