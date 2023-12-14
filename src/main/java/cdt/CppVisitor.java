@@ -302,9 +302,9 @@ public class CppVisitor extends ASTVisitor {
 			}else{
 				functionEntity = context.foundFunctionDeclare(rawName, returnType, getLocation(declarator), parameterLists);
 				if(declarator instanceof CPPASTDeclarator){
-					if(declarator.getPointerOperators().length > 0 ){
-						functionEntity.setPointer();
-					}
+//					if(declarator.getPointerOperators().length > 0 ){
+//						functionEntity.setPointer();
+//					}
 				}
 			}
 			if(functionEntity != null){
@@ -454,6 +454,9 @@ public class CppVisitor extends ASTVisitor {
 				}
 				else {
 					for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
+						if(declarator instanceof CPPASTFunctionDeclarator){
+							continue;
+						}
 						String varName = this.resolveEntityName(declarator.getName());
 						String type = this.getType(declSpecifier);
 						entity = context.foundVarDefinition(varName, getLocation(declarator.getName()), type);
@@ -557,7 +560,7 @@ public class CppVisitor extends ASTVisitor {
 				}
 				if(declarator instanceof CPPASTDeclarator){
 					if(declarator.getPointerOperators().length > 0 ){
-						if(entity != null) entity.setPointer();
+						if(entity != null && !(entity instanceof FunctionEntity)) entity.setPointer();
 					}
 				}
 			}

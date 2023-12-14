@@ -215,8 +215,12 @@ public abstract class Entity {
 
 	public boolean getGlobal() { return this.global; }
 
-	public void setPointer(){ this.isPointer = true; }
-	public boolean getPointer() {return this.isPointer; }
+	public void setPointer(){
+		this.isPointer = true;
+	}
+	public boolean getPointer() {
+		return this.isPointer;
+	}
 
 
 	public List<Entity> getChild() {
