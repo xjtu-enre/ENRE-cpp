@@ -336,7 +336,7 @@ public class JSONString {
 										List<Relation> relationList) throws IOException {
 		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
 		writer.setIndent("  ");
-		writer.beginArray();
+//		writer.beginArray();
 		GsonBuilder builder = new GsonBuilder();
 		Gson gson = builder.create();
 		List<EntityTemp> entityTempList = new ArrayList<EntityTemp>();
@@ -372,7 +372,7 @@ public class JSONString {
 		AllTemp allTemp = new AllTemp(entityTempList, relationTempList);
 		gson.toJson(allTemp, AllTemp.class, writer);
 
-		writer.endArray();
+//		writer.endArray();
 		writer.close();
 	}
 }
