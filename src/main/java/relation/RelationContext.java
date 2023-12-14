@@ -3,13 +3,12 @@ package relation;
 import entity.*;
 
 import org.eclipse.cdt.core.model.IFunction;
+import org.eclipse.cdt.internal.core.model.LibraryReferenceArchive;
 import symtab.*;
 import util.Configure;
 import util.Tuple;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class RelationContext {
 	EntityRepo entityRepo;
@@ -395,6 +394,49 @@ public class RelationContext {
 					}
 				}
 			}
+		}
+		/*
+			Add dependencies on arguments and parameters
+		 */
+		Map<Integer, Map<Integer, Integer>> function_parameter = new HashMap<>();
+		List<Relation> relationList = this.getRelationRepo().getrelationrepo();
+		for (Relation relation: relationList) {
+			if(relation.getType() == RelationType.PARAMETER){
+				Entity from_entity = relation.getFromEntity();
+				Entity to_entity =relation.getToEntity();
+				if(to_entity instanceof ParameterEntity){
+					if(function_parameter.get(from_entity.getId()) == null){
+						function_parameter.put(from_entity.getId(), new HashMap<Integer, Integer>());
+					}
+					function_parameter.get(from_entity.getId()).put(((ParameterEntity) to_entity).getIndex(), to_entity.getId());
+				}
+
+			}
+		}
+		List<Relation> flowToRelation = new ArrayList<>();
+		for(Relation relation: relationList) {
+			if (relation.getType() == RelationType.PARAMETER_USE ||
+					relation.getType() == RelationType.ADDR_PARAMETER_USE ||
+					relation.getType() == RelationType.PARAMETER_USE_FIELD_REFERENCE) {
+				Entity from_entity = relation.getFromEntity();
+				Entity to_entity = relation.getToEntity();
+				if(from_entity instanceof FunctionEntity){
+					Integer parameterIndex = relation.getParameterIndex();
+					if(parameterIndex != -1 &&
+							function_parameter.containsKey(from_entity.getId()) &&
+							function_parameter.get(from_entity.getId()).containsKey(parameterIndex)){
+						flowToRelation.add(new Relation(to_entity,
+								entityRepo.getEntity(function_parameter.get(from_entity.getId()).get(parameterIndex)),
+								RelationType.FLOWTO,
+								relation.getFileID(),
+								relation.getStartLine(),
+								relation.getStartOffset()));
+					}
+				}
+			}
+		}
+		for(Relation relation : flowToRelation){
+			this.relationRepo.addRelation(relation);
 		}
 	}
 

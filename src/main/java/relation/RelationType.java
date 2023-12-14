@@ -27,6 +27,7 @@ public class RelationType {
 	public static final int PARAMETER_USE_FIELD_REFERENCE = 21;
 	public static final int TYPE = 22;
 	public static final int EXTEND = 23;
+	public static final int FLOWTO = 24;
 
 //	public static String getRelationCategory(int typeID){
 //		switch (typeID){
@@ -76,6 +77,8 @@ public class RelationType {
 //				return "Type";
 //			case EXTEND:
 //				return "Extend";
+//			case FLOWTO:
+//				return "FLOW TO";
 //		}
 //		// If none of the above cases matched, return null. You may want to return a default value or throw an exception instead.
 //		return null;
@@ -128,8 +131,9 @@ public static String getRelationCategory(int typeID){
 			return "Type";
 		case EXTEND:
 			return "Extend";
+		case FLOWTO:
+			return "Flow to";
 	}
-	// If none of the above cases matched, return null. You may want to return a default value or throw an exception instead.
 	return null;
 }
 

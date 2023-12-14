@@ -10,7 +10,7 @@ public class Relation {
 	Integer startLine;
 	Integer startOffset;
 	Integer fileID;
-	Integer parameterIndex;
+	Integer parameterIndex=-1;
 
 	public Relation(Entity fromEntity, Entity toEntity, int type) {
 		this.fromEntity = fromEntity;
