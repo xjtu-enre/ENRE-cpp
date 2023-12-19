@@ -22,9 +22,21 @@ import java.util.Objects;
 
 
 public class CppVisitor extends ASTVisitor {
+	/**
+	 * 实体仓库
+	 */
 	private EntityRepo entityrepo;
+	/**
+	 * 私有成员变量relationRepo，表示关系仓库
+	 */
 	private RelationRepo relationRepo;
+	/**
+	 * 当前文件实体
+	 */
 	private FileEntity currentfile;
+	/**
+	 * 私有成员变量，HandlerContext类型的上下文对象
+	 */
 	private HandlerContext context;
 	private MacroRepo macrorepo;
 	private Entity specifierEntity = null;
@@ -79,6 +91,12 @@ public class CppVisitor extends ASTVisitor {
 		return super.visit(problem);
 	}
 
+	/**
+	 * 访问ICPPASTNamespaceDefinition节点
+	 *
+	 * @param namespaceDefinition 要访问的节点
+	 * @return 访问结果
+	 */
 	@Override
 	public int visit(ICPPASTNamespaceDefinition namespaceDefinition) {
 		if(!namespaceDefinition.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
@@ -106,6 +124,12 @@ public class CppVisitor extends ASTVisitor {
 		return super.leave(namespaceDefinition);
 	}
 
+	/**
+	 * 访问枚举器节点
+	 *
+	 * @param enumerator 枚举器节点
+	 * @return 访问结果
+	 */
 	@Override
 	public int visit(IASTEnumerator enumerator) {
 		if(!enumerator.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
@@ -116,7 +140,13 @@ public class CppVisitor extends ASTVisitor {
 	}
 
 
-	// set, use, try block
+	/**
+	 * 访问AST语句节点
+	 * 主要处理函数定义、if语句、for语句、while语句、switch语句、return语句
+	 * 获取set, use, try block等依赖关系
+	 * @param statement 要访问的AST语句节点
+	 * @return 访问结果
+	 */
 	@Override
 	public int visit(IASTStatement statement) {
 		if(!statement.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
@@ -145,6 +175,13 @@ public class CppVisitor extends ASTVisitor {
 		return super.leave(statement);
 	}
 
+
+	/**
+	 * 访问IASTDeclaration类型的节点
+	 * 主要处理using声明、函数定义、变量声明、结构体定义等
+	 * @param declaration IASTDeclaration类型的节点
+	 * @return 返回int类型的值
+	 */
 	@Override
 	public int visit(IASTDeclaration declaration) {
 		if(!declaration.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
@@ -249,6 +286,13 @@ public class CppVisitor extends ASTVisitor {
 		return super.visit(declaration);
 	}
 
+	/**
+	 * 根据给定的函数声明器和函数声明，找到相应的函数实体。
+	 *
+	 * @param declarator 函数声明器
+	 * @param declSpecifier 函数声明
+	 * @return 找到的函数实体
+	 */
 	public FunctionEntity FoundFunctionDeclaration(CPPASTFunctionDeclarator declarator, ICPPASTDeclSpecifier declSpecifier){
 		FunctionEntity functionEntity = null;
 		IASTName functionName = declarator.getName();
@@ -345,6 +389,12 @@ public class CppVisitor extends ASTVisitor {
 		return super.leave(declaration);
 	}
 
+	/**
+	 * 访问IASTExpression表达式
+	 * 调用context的dealExpression方法进行进一步处理
+	 * @param expression 要访问的表达式
+	 * @return 访问结果，PROCESS_CONTINUE表示继续访问
+	 */
 	@Override
 	public int visit(IASTExpression expression) {
 		if(expression.getFileLocation()!=null)
@@ -363,6 +413,15 @@ public class CppVisitor extends ASTVisitor {
 		return PROCESS_CONTINUE;
 	}
 
+	/**
+	 * 处理简单声明
+	 * 分为两个部分：Specifier 和 Declarator
+	 * 1. Specifier
+	 * 		1.1 访问Specifier，获取存储类、类型
+	 * 		1.2 根据Specifier的类型区分实体类型
+	 * 	2 访问Declarator，获取变量名
+	 * @param simpleDeclaration 简单声明
+	 */
 	public void dealWithSimpleDeclaration(IASTSimpleDeclaration simpleDeclaration){
 		IASTDeclSpecifier declSpec = simpleDeclaration.getDeclSpecifier();
 		int visibility = this.getVisibility(simpleDeclaration);
@@ -574,6 +633,12 @@ public class CppVisitor extends ASTVisitor {
 		}
 	}
 
+	/**
+	 * 找到参数声明，返回ParameterEntity对象
+	 *
+	 * @param parameterDeclaration 参数声明
+	 * @return 返回ParameterEntity对象
+	 */
 	public ParameterEntity foundParameterDeclaration(IASTParameterDeclaration parameterDeclaration) {
 		ParameterEntity var = null;
 		if (parameterDeclaration.getDeclarator() instanceof CPPASTFunctionDeclarator) {
@@ -644,6 +709,12 @@ public class CppVisitor extends ASTVisitor {
 		return var;
 	}
 
+	/**
+	 * 解析实体名称
+	 *
+	 * @param name 实体名称
+	 * @return 解析后的实体名称
+	 */
 	public String resolveEntityName(IASTName name) {
 		String formatName = "";
 		String rawName = name.toString();
@@ -669,6 +740,12 @@ public class CppVisitor extends ASTVisitor {
 		return formatName;
 	}
 
+	/**
+	 * 获取传入的IASTDeclSpecifier对象的类型
+	 *
+	 * @param declSpeci 传入的IASTDeclSpecifier对象
+	 * @return 返回对象的类型
+	 */
 	public String getType(IASTDeclSpecifier declSpeci) {
 		String type = null;
 
@@ -695,6 +772,12 @@ public class CppVisitor extends ASTVisitor {
 		return this.context.currentFileEntity;
 	}
 
+	/**
+	 * 判断给定的节点是否为模板
+	 *
+	 * @param node 给定的节点
+	 * @return 如果节点是模板，返回true；否则返回false
+	 */
 	public boolean isTemplate(IASTNode node) {
 		if (node instanceof CPPASTTemplateDeclaration)
 			return true;
@@ -727,6 +810,12 @@ public class CppVisitor extends ASTVisitor {
 		}
 	}
 
+	/**
+	 * 获取给定节点的位置信息
+	 *
+	 * @param node 给定的节点
+	 * @return 返回节点的位置信息，如果节点没有位置信息则返回null
+	 */
 	public Location getLocation(IASTNode node) {
 		if (node.getFileLocation() == null)
 			return null;
@@ -735,6 +824,12 @@ public class CppVisitor extends ASTVisitor {
 				this.currentfile.getId());
 	}
 
+	/**
+	 * 从给定的IASTSimpleDeclaration节点中获取声明的名称
+	 *
+	 * @param astNode 给定的IASTSimpleDeclaration节点
+	 * @return 声明的名称，如果节点为空则返回null
+	 */
 	public IASTName getDeclarationName(IASTSimpleDeclaration astNode) {
 		IASTDeclarator[] declarators = astNode.getDeclarators();
 		if(declarators != null && declarators.length > 0){
@@ -744,6 +839,12 @@ public class CppVisitor extends ASTVisitor {
 		}
 	}
 
+	/**
+	 * 获取AST节点中声明的可见性
+	 *
+	 * @param astNode AST节点
+	 * @return 返回声明的可见性，若无法获取则返回0
+	 */
 	public int getVisibility(IASTDeclaration astNode){
 		IASTName name = null;
 		if(astNode instanceof IASTSimpleDeclaration){

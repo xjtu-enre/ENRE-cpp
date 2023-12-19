@@ -34,14 +34,12 @@ public class PreprocessorHandler {
 			}
 		}
 	}
-	
+
 	/**
-	* @methodsName: buildAllFiles
-	* @description: Build file traversers for the whole project
-	* @param:  null
-	* @return: void
-	* @throws: 
-	*/
+	 * 构建所有文件集合
+	 *
+	 * @throws Exception 如果构建过程中出现异常，则抛出该异常
+	 */
 	private void buildAllFiles() throws Exception {
 		allFiles = new HashSet<>();
 		AllFileVisitor v = new AllFileVisitor();
@@ -55,25 +53,25 @@ public class PreprocessorHandler {
 		}
 	}
 	
+
 	/**
-	* @methodsName: existFile
-	* @description: Check whether the file exists based on the path
-	* @param:  String checkPath
-	* @return: boolean
-	* @throws: 
-	*/
+	 * 判断指定路径的文件是否存在
+	 *
+	 * @param checkPath 要检查的文件路径
+	 * @return 如果文件存在返回true，否则返回false
+	 */
 	private boolean existFile(String checkPath) {
 		checkPath = FileUtil.uniformPath(checkPath);
 		return allFiles.contains(checkPath);
 	}
-	
+
 	/**
-	* @methodsName: getDirectIncludedFiles
-	* @description: Get the include file of the file according to the preprocessing information
-	* @param:  IASTPreprocessorStatement[] statements, String fileLocation
-	* @return: List<String>
-	* @throws: 
-	*/
+	 * 获取直接包含的文件列表
+	 *
+	 * @param statements 预处理语句数组
+	 * @param fileLocation 文件位置
+	 * @return 包含文件的完整路径列表
+	 */
 	public List<String> getDirectIncludedFiles(IASTPreprocessorStatement[] statements, String fileLocation) {
 		ArrayList<String> includedFullPathNames = new ArrayList<>();
 		for (int statementIndex=0;statementIndex<statements.length;statementIndex++) {
@@ -96,12 +94,11 @@ public class PreprocessorHandler {
 	}
 	
 	/**
-	* @methodsName: resolvePath
-	* @description: Process file paths according to Include Statement(IASTPreprocessorIncludeStatement)
-	* @param:  IASTPreprocessorIncludeStatement incl
-	* @return: String
-	* @throws: 
-	*/
+	 * 根据Include Statement(IASTPreprocessorIncludeStatement)处理文件路径
+	 *
+	 * @param incl 包含文件路径的Include Statement对象
+	 * @return 解析后的文件路径
+	 */
 	private String resolvePath(IASTPreprocessorIncludeStatement incl) {
 		String path = incl.toString();
 		int pos = path.indexOf(' ');

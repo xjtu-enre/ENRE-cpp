@@ -44,7 +44,9 @@ public class HandlerContext {
 		this.includeScope = new ArrayList<Scope>();
 	}
 
-	// 私有辅助类用于收集 IdExpression 节点
+	/**
+	 * 用于收集IdExpression的AST访问器
+	 */
 	private static class IdExpressionCollector extends ASTVisitor {
 		private List<IASTIdExpression> idExpressions;
 
@@ -66,7 +68,12 @@ public class HandlerContext {
 		}
 	}
 
-	// 公共方法，接收一个 IASTExpression 并返回其中的所有 IdExpression 节点
+	/**
+	 *  公共方法，接收一个 IASTExpression 并返回其中的所有 IdExpression 节点
+	 *
+	 * @param expression 给定的表达式
+	 * @return 包含所有ID表达式的列表
+	 */
 	public List<IASTIdExpression> findAllIdExpressions(IASTExpression expression) {
 		IdExpressionCollector collector = new IdExpressionCollector();
 		expression.accept(collector);
@@ -74,6 +81,12 @@ public class HandlerContext {
 	}
 
 	//
+	/**
+	 * 用于收集字段引用的AST访问器
+	 * 主要类型有：
+	 * CPPQualifierType, CPPTypedef, CPPClassType,
+	 * CPPASTUnaryExpression, CPPASTIdExpression, CPPASTArraySubscriptExpression,
+	 */
 	private static class FieldReferenceCollector extends ASTVisitor {
 		private List<CPPASTFieldReference> fieldReferences;
 
@@ -99,14 +112,26 @@ public class HandlerContext {
 				fieldReferences.add((CPPASTFieldReference) expression);
 			}
 			return PROCESS_CONTINUE;
-		}// CPPQualifierType, CPPTypedef, CPPClassType,
-		// CPPASTUnaryExpression, CPPASTIdExpression, CPPASTArraySubscriptExpression,
+		}
 
 		public List<CPPASTFieldReference> getFieldReferences() {
 			return fieldReferences;
 		}
 	}
-
+	/**
+	 * 查找所有字段引用
+	 *
+	 * @param expression 表达式
+	 * @return 返回所有字段引用的列表
+	 */
+	public List<CPPASTFieldReference> findAllFieldReferences(IASTExpression expression) {
+		FieldReferenceCollector collector = new FieldReferenceCollector();
+		expression.accept(collector);
+		return collector.getFieldReferences();
+	}
+	/**
+	 * 用于收集宏展开信息的私有静态内部类
+	 */
 	private static class MacroExpansionCollector extends ASTVisitor {
 
 		HashSet<IASTPreprocessorMacroDefinition> macroRecord = new HashSet<>();
@@ -154,11 +179,7 @@ public class HandlerContext {
 		}
 	}
 
-	public List<CPPASTFieldReference> findAllFieldReferences(IASTExpression expression) {
-		FieldReferenceCollector collector = new FieldReferenceCollector();
-		expression.accept(collector);
-		return collector.getFieldReferences();
-	}
+
 
 	/**
 	* @methodsName: makeFile
@@ -177,6 +198,11 @@ public class HandlerContext {
 		return currentFileEntity;
 	}
 
+	/**
+	 * 处理包含范围
+	 *
+	 * @throws CloneNotSupportedException 如果克隆不支持
+	 */
 	public void dealIncludeScope() throws CloneNotSupportedException {
 		for(FileEntity fileEntity:currentFileEntity.getIncludeEntity()){
 			includeScope.add(fileEntity.getScope());
@@ -184,6 +210,12 @@ public class HandlerContext {
 		}
 	}
 
+	/**
+	 * 将传入的名称解析为完整的名称
+	 *
+	 * @param Name 待解析的名称
+	 * @return 返回解析后的完整名称
+	 */
 	public String resolveName(String Name) {
 		this.currentScope = this.entityStack.peek().getScope();
 
@@ -205,6 +237,15 @@ public class HandlerContext {
 	}
 
 
+	/**
+	 * 查找并返回一个函数声明
+	 *
+	 * @param name 函数名称
+	 * @param returnType 返回类型
+	 * @param location 函数位置
+	 * @param parameterList 参数列表
+	 * @return 返回函数实体
+	 */
 	public FunctionEntity foundFunctionDeclare(String name, String returnType, Location location, List<ParameterEntity> parameterList){
 		this.currentScope = this.entityStack.peek().getScope();
 		this.currentScope = this.findTheScope(name);
@@ -234,6 +275,12 @@ public class HandlerContext {
 		return functionEntity;
 	}
 
+	/**
+	 * 根据给定的名称查找作用域
+	 *
+	 * @param name 作用域名称
+	 * @return 找到的作用域
+	 */
 	public Scope findTheScope(String name){
 		String[] scopeManages = name.split("::");
 		if(scopeManages.length == 1) return this.currentScope;
@@ -259,6 +306,16 @@ public class HandlerContext {
 		}
 		return current;
 	}
+	/**
+	 * 查找函数定义
+	 *
+	 * @param name 函数名
+	 * @param returnType 返回类型
+	 * @param location 函数位置
+	 * @param parameterList 参数列表
+	 * @param isDefine 是否是定义
+	 * @return 函数实体
+	 */
 	public FunctionEntity foundFunctionDefine(String name, String returnType, Location location, List<ParameterEntity> parameterList, boolean isDefine){
 		Entity en = this.entityStack.peek();
 		this.currentScope = this.entityStack.peek().getScope();
@@ -327,12 +384,15 @@ public class HandlerContext {
 		}
 		return functionEntity;
 	}
+
 	/**
-	* @methodsName: foundNamespace
-	* @description: Build Namespace entity
-	* @param:  String namespaceName, int startingLineNumber, Location location
-	* @return: Entity
-	*/
+	 * 查找命名空间
+	 *
+	 * @param namespaceName 命名空间名称
+	 * @param startLine     起始行
+	 * @param endLine        结束行
+	 * @return 返回找到的命名空间实体
+	 */
 	public Entity foundNamespace(String namespaceName, int startLine, int endLine) {
 		this.currentScope = this.entityStack.peek().getScope();
 		NamespaceEntity nsEntity = null;
@@ -363,13 +423,14 @@ public class HandlerContext {
 
 
 
-	
 	/**
-	* @methodsName: foundClassDefinition
-	* @description: build Class entity
-	* @param:  String ClassName,List<String> baseClass, Location location
-	* @return: ClassEntity
-	*/
+	 * 查找类定义，若找不到则创建一个新的类定义。
+	 *
+	 * @param ClassName 待查找或创建的类的名称
+	 * @param location 类定义所在的位置
+	 * @param isTemplate 是否为模板类
+	 * @return 返回查找到或创建的类实体
+	 */
 	public ClassEntity foundClassDefinition(String ClassName, Location location, boolean isTemplate){
 		this.currentScope = this.entityStack.peek().getScope();
 		int id = entityRepo.generateId();
@@ -390,14 +451,15 @@ public class HandlerContext {
 		entityStack.push(classEntity);
 		return classEntity;
 	}
-	
-	
+
 	/**
-	* @methodsName: foundStructDefinition
-	* @description: build Struct entity
-	* @param:  String StructName, List<String> baseStruct, Location location
-	* @return: StructEntity
-	*/
+	 * 根据结构体名称和位置以及是否是模板类型，查找并返回一个结构体实体
+	 *
+	 * @param StructName 结构体名称
+	 * @param location 结构体位置
+	 * @param isTemplate 是否是模板类型
+	 * @return 返回结构体实体
+	 */
 	public StructEntity foundStructDefinition(String StructName, Location location, boolean isTemplate) {
 		this.currentScope = this.entityStack.peek().getScope();
 		int id = entityRepo.generateId();
@@ -424,11 +486,13 @@ public class HandlerContext {
 	
 	
 	/**
-	* @methodsName: foundUnionDefinition
-	* @description: build Union entity
-	* @param:  String UnionName, Location location
-	* @return: UnionEntity
-	*/
+	 * 查找Union定义
+	 *
+	 * @param UnionName Union名称
+	 * @param location 位置
+	 * @return UnionEntity对象
+	 */
+
 	public UnionEntity foundUnionDefinition(String UnionName, Location location) {
 		this.currentScope = this.entityStack.peek().getScope();
 		int id = entityRepo.generateId();
@@ -450,12 +514,14 @@ public class HandlerContext {
 		return unionEntity;
 	}
 	
+
 	/**
-	* @methodsName: foundEnumDefinition
-	* @description: build Enum entity
-	* @param:  String enumName, Location location
-	* @return: EnumEntity
-	*/
+	 * 根据枚举名称和位置查找枚举定义
+	 *
+	 * @param enumName 枚举名称
+	 * @param location 位置信息
+	 * @return 返回找到的枚举定义
+	 */
 	public EnumEntity foundEnumDefinition(String enumName, Location location) {
 		int id = entityRepo.generateId();
 		EnumScope symbol = new EnumScope(enumName, id);
@@ -482,12 +548,14 @@ public class HandlerContext {
 	}
 	
 	
+
 	/**
-	* @methodsName: foundEnumeratorDefinition
-	* @description: build Enumerator entity
-	* @param:  String enumeratorName, Location location
-	* @return: EnumeratorEntity
-	*/
+	 * 查找枚举定义
+	 *
+	 * @param enumeratorName 枚举名称
+	 * @param location 位置
+	 * @return 枚举实体
+	 */
 	public EnumeratorEntity foundEnumeratorDefinition(String enumeratorName, Location location) {
 		this.currentScope = this.entityStack.peek().getScope();
 		int id = entityRepo.generateId();
@@ -501,16 +569,13 @@ public class HandlerContext {
 				this.currentFileEntity.getId(), enumertorEntity.getLocation().getStartLine(), enumertorEntity.getLocation().getStartOffset()));
 		return enumertorEntity;
 	}
-	
-	
+
+
 	/**
-	* @methodsName: dealExpression
-	* @description: 处理表达式信息，表达式类型如下：
-	*   CPPASTBinaryExpression, CPPASTCastExpression, CPPASTDeleteExpression,
-	*   CPPASTUnaryExpression, CPPASTFunctionCallExpression, CPPASTExpressionList
-	* @param:  IASTExpression expression
-	* @return: void
-	*/
+	 * 处理表达式节点
+	 *
+	 * @param expression 待处理的表达式节点
+	 */
 	public void dealExpression(IASTExpression expression) {
 		/**
 		 * 判断给定的表达式是否已经被处理过，如果未处理过，则对其进行宏展开并添加宏定义和使用的关联关系，并将表达式对应的哈希码添加到nodeRecord中
@@ -623,19 +688,6 @@ public class HandlerContext {
 			else if(functionNameExpression instanceof CPPASTIdExpression){}
 			IASTInitializerClause[] iastInitializerClauses = functionCallExpression.getArguments();
 			this.dealFunctionExpressionNode(functionCallExpression.getFunctionNameExpression(), RelationType.CALL, iastInitializerClauses);
-//
-////			IASTInitializerClause[] iastInitializerClauses = functionCallExpression.getArguments();
-//			String entityInformation = this.getBinding(functionCallExpression.getFunctionNameExpression());
-//			for(IASTInitializerClause iastInitializerClause:iastInitializerClauses){
-//				System.out.println(iastInitializerClause.getClass().toString());
-//				if(iastInitializerClause instanceof IASTExpression){
-//					this.currentRelationType = "Parameter Use";
-//					this.currentRelationFromEntityName = entityInformation;
-//					dealExpression((IASTExpression) iastInitializerClause);
-//					this.currentRelationFromEntityName = null;
-//					this.currentRelationType = null;
-//				}
-//			}
 		}
 		if(expression instanceof CPPASTExpressionList) {
 			CPPASTExpressionList expressionList = (CPPASTExpressionList)expression;
@@ -657,6 +709,12 @@ public class HandlerContext {
 					entityInformation, this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
 					expression.getFileLocation().getNodeOffset());
 		}
+		/**
+		 * 如果expression是CPPASTConditionalExpression的实例，则处理条件表达式节点
+		 *
+		 * @param expression 要处理的表达式
+		 * @param relationType 关系类型
+		 */
 		if(expression instanceof CPPASTConditionalExpression) {
 			CPPASTConditionalExpression conditionalExpression = (CPPASTConditionalExpression)expression;
 			IASTExpression logicalConditionExpression = conditionalExpression.getLogicalConditionExpression();
@@ -669,6 +727,13 @@ public class HandlerContext {
 
 	}
 
+	/**
+	 * 处理函数表达式节点
+	 *
+	 * @param expression 表达式
+	 * @param expressionType 表达式类型
+	 * @param iastInitializerClauses 初始化语句
+	 */
 	public void dealFunctionExpressionNode(IASTExpression expression,int expressionType, IASTInitializerClause[] iastInitializerClauses){
 
 		if(expression instanceof CPPASTIdExpression) {
@@ -798,12 +863,13 @@ public class HandlerContext {
 		}
 	}
 	
+
 	/**
-	* @methodsName: dealExpressionNode
-	* @description: Intermediate process for processing expressions
-	* @param: IASTExpression expression, String expressionType
-	* @return: void
-	*/
+	 * 处理表达式节点
+	 *
+	 * @param expression 表达式
+	 * @param expressionType 表达式类型
+	 */
 	public void dealExpressionNode(IASTExpression expression, int expressionType) {
 		/*
 			使用currentRelationType进行设置依赖类型
@@ -845,11 +911,11 @@ public class HandlerContext {
 	
 	
 	/**
-	* @methodsName: getEntityInforbyBinding
-	* @description: get binding information to obtaine Entity information
-	* @param: CPPASTIdExpression idExpression
-	* @return: Tuple
-	*/
+	 * 通过binding获取实体信息
+	 *
+	 * @param name 需要获取信息的CPPASTIdExpression对象
+	 * @return 返回字符串，包含文件名和节点偏移量，如果获取失败则返回null
+	 */
 	public static String getBinding(IASTName name){
 		name.resolveBinding();
 		IBinding node = name.getBinding();
@@ -890,6 +956,12 @@ public class HandlerContext {
 		return null;
 	}
 
+	/**
+	 * 根据名称查找特定类型的实体
+	 *
+	 * @param name 实体名称
+	 * @return 查找到的实体，若不存在则返回null
+	 */
 	public Entity findTheTypedEntity(String name){
 		if(name == null) return null;
 		String[] scopeManages = name.split("::");
@@ -926,11 +998,13 @@ public class HandlerContext {
 	}
 
 	/**
-	* @methodsName: foundVarDefinition
-	* @description: build var entity
-	* @param: String varName, Location location
-	* @return: VarEntity
-	*/
+	 * 查找变量定义
+	 * @description: build var entity
+	 * @param varName 变量名
+	 * @param location 变量位置
+	 * @param type 变量类型
+	 * @return 返回VarEntity类型的变量定义
+	 */
 	public VarEntity foundVarDefinition(String varName, Location location, String type) {
 		this.currentScope = this.entityStack.peek().getScope();
 		if(location == null) return null;
@@ -959,6 +1033,15 @@ public class HandlerContext {
 		return varEntity;
 	}
 
+	/**
+	 * 在当前范围内查找给定名称、类型和可见性的字段定义。
+	 *
+	 * @param varName 字段名称
+	 * @param location 字段位置
+	 * @param type 字段类型
+	 * @param visibility 字段可见性
+	 * @return 返回找到的字段实体，如果找不到则返回null
+	 */
 	public FieldEntity foundFieldDefinition(String varName, Location location, String type, int visibility) {
 		this.currentScope = this.entityStack.peek().getScope();
 		if(location == null) return null;
@@ -986,6 +1069,13 @@ public class HandlerContext {
 		return entity;
 	}
 
+	/**
+	 * 查找label定义
+	 *
+	 * @param labelName label名称
+	 * @param location label位置
+	 * @return 返回label实体，如果找不到则返回null
+	 */
 	public LabelEntity foundLabelDefinition(String labelName, Location location) {
 		this.currentScope = this.entityStack.peek().getScope();
 		if(location == null) return null;
@@ -1005,11 +1095,14 @@ public class HandlerContext {
 	}
 	
 	/**
-	* @methodsName: foundTypedefDefinition
-	* @description: build Typedef entity
-	* @param: String Name, Location location
-	* @return: TypedefEntity
-	*/
+	 * 构建Typedef实体
+	 *
+	 * @description: build Typedef entity
+	 * @param Name 名称
+	 * @param declSpecifier 声明规范
+	 * @param location 位置
+	 * @return TypedefEntity
+	 */
 	public TypedefEntity foundTypedefDefinition(String Name, ICPPASTDeclSpecifier declSpecifier, Location location) {
 		this.currentScope = this.entityStack.peek().getScope();
 		Entity parent = this.latestValidContainer();
@@ -1038,13 +1131,15 @@ public class HandlerContext {
 		return typedefEntity;		
 	}
 	
-	
+
 	/**
-	* @methodsName: foundNewAlias
-	* @description: build alias entity
-	* @param: String aliasName, String originalName, Location location
-	* @return: AliasEntity
-	*/
+	 * 查找新别名
+	 *
+	 * @param aliasName 别名名称
+	 * @param originalName 原始名称
+	 * @param location 位置
+	 * @return 返回找到的别名实体，如果找不到则返回null
+	 */
 	public AliasEntity foundNewAlias(String aliasName, String originalName, Location location) {
 		this.currentScope = this.entityStack.peek().getScope();
 		if (aliasName.equals(originalName)) return null;
@@ -1059,6 +1154,14 @@ public class HandlerContext {
 		return currentTypeEntity;		
 	}
 
+	/**
+	 * 创建新的命名空间别名的实体
+	 *
+	 * @param aliasName 别名
+	 * @param originalName 原始名称
+	 * @param location 位置信息
+	 * @return 返回新创建的命名空间别名的实体，如果别名和原始名称相同则返回null
+	 */
 	public NamespaceAliasEntity foundNewNamespaceAlias(String aliasName, String originalName, Location location) {
 		this.currentScope = this.entityStack.peek().getScope();
 		if (aliasName.equals(originalName)) return null;
@@ -1071,12 +1174,15 @@ public class HandlerContext {
 		return currentTypeEntity;
 	}
 	
+
 	/**
-	* @methodsName: foundNewAlias
-	* @description: build alias entity
-	* @param: String aliasName, Entity referToEntity, Location location
-	* @return: AliasEntity
-	*/
+	 * 创建新的别名并返回一个AliasEntity对象
+	 *
+	 * @param aliasName 别名名称
+	 * @param referToEntity 别名所指向的实体
+	 * @param location 别名的位置信息
+	 * @return 返回一个AliasEntity对象，表示新创建的别名
+	 */
 	public AliasEntity foundNewAlias(String aliasName, Entity referToEntity, Location location) {
 		this.currentScope = this.entityStack.peek().getScope();
 		AliasEntity currentTypeEntity = new AliasEntity(aliasName, resolveName(aliasName),this.latestValidContainer(),
@@ -1086,13 +1192,12 @@ public class HandlerContext {
 		return currentTypeEntity;		
 	}
 
-	
+
 	/**
-	* @methodsName: foundCodeScope
-	* @description: push scope into stack
-	* @param: IASTStatement statement
-	* @return: void
-	*/
+	 * 找到代码作用域
+	 *
+	 * @param statement 包含代码范围的语句
+	 */
 	public void foundCodeScope(IASTStatement statement) {
 		BaseScope scope = new LocalScope(this.currentScope);
 		BlockEntity entity = new BlockEntity("", "", this.latestValidContainer(),
@@ -1100,13 +1205,11 @@ public class HandlerContext {
 				this.currentFileEntity.getId()));
 	}
 
-	
 	/**
-	* @methodsName: currentFunction()
-	* @description: Maintains an up-to-date function entity
-	* @param: null
-	* @return: FunctionEntity
-	*/
+	 * 返回最新的FunctionEntity实体
+	 *
+	 * @return 如果实体栈中有FunctionEntity，则返回该实体；否则返回null
+	 */
 	public FunctionEntity currentFunction() {
 		for (int i = entityStack.size() - 1; i >= 0; i--) {
 			Entity t = entityStack.get(i);
@@ -1117,11 +1220,10 @@ public class HandlerContext {
 	}
 
 	/**
-	* @methodsName: latestValidContainer()
-	* @description: Maintains an up-to-date DataAggregateEntity
-	* @param: null
-	* @return: DataAggregateEntity
-	*/
+	 * 返回最新有效的容器实体
+	 *
+	 * @return 返回最新有效的容器实体，如果栈中没有有效的容器实体，则返回null
+	 */
 	public DataAggregateEntity latestValidContainer() {
 		for (int i = entityStack.size() - 1; i >= 0; i--) {
 			Entity t = entityStack.get(i);
@@ -1145,12 +1247,12 @@ public class HandlerContext {
 	}
 	
 	
+
 	/**
-	* @methodsName: exitLastedEntity()
-	* @description: Maintains an up-to-date Entity
-	* @param: null
-	* @return: void
-	*/
+	 * 返回栈顶的实体对象，并从栈中弹出。
+	 *
+	 * @return 返回栈顶的实体对象，如果栈为空则返回null。
+	 */
 	public Entity exitLastedEntity() {
 		//we never pop up the lastest one (FileEntity)
 		if (entityStack.size() > 1) {
@@ -1174,18 +1276,6 @@ public class HandlerContext {
 //			}
 //		}
 	}
-	
-	public void showASTNode(IASTNode node, int i) {
-		if(node.getChildren()==null) {
-			return;
-		}
-		System.out.println("layerNo"+ i + "  "+node.getClass() + "    " + node.getRawSignature());
-		for(IASTNode child:node.getChildren()) {
-			System.out.println(child.getClass() + "    " + child.getRawSignature());
-		}
-		for(IASTNode child:node.getChildren()) {
-			showASTNode(child,i+1);
-		}
-	}
+
 	
 }

@@ -25,13 +25,13 @@ public class Processor {
 	TypeBinding typeBinding;
 	RelationContext relationcontext ;
 	
+
 	/**
-	* @methodsName: parseAllFlie
-	* @description: Enter the project root path, start the project analysis
-	* @param:  String inputSrcPath
-	* @return: void
-	* @throws: 
-	*/
+	 * 解析指定目录下所有文件
+	 *
+	 * @param inputSrcPath 指定目录路径
+	 * @throws Exception 解析文件过程中可能抛出的异常
+	 */
 	public static void parseAllFile(String inputSrcPath) throws Exception {
 		FileTraversal fileTrasversal = new FileTraversal(new FileTraversal.IFileVisitor() {
 			@Override
@@ -48,12 +48,11 @@ public class Processor {
 	}
 	
 	/**
-	* @methodsName: parseFile
-	* @description: Analyze individual files
-	* @param:  String inputSrcPath
-	* @return: void
-	* @throws: 
-	*/
+	 * 解析单个文件
+	 *
+	 * @param inputSrcPath 输入源路径
+	 * @throws Exception 解析过程中可能抛出的异常
+	 */
 	public static void parseFile(String inputSrcPath) throws Exception {
 		cdtparser.setFileList(fileList);
 		cdtparser.parseFile(inputSrcPath);
@@ -61,12 +60,10 @@ public class Processor {
 	
 	
 	/**
-	* @methodsName: dependencyBuild
-	* @description: Dependency analysis function
-	* @param:  null
-	* @return: void
-	* @throws: 
-	*/
+	 * 依赖构建函数
+	 *
+	 * @throws Exception 抛出异常
+	 */
 	public void dependencyBuild() throws Exception {
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
 		RelationRepo relationRepo = cdtparser.getRelationRepo();
@@ -79,18 +76,28 @@ public class Processor {
 		this.relationcontext.relationListDealAfter();
 	}
 
+	/**
+	 * 类型绑定
+	 *
+	 * @throws Exception 类型绑定过程中可能抛出的异常
+	 */
 	public void typeBinding() throws Exception{
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
 		this.typeBinding = new TypeBinding(entityrepo);
 		this.typeBinding.typeBindingDeal();
 	}
 
+	/**
+	 * 输出文件
+	 *
+	 * @param projectName 项目名称
+	 * @throws Exception 异常
+	 */
 	public void outputFile(String projectName) throws Exception {
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
 		JSONString node_str = new JSONString();
 		FileOutputStream outputStream = new FileOutputStream(projectName + "_out.json");
 		node_str.writeJsonStream(outputStream, entityrepo.getEntities(), this.relationcontext.getRelationRepo().getrelationrepo());
-
 	}
 
 }

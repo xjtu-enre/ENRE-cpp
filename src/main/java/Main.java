@@ -13,6 +13,11 @@ public class Main {
 	 * @description: main function
 	 */
 	public static void main(String[] args) throws Exception {
+		/**
+		 * 命令行参数处理
+		 *
+		 * @param args 命令行参数数组
+		 */
 		System.out.println(Arrays.toString(args));
 		final Configure CliParam = new Configure();
 		final CommandLine commandLine = new CommandLine(CliParam);
@@ -31,6 +36,15 @@ public class Main {
 			System.exit(1);
 		}
 
+		/**
+		 * 处理程序的输入源路径、程序运行环境、项目名称
+		 * 进行文件解析、类型绑定、依赖关系建立
+		 * 最终生成相应的输出文件
+		 * 并输出程序的执行消耗时间
+		 *
+		 * @param args 命令行参数
+		 * @return 无返回值
+		 */
 		Configure configure = CommandLine.populateCommand(Configure.getConfigureInstance(),args);
 		configure.dealWithInputSrcPath();
 		String inputDir = configure.getInputSrcPath();
