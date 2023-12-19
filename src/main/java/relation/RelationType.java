@@ -28,6 +28,7 @@ public class RelationType {
 	public static final int TYPE = 22;
 	public static final int EXTEND = 23;
 	public static final int FLOWTO = 24;
+	public static final int MACRO_USE = 25;
 
 //	public static String getRelationCategory(int typeID){
 //		switch (typeID){
@@ -132,7 +133,9 @@ public static String getRelationCategory(int typeID){
 		case EXTEND:
 			return "Extend";
 		case FLOWTO:
-			return "Flow to";
+			return "Flow To";
+		case MACRO_USE:
+			return "Macro Use";
 	}
 	return null;
 }

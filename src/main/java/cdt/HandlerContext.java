@@ -14,9 +14,7 @@ import org.eclipse.cdt.core.dom.ast.*;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.*;
 import util.UnionFind;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 
 public class HandlerContext {
@@ -33,6 +31,10 @@ public class HandlerContext {
 	 */
 	int currentRelationType = 0;
 	String currentRelationFromEntityName = null;
+	/*
+		nodeRecord 用于记录当前节点是否已经过宏定义展开处理，避免重复处理
+	 */
+	HashMap<Integer, Boolean> nodeRecord = new HashMap<>();
 
 
 	public HandlerContext(EntityRepo entityrepo, RelationRepo relationRepo) {
@@ -71,7 +73,7 @@ public class HandlerContext {
 		return collector.getIdExpressions();
 	}
 
-	// 私有辅助类用于收集 IdExpression 节点
+	//
 	private static class FieldReferenceCollector extends ASTVisitor {
 		private List<CPPASTFieldReference> fieldReferences;
 
@@ -104,7 +106,54 @@ public class HandlerContext {
 			return fieldReferences;
 		}
 	}
-	// 公共方法，接收一个 IASTExpression 并返回其中的所有 IdExpression 节点
+
+	private static class MacroExpansionCollector extends ASTVisitor {
+
+		HashSet<IASTPreprocessorMacroDefinition> macroRecord = new HashSet<>();
+		HashMap<Integer, Boolean> nodeRecord = new HashMap<>();
+
+		public MacroExpansionCollector() {
+			shouldVisitExpressions = true;
+		}
+
+		@Override
+		public int visit(IASTExpression expression) {
+			int hashcode = expression.hashCode();
+			if (nodeRecord.containsKey(hashcode)) {
+				return PROCESS_CONTINUE;
+			}
+			if (expression instanceof IASTIdExpression) {
+				IASTIdExpression idExpression = (IASTIdExpression)expression;
+				IASTName name = idExpression.getName();
+				name.resolveBinding();
+				IASTNodeLocation[] iastFileLocation = idExpression.getNodeLocations();
+				for(IASTNodeLocation location:iastFileLocation) {
+					if (location instanceof IASTMacroExpansionLocation) {
+						IASTMacroExpansionLocation macro = (IASTMacroExpansionLocation) location;
+						IASTPreprocessorMacroExpansion iastPreprocessorMacroExpansion = macro.getExpansion();
+						IASTPreprocessorMacroDefinition iastPreprocessorMacroDefinition = iastPreprocessorMacroExpansion.getMacroDefinition();
+						macroRecord.add(iastPreprocessorMacroDefinition);
+					}
+				}
+			}
+
+			return PROCESS_CONTINUE;
+		}
+		public IASTExpression getParentExpression(IASTExpression expression) {
+			IASTNode parent = expression.getParent();
+			while(parent.getParent() != null) {
+				if (parent instanceof IASTExpression) {
+					expression = (IASTExpression) parent;
+				}
+				parent = parent.getParent();
+			}
+			return expression;
+		}
+		public HashSet<IASTPreprocessorMacroDefinition> getMacroRecord() {
+			return macroRecord;
+		}
+	}
+
 	public List<CPPASTFieldReference> findAllFieldReferences(IASTExpression expression) {
 		FieldReferenceCollector collector = new FieldReferenceCollector();
 		expression.accept(collector);
@@ -463,8 +512,48 @@ public class HandlerContext {
 	* @return: void
 	*/
 	public void dealExpression(IASTExpression expression) {
-		/*
-			使用currentRelationType进行设置依赖类型
+		/**
+		 * 判断给定的表达式是否已经被处理过，如果未处理过，则对其进行宏展开并添加宏定义和使用的关联关系，并将表达式对应的哈希码添加到nodeRecord中
+		 *
+		 * @param expression 待处理的表达式
+		 */
+		int hashcode = expression.hashCode();
+		DealMacro:
+		if(!nodeRecord.containsKey(hashcode)) {
+			IASTNode parent = expression.getParent();
+			while(parent != null){
+				if(nodeRecord.containsKey(parent.hashCode())){
+					nodeRecord.put(hashcode, true);
+					break DealMacro;
+				}
+				parent = parent.getParent();
+			}
+			MacroExpansionCollector macroExpansion = new MacroExpansionCollector();
+			expression.accept(macroExpansion);
+			if(macroExpansion.getMacroRecord().size() > 0) {
+				HashSet<IASTPreprocessorMacroDefinition> macroSet = macroExpansion.getMacroRecord();
+				for(IASTPreprocessorMacroDefinition record : macroSet) {
+					record.getFileLocation().getNodeOffset();
+					String entityInformation = record.getFileLocation().getFileName() + record.getFileLocation().getNodeOffset();
+					int relationType = RelationType.MACRO_USE;
+					if(expression.getFileLocation() != null)
+						this.latestValidContainer().addBindingRelation(relationType,
+								entityInformation, this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+								expression.getFileLocation().getNodeOffset());
+				}
+			}
+			nodeRecord.put(hashcode, true);
+		}
+
+		/**
+		 * 如果expression是CPPASTBinaryExpression的实例，则执行以下操作：
+		 * 如果操作符为op_assign，则处理表达式节点并设置关系为SET。
+		 * 如果操作符为op_multiplyAssign、op_divideAssign、op_moduloAssign、op_plusAssign、op_minusAssign、op_shiftLeftAssign、op_shiftRightAssign、op_binaryAndAssign、op_binaryXorAssign、op_binaryOrAssign，则处理表达式节点并分别设置关系为SET和USE。
+		 * 如果操作符为op_pmdot或op_pmarrow，则处理表达式节点并设置为UNRESOLVED。
+		 * 其他情况下，处理表达式节点并设置为USE。
+		 *
+		 * @param expression 需要处理的表达式节点
+		 * @param relationType 关系类型
 		 */
 		if(expression instanceof CPPASTBinaryExpression) {
 			CPPASTBinaryExpression binaryExp = (CPPASTBinaryExpression)expression;
@@ -508,8 +597,10 @@ public class HandlerContext {
 			if(unaryExp.getOperator() == IASTUnaryExpression.op_postFixIncr ||     // i++
 					unaryExp.getOperator() == IASTUnaryExpression.op_postFixDecr ||   //--
 					unaryExp.getOperator() == IASTUnaryExpression.op_tilde || //～
-					unaryExp.getOperator() == IASTUnaryExpression.op_prefixIncr){  // ++i
-				this.dealExpressionNode(unaryExp.getOperand(), RelationType.DELETE);
+					unaryExp.getOperator() == IASTUnaryExpression.op_prefixIncr || // ++i
+					unaryExp.getOperator() == IASTUnaryExpression.op_bracketedPrimary //
+			){
+				this.dealExpressionNode(unaryExp.getOperand(), RelationType.USE);
 			}
 		}
 		if(expression instanceof CPPASTFunctionCallExpression) {
@@ -565,6 +656,15 @@ public class HandlerContext {
 				this.latestValidContainer().addBindingRelation(relationType,
 					entityInformation, this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
 					expression.getFileLocation().getNodeOffset());
+		}
+		if(expression instanceof CPPASTConditionalExpression) {
+			CPPASTConditionalExpression conditionalExpression = (CPPASTConditionalExpression)expression;
+			IASTExpression logicalConditionExpression = conditionalExpression.getLogicalConditionExpression();
+			this.dealExpressionNode(logicalConditionExpression, RelationType.USE);
+			IASTExpression positiveResultExpression = conditionalExpression.getPositiveResultExpression();
+			this.dealExpressionNode(positiveResultExpression, RelationType.USE);
+			IASTExpression negativeResultExpression = conditionalExpression.getNegativeResultExpression();
+			this.dealExpressionNode(negativeResultExpression, RelationType.USE);
 		}
 
 	}
