@@ -36,11 +36,7 @@ public class HandlerContext {
 	 */
 	HashMap<Integer, Boolean> nodeRecord = new HashMap<>();
 
-	/**
-	 * 初始化externVarList和externFuncList两个ArrayList，分别存储extern storage类型的VarEntity和FunctionEntity对象。
-	 */
-	ArrayList<VarEntity> externVarList = new ArrayList<>();
-	ArrayList<FunctionEntity> externFuncList = new ArrayList<>();
+
 
 	public HandlerContext(EntityRepo entityrepo, RelationRepo relationRepo) {
 		this.entityRepo = entityrepo;
@@ -458,7 +454,7 @@ public class HandlerContext {
 			if(functionEntity != null){
 				if(declarator.isPureVirtual()) functionEntity.setPureVirtual();
 				if(isTemplate(declarator)) functionEntity.setTemplate(true);
-				functionEntity.setStorage_class(declSpecifier.getStorageClass());
+				functionEntity.setStorageClass(declSpecifier.getStorageClass());
 				return functionEntity;
 			}
 		}
@@ -786,6 +782,7 @@ public class HandlerContext {
 			entity.setTypeID(typeEntity.getId());
 		}
 		entity.setVisiblity(visibility);
+		entity.setStorageClass(storageClass);
 		entityRepo.add(entity);
 		if(this.latestValidContainer() != null) {
 			if(this.currentScope instanceof DataAggregateSymbol) {
@@ -798,6 +795,12 @@ public class HandlerContext {
 		}
 		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), entity, RelationType.DEFINE,
 				this.currentFileEntity.getId(), entity.getLocation().getStartLine(), entity.getLocation().getStartOffset()));
+		/**
+		 * 如果是extern变量，则在全局查找变量类型
+		 */
+		if(storageClass == IASTDeclSpecifier.sc_extern){
+			entityRepo.externVarListAdd(entity);
+		}
 		return entity;
 	}
 

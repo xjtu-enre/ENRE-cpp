@@ -16,6 +16,10 @@ import java.util.*;
  */
 public abstract class Entity {
 	Integer id = -1;
+	/*
+	 * external id is used to record the id of entity in other system, such as
+	 */
+	Integer externalId = -1;
 	String qualifiedName;
 	String name;
 	Entity parent;
@@ -207,9 +211,9 @@ public abstract class Entity {
 
 	public int getVisiblity() {return this.visibility; }
 
-	public void setStorage_class(int tag) { this.storage_class = tag; }
+	public void setStorageClass(int tag) { this.storage_class = tag; }
 
-	public int getStorgae_class() { return this.storage_class; }
+	public int getStorgaeClass() { return this.storage_class; }
 
 	public void setGlobal(){ this.global = true; }
 
@@ -275,6 +279,14 @@ public abstract class Entity {
 
 	public List<ObjectRelation> getRelationListByObject(){
 		return this.RelationListByObject;
+	}
+
+	public void setExternalId(Integer id) {
+		this.externalId = id;
+	}
+
+	public Integer getExternalId() {
+		return this.externalId;
 	}
 
 }

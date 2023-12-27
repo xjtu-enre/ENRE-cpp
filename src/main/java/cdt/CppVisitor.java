@@ -564,7 +564,7 @@ public class CppVisitor extends ASTVisitor {
 		}
 		if(entity!=null){
 			entity.setVisiblity(visibility);
-			entity.setStorage_class(storageClass);
+			entity.setStorageClass(storageClass);
 			if(entity instanceof VarEntity & simpleDeclaration.getParent() instanceof CPPASTTranslationUnit){
 				entity.setGlobal();
 			}

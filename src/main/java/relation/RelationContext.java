@@ -440,6 +440,18 @@ public class RelationContext {
 		}
 	}
 
+	public void externRelationDeal(){
+		for(Relation re: relationRepo.getrelationrepo()){
+			if(re.getType() == RelationType.DECLARE) continue;
+			if(re.getFromEntity().getExternalId() != -1){
+				re.reSetFromEntity(entityRepo.getEntity(re.getFromEntity().getExternalId()));
+			}
+			if(re.getToEntity().getExternalId() != -1){
+				re.reSetToEntity(entityRepo.getEntity(re.getToEntity().getExternalId()));
+			}
+		}
+	}
+
 	public RelationRepo getRelationRepo() {
 		return relationRepo;
 	}

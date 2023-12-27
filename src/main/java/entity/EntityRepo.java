@@ -1,5 +1,7 @@
 package entity;
 
+import org.eclipse.cdt.core.dom.ast.IASTDeclSpecifier;
+
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -31,6 +33,13 @@ public class EntityRepo {
 	private List<FileEntity> fileEntities;
 	private Map<String, Integer> namespaceEntities;
 	private int nextAvaliableIndex;
+
+	/**
+	 * 初始化externVarList和externFuncList两个ArrayList，分别存储extern storage类型的VarEntity和FunctionEntity对象。
+	 */
+	ArrayList<VarEntity> externVarList = new ArrayList<>();
+	ArrayList<FunctionEntity> externFuncList = new ArrayList<>();
+
 
 	/**
 	 * Generate a global unique ID for entity
@@ -78,7 +87,9 @@ public class EntityRepo {
 		if (entity instanceof FileEntity) {
 			fileEntities.add((FileEntity) entity);
 		}
-		if (allEntieisByName.containsKey(Qualifiedname)) {
+		if (entity.getStorgaeClass() == IASTDeclSpecifier.sc_extern){
+
+		}else if (allEntieisByName.containsKey(Qualifiedname)) {
 			Entity existedEntity = allEntieisByName.get(Qualifiedname);
 		} else {
 			allEntieisByName.put(Qualifiedname, entity);
@@ -106,4 +117,19 @@ public class EntityRepo {
 		return -1;
 	}
 
+	public void externVarListAdd(VarEntity var) {
+		externVarList.add(var);
+	}
+
+	public ArrayList<VarEntity> getExternVarList() {
+		return externVarList;
+	}
+
+	public void externFuncListAdd(FunctionEntity func) {
+		externFuncList.add(func);
+	}
+
+	public ArrayList<FunctionEntity> getExternFuncList() {
+		return externFuncList;
+	}
 }

@@ -1,10 +1,8 @@
 package cdt;
 
-import entity.Entity;
-import entity.EntityRepo;
-import entity.FileEntity;
-import entity.VarEntity;
+import entity.*;
 import org.eclipse.cdt.core.dom.ast.IASTName;
+import org.eclipse.osgi.container.SystemModule;
 import relation.Relation;
 import relation.RelationRepo;
 import symtab.DataAggregateSymbol;
@@ -116,5 +114,23 @@ public class TypeBinding {
             }while(current.getEnclosingScope() != null);
         }
         return null;
+    }
+
+    /**
+     *
+     */
+    public void dealExternRelation(ArrayList<VarEntity> extern_var, ArrayList<FunctionEntity> extern_func){
+        for(VarEntity var: extern_var){
+            Entity en = entityRepo.getEntityByName(var.getName());
+            if(en != null){
+                var.setExternalId(en.getId());
+            }
+        }
+        for(FunctionEntity func: extern_func){
+            Entity en = entityRepo.getEntityByName(func.getName());
+            if(en != null){
+                func.setExternalId(en.getExternalId());
+            }
+        }
     }
 }

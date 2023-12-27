@@ -209,7 +209,7 @@ public class JSONString {
 				entitytemp.setEndLine(entity.getLocation().getEndLine());
 				entitytemp.setEndOffset(entity.getLocation().getEndOffset());
 				entitytemp.setParentID(entity.getParentId());
-				entitytemp.setStorageClass(resolveStorage_class(entity.getStorgae_class()));
+				entitytemp.setStorageClass(resolveStorage_class(entity.getStorgaeClass()));
 				entitytemp.setVisibility(resolveVisibility(entity.getVisiblity()));
 
     		}
@@ -245,21 +245,6 @@ public class JSONString {
 		if(entity instanceof FunctionEntity && ((FunctionEntity)entity).isTaskNode()) entitytemp.setIsTaskNode(true);
     	return entitytemp;
 	}
-	
-	public void writeEntityJsonStream(OutputStream out, Map<Integer, Entity> entityList) throws IOException {
-        JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
-        writer.setIndent("  ");
-        writer.beginArray();
-        for (Integer en:entityList.keySet()) {
-        	Entity entity = entityList.get(en);
-        	GsonBuilder builder = new GsonBuilder(); 
-        	builder.setPrettyPrinting();
-            Gson gson = builder.create(); 
-            gson.toJson(this.resolveEntity(entity), EntityTemp.class, writer);
-        }
-        writer.endArray();
-        writer.close();
-    }
 
 	class RelationTemp {
 		private String category;
@@ -301,25 +286,6 @@ public class JSONString {
 		}
 	}
 
-	public void writeRelationJsonStream(OutputStream out,
-			Map<String, List<Tuple<Integer, Integer>>> relationList) throws IOException {
-		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
-        writer.setIndent("  ");
-        writer.beginArray();
-        for (String Type: relationList.keySet()) {
-        	List<Tuple<Integer, Integer>> relationListByType = relationList.get(Type);
-        	for(Tuple<Integer, Integer> relation:relationListByType) {
-        		String jsonString = "{\"category\":\""+Type+"\", \"src\":"+relation.getFirst()+", \"dest\":\""+ relation.getSecond() +"\"}";
-            	GsonBuilder builder = new GsonBuilder();
-                builder.setPrettyPrinting();
-                Gson gson = builder.create();
-                RelationTemp relationtemp = gson.fromJson(jsonString, RelationTemp.class);
-                gson.toJson(relationtemp, RelationTemp.class, writer);
-        	}
-        }
-        writer.endArray();
-        writer.close();
-	}
 
 	class AllTemp {
 		private List<EntityTemp> variables;
@@ -344,6 +310,7 @@ public class JSONString {
 
 		for (Integer en:entityList.keySet()) {
         	Entity entity = entityList.get(en);
+			if(entity.getExternalId() != -1) continue;
 			builder.setPrettyPrinting();
 			entityTempList.add(this.resolveEntity(entity));
 		}
