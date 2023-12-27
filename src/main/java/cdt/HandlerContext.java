@@ -36,6 +36,11 @@ public class HandlerContext {
 	 */
 	HashMap<Integer, Boolean> nodeRecord = new HashMap<>();
 
+	/**
+	 * 初始化externVarList和externFuncList两个ArrayList，分别存储extern storage类型的VarEntity和FunctionEntity对象。
+	 */
+	ArrayList<VarEntity> externVarList = new ArrayList<>();
+	ArrayList<FunctionEntity> externFuncList = new ArrayList<>();
 
 	public HandlerContext(EntityRepo entityrepo, RelationRepo relationRepo) {
 		this.entityRepo = entityrepo;
@@ -386,6 +391,158 @@ public class HandlerContext {
 	}
 
 	/**
+			* 根据给定的函数声明器和函数声明，找到相应的函数实体。
+			*
+			* @param declarator 函数声明器
+	 * @param declSpecifier 函数声明
+	 * @return 找到的函数实体
+	 */
+	public FunctionEntity FoundFunctionDeclaration(CPPASTFunctionDeclarator declarator, ICPPASTDeclSpecifier declSpecifier){
+		FunctionEntity functionEntity = null;
+		IASTName functionName = declarator.getName();
+		functionName.resolveBinding();
+		IBinding iBinding = functionName.getBinding();
+		IASTDeclarator[] declarators = null;
+		if(iBinding instanceof CPPFunction){
+			CPPFunction cppFunction = (CPPFunction)iBinding;
+			cppFunction.isStatic();
+			declarators = cppFunction.getDeclarations();
+		}
+		if(declarators != null){
+			for(IASTDeclarator declarator1:declarators){
+				String name = declarator1.getFileLocation().getFileName() +
+						declarator1.getFileLocation().getNodeOffset();
+				Entity entityByLocation = entityRepo.getEntityByLocation(name);
+				if(entityByLocation instanceof FunctionEntity){
+					functionEntity = (FunctionEntity) entityByLocation;
+					functionEntity.addRelation(new Relation(this.latestValidContainer(), functionEntity, RelationType.DECLARE, this.currentFileEntity.getId(),
+							declarator1.getFileLocation().getStartingLineNumber(), declarator1.getFileLocation().getNodeOffset()));
+					return functionEntity;
+				}
+			}
+		}
+
+		List<ParameterEntity> parameterLists = new ArrayList<ParameterEntity>();
+		for(IASTNode node:declarator.getChildren()){
+			if(node instanceof  IASTParameterDeclaration){
+				ParameterEntity parameter = foundParameterDeclaration(((IASTParameterDeclaration) node));
+				if (parameter != null) {
+					parameterLists.add(parameter);
+					parameter.setIndex(parameterLists.size());
+				}
+			}
+		}
+		if (declarator instanceof IASTFunctionDeclarator) {
+			String rawName = declarator.getName().toString();
+			String returnType = getType(declSpecifier);
+			// function pointer
+			if (declarator.getName().toString().equals("")) {
+				for (IASTNode node : declarator.getChildren()) {
+					if (node instanceof CPPASTDeclarator) {
+						rawName = ((CPPASTDeclarator) node).getName().toString();
+						functionEntity = this.foundFunctionDeclare(rawName, returnType, getLocation(declarator), parameterLists);
+						IASTDeclarator declarator1 = declarator.getNestedDeclarator();
+						if(declarator1.getPointerOperators().length > 0 ){
+							functionEntity.setPointer();
+						}
+					}
+				}
+			}else{
+				functionEntity = this.foundFunctionDeclare(rawName, returnType, getLocation(declarator), parameterLists);
+				if(declarator instanceof CPPASTDeclarator){
+//					if(declarator.getPointerOperators().length > 0 ){
+//						functionEntity.setPointer();
+//					}
+				}
+			}
+			if(functionEntity != null){
+				if(declarator.isPureVirtual()) functionEntity.setPureVirtual();
+				if(isTemplate(declarator)) functionEntity.setTemplate(true);
+				functionEntity.setStorage_class(declSpecifier.getStorageClass());
+				return functionEntity;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * 找到参数声明，返回ParameterEntity对象
+	 *
+	 * @param parameterDeclaration 参数声明
+	 * @return 返回ParameterEntity对象
+	 */
+	public ParameterEntity foundParameterDeclaration(IASTParameterDeclaration parameterDeclaration) {
+		ParameterEntity var = null;
+		if (parameterDeclaration.getDeclarator() instanceof CPPASTFunctionDeclarator) {
+			CPPASTFunctionDeclarator functionDeclarator = (CPPASTFunctionDeclarator) parameterDeclaration.getDeclarator();
+			String parameterType = this.getType(parameterDeclaration.getDeclSpecifier());
+			if (this.getLocation(functionDeclarator.getName()) != null)
+				var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
+						null, this.latestValidContainer() , entityRepo.generateId(),
+						getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
+			if(parameterDeclaration != null){
+				if (parameterDeclaration.getParent() instanceof IASTStandardFunctionDeclarator) {
+					if(this.currentFunction()!=null)
+						this.currentFunction().setCallbackCall();
+				}
+			}
+
+		}
+		else {
+			if (parameterDeclaration.getDeclSpecifier() instanceof CPPASTSimpleDeclSpecifier) {
+				String parameterName = parameterDeclaration.getDeclarator().getName().toString();
+				String parameterType = this.getType(parameterDeclaration.getDeclSpecifier());
+				IASTNode[] declaratorChild = parameterDeclaration.getDeclarator().getChildren();
+				if (declaratorChild.length == 1) {
+					if (getLocation(parameterDeclaration.getDeclarator().getName()) != null) {
+						var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
+								parameterDeclaration.getDeclarator().getName().toString(),  this.latestValidContainer(), entityRepo.generateId(),
+								getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
+						entityRepo.add(var);
+					}
+				}
+				else if (declaratorChild.length <= 3) {
+					for (IASTNode node : declaratorChild) {
+						if (node instanceof CPPASTPointer) {
+							if (getLocation(parameterDeclaration.getDeclarator().getName()) != null) {
+								var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
+										parameterDeclaration.getDeclarator().getName().toString(),  null, entityRepo.generateId(),
+										getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
+								entityRepo.add(var);
+								var.setPointer();
+							}
+							break;
+						} else if (node instanceof CPPASTReferenceOperator) {
+							var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
+									parameterDeclaration.getDeclarator().getName().toString(),  null, entityRepo.generateId(),
+									getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
+							break;
+						}else if(node instanceof CPPASTName){
+							var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
+									parameterDeclaration.getDeclarator().getName().toString(),
+									null, entityRepo.generateId(),
+									getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
+						}
+					}
+				}
+			}else{
+				String parameterType = this.getType(parameterDeclaration.getDeclSpecifier());
+				var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
+						parameterDeclaration.getDeclarator().getName().toString(),  null, entityRepo.generateId(),
+						getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
+				if(parameterDeclaration.getDeclarator() instanceof CPPASTDeclarator){
+					if(parameterDeclaration.getDeclarator().getPointerOperators().length > 0 ){
+						if(var != null) var.setPointer();
+					}
+				}
+				entityRepo.add(var);
+			}
+		}
+		return var;
+	}
+
+	/**
 	 * 查找命名空间
 	 *
 	 * @param namespaceName 命名空间名称
@@ -571,431 +728,6 @@ public class HandlerContext {
 	}
 
 
-	/**
-	 * 处理表达式节点
-	 *
-	 * @param expression 待处理的表达式节点
-	 */
-	public void dealExpression(IASTExpression expression) {
-		/**
-		 * 判断给定的表达式是否已经被处理过，如果未处理过，则对其进行宏展开并添加宏定义和使用的关联关系，并将表达式对应的哈希码添加到nodeRecord中
-		 *
-		 * @param expression 待处理的表达式
-		 */
-		int hashcode = expression.hashCode();
-		DealMacro:
-		if(!nodeRecord.containsKey(hashcode)) {
-			IASTNode parent = expression.getParent();
-			while(parent != null){
-				if(nodeRecord.containsKey(parent.hashCode())){
-					nodeRecord.put(hashcode, true);
-					break DealMacro;
-				}
-				parent = parent.getParent();
-			}
-			MacroExpansionCollector macroExpansion = new MacroExpansionCollector();
-			expression.accept(macroExpansion);
-			if(macroExpansion.getMacroRecord().size() > 0) {
-				HashSet<IASTPreprocessorMacroDefinition> macroSet = macroExpansion.getMacroRecord();
-				for(IASTPreprocessorMacroDefinition record : macroSet) {
-					record.getFileLocation().getNodeOffset();
-					String entityInformation = record.getFileLocation().getFileName() + record.getFileLocation().getNodeOffset();
-					int relationType = RelationType.MACRO_USE;
-					if(expression.getFileLocation() != null)
-						this.latestValidContainer().addBindingRelation(relationType,
-								entityInformation, this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
-								expression.getFileLocation().getNodeOffset());
-				}
-			}
-			nodeRecord.put(hashcode, true);
-		}
-
-		/**
-		 * 如果expression是CPPASTBinaryExpression的实例，则执行以下操作：
-		 * 如果操作符为op_assign，则处理表达式节点并设置关系为SET。
-		 * 如果操作符为op_multiplyAssign、op_divideAssign、op_moduloAssign、op_plusAssign、op_minusAssign、op_shiftLeftAssign、op_shiftRightAssign、op_binaryAndAssign、op_binaryXorAssign、op_binaryOrAssign，则处理表达式节点并分别设置关系为SET和USE。
-		 * 如果操作符为op_pmdot或op_pmarrow，则处理表达式节点并设置为UNRESOLVED。
-		 * 其他情况下，处理表达式节点并设置为USE。
-		 *
-		 * @param expression 需要处理的表达式节点
-		 * @param relationType 关系类型
-		 */
-		if(expression instanceof CPPASTBinaryExpression) {
-			CPPASTBinaryExpression binaryExp = (CPPASTBinaryExpression)expression;
-			if(binaryExp.getOperator() == IASTBinaryExpression.op_assign){
-				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.SET);
-				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
-			}else if(binaryExp.getOperator() <= IASTBinaryExpression.op_binaryOrAssign &
-					binaryExp.getOperator() >= IASTBinaryExpression.op_multiplyAssign){
-				// op_multiplyAssign = 18, op_divideAssign = 19, op_moduloAssign = 20, op_plusAssign = 21,
-				// op_minusAssign = 22, op_shiftLeftAssign = 23, op_shiftRightAssign = 24,
-				// op_binaryAndAssign = 25, op_binaryXorAssign = 26, op_binaryOrAssign = 27
-				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.SET);
-				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.USE);
-				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
-			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmdot){
-				// TODO: operand1.operand2
-				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.UNRESOLVED);
-				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.UNRESOLVED);
-			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmarrow){
-				// TODO: operand1 -> operand2
-				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.UNRESOLVED);
-				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.UNRESOLVED);
-			}else{
-				// *， /， %， +， -， <<， >>， <， >， <=， >=，
-				// &， ^， |， &&， ||， ==， !=， .，
-				// ->， max()， min()， ...
-				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.USE);
-				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
-			}
-		}
-		if(expression instanceof CPPASTCastExpression) {
-			CPPASTCastExpression castExp = (CPPASTCastExpression) expression;
-			this.dealExpressionNode(castExp.getOperand(), RelationType.CAST);
-		}
-		if(expression instanceof CPPASTDeleteExpression) {
-			CPPASTDeleteExpression deleteExp = (CPPASTDeleteExpression)expression;
-			this.dealExpressionNode(deleteExp.getOperand(), RelationType.DELETE);
-		}
-		if(expression instanceof CPPASTUnaryExpression) {
-			CPPASTUnaryExpression unaryExp = (CPPASTUnaryExpression)expression;
-			if(unaryExp.getOperator() == IASTUnaryExpression.op_postFixIncr ||     // i++
-					unaryExp.getOperator() == IASTUnaryExpression.op_postFixDecr ||   //--
-					unaryExp.getOperator() == IASTUnaryExpression.op_tilde || //～
-					unaryExp.getOperator() == IASTUnaryExpression.op_prefixIncr || // ++i
-					unaryExp.getOperator() == IASTUnaryExpression.op_bracketedPrimary //
-			){
-				this.dealExpressionNode(unaryExp.getOperand(), RelationType.USE);
-			}
-		}
-		if(expression instanceof CPPASTFunctionCallExpression) {
-			CPPASTFunctionCallExpression functionCallExpression = (CPPASTFunctionCallExpression)expression;
-			IASTExpression functionNameExpression = functionCallExpression.getFunctionNameExpression();
-			if(functionNameExpression instanceof CPPASTUnaryExpression){}
-			else if(functionNameExpression instanceof CPPASTFieldReference) {
-				String rawSignature = expression.getRawSignature();
-				String callFunctionName = ((CPPASTFieldReference) functionNameExpression).getFieldName().toString();
-				ICPPASTExpression fieldExpression = ((CPPASTFieldReference) functionNameExpression).getFieldOwner();
-				if(fieldExpression instanceof CPPASTIdExpression){
-					String fieldName = ((CPPASTIdExpression) fieldExpression).getName().toString();
-					this.latestValidContainer().addRelationByObject(fieldName, callFunctionName, RelationType.CALL, this.currentFileEntity.getId(),
-							expression.getFileLocation().getStartingLineNumber(), ((CPPASTFunctionCallExpression) expression).getOffset());
-				}else if(fieldExpression instanceof CPPASTFieldReference){
-					String text = expression.getRawSignature();
-				}
-			}
-			else if(functionNameExpression instanceof CPPASTFunctionCallExpression){}
-			else if(functionNameExpression instanceof CPPASTIdExpression){}
-			IASTInitializerClause[] iastInitializerClauses = functionCallExpression.getArguments();
-			this.dealFunctionExpressionNode(functionCallExpression.getFunctionNameExpression(), RelationType.CALL, iastInitializerClauses);
-		}
-		if(expression instanceof CPPASTExpressionList) {
-			CPPASTExpressionList expressionList = (CPPASTExpressionList)expression;
-			for(IASTExpression exp:expressionList.getExpressions()) {
-				this.dealExpression(exp);
-			}
-		}
-		if(expression instanceof CPPASTLiteralExpression){}
-		if(expression instanceof CPPASTFieldReference){
-			CPPASTFieldReference fieldReference = (CPPASTFieldReference)expression;
-			IASTExpression expression1 = fieldReference.getFieldOwner();
-			IType type = fieldReference.getFieldOwnerType();
-			IASTName fieldName = fieldReference.getFieldName();
-			String entityInformation = getBinding(fieldName);
-			int relationType = RelationType.USE;
-			// TODO : 待处理依赖类型
-			if(expression.getFileLocation() != null)
-				this.latestValidContainer().addBindingRelation(relationType,
-					entityInformation, this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
-					expression.getFileLocation().getNodeOffset());
-		}
-		/**
-		 * 如果expression是CPPASTConditionalExpression的实例，则处理条件表达式节点
-		 *
-		 * @param expression 要处理的表达式
-		 * @param relationType 关系类型
-		 */
-		if(expression instanceof CPPASTConditionalExpression) {
-			CPPASTConditionalExpression conditionalExpression = (CPPASTConditionalExpression)expression;
-			IASTExpression logicalConditionExpression = conditionalExpression.getLogicalConditionExpression();
-			this.dealExpressionNode(logicalConditionExpression, RelationType.USE);
-			IASTExpression positiveResultExpression = conditionalExpression.getPositiveResultExpression();
-			this.dealExpressionNode(positiveResultExpression, RelationType.USE);
-			IASTExpression negativeResultExpression = conditionalExpression.getNegativeResultExpression();
-			this.dealExpressionNode(negativeResultExpression, RelationType.USE);
-		}
-
-	}
-
-	/**
-	 * 处理函数表达式节点
-	 *
-	 * @param expression 表达式
-	 * @param expressionType 表达式类型
-	 * @param iastInitializerClauses 初始化语句
-	 */
-	public void dealFunctionExpressionNode(IASTExpression expression,int expressionType, IASTInitializerClause[] iastInitializerClauses){
-
-		if(expression instanceof CPPASTIdExpression) {
-			// Begin of arguments processing
-			ArrayList<String> arguementsInformation = new ArrayList<>();
-			ArrayList<Integer> argReCatInfor = new ArrayList<>();
-			ArrayList<Integer> argIndex = new ArrayList<>();
-
-			for(int i=0;i<iastInitializerClauses.length;i++){
-				IASTInitializerClause initializerClause = iastInitializerClauses[i];
-				List<CPPASTFieldReference> fieldReferences = findAllFieldReferences((IASTExpression) initializerClause);
-
-				if(initializerClause instanceof CPPASTUnaryExpression){
-					if(((CPPASTUnaryExpression) initializerClause).getOperator() == IASTUnaryExpression.op_amper){
-						if(((CPPASTUnaryExpression) initializerClause).getOperand() instanceof CPPASTIdExpression) {
-							arguementsInformation.add( this.getBinding(((CPPASTIdExpression) ((CPPASTUnaryExpression) initializerClause).getOperand()).getName()) );
-							argReCatInfor.add( RelationType.ADDR_PARAMETER_USE);
-							argIndex.add(i+1);
-						}
-					}
-				}else if(initializerClause instanceof CPPASTIdExpression){
-					arguementsInformation.add( this.getBinding(((CPPASTIdExpression)initializerClause).getName()) );
-					argReCatInfor.add(RelationType.PARAMETER_USE);
-					argIndex.add(i+1);
-				}else if(initializerClause instanceof CPPASTFieldReference){
-					// 对类或结构体成员变量的访问
-					CPPASTFieldReference fieldReference = (CPPASTFieldReference)initializerClause;
-					IASTName name = fieldReference.getFieldName();
-					name.resolveBinding();
-					String binding = this.getBinding(name);
-					arguementsInformation.add(binding);
-					argReCatInfor.add(RelationType.PARAMETER_USE_FIELD_REFERENCE);
-					argIndex.add(i+1);
-
-				}else if(initializerClause instanceof  CPPASTLiteralExpression){
-					// 常数
-				}else if(initializerClause instanceof CPPASTBinaryExpression){
-					// 双目运算符处理，获取内部全部的IDExpression
-					List<IASTIdExpression> idExpressions = findAllIdExpressions((IASTExpression) initializerClause);
-					for(IASTIdExpression idExpression:idExpressions){
-						String binding = this.getBinding(idExpression.getName());
-						arguementsInformation.add(binding);
-						argReCatInfor.add( RelationType.PARAMETER_USE);
-						argIndex.add(i+1);
-					}
-				}else{
-					// System.out.println("Haven't processing to \" " + initializerClause.getClass().toString() + "\" type parameters");
-				}
-			}
-			// End of arguments processing
-			String entityInformation = this.getBinding(((CPPASTIdExpression) expression).getName());
-			if(expression.getFileLocation() != null){
-				if(entityInformation == null) {
-					this.latestValidContainer().addScopeRelation(expressionType, expression.getRawSignature(),
-							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
-							expression.getFileLocation().getNodeOffset());
-					for(int i=0;i<arguementsInformation.size();i++){
-					// for(int i=0;i<iastInitializerClauses.length;i++){
-						if(arguementsInformation.get(i) != null){
-							this.relationRepo.addScopeBindingRelation(new ScopeBindingRelation(
-									argReCatInfor.get(i),
-									expression.getRawSignature(),
-									arguementsInformation.get(i),
-									this.currentFileEntity.getId(),
-									expression.getFileLocation().getStartingLineNumber(),
-									expression.getFileLocation().getNodeOffset(),
-									this.latestValidContainer(),
-									argIndex.get(i)
-									));
-						}
-					}
-				}
-				else {
-					this.latestValidContainer().addBindingRelation(expressionType,
-							entityInformation,
-							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
-							expression.getFileLocation().getNodeOffset());
-					for(int i=0;i<arguementsInformation.size();i++){
-					// for(int i=0;i<iastInitializerClauses.length;i++){
-						if(arguementsInformation.get(i) != null){
-							this.relationRepo.addBindingRelation(
-									new BindingRelation(argReCatInfor.get(i),
-										entityInformation, arguementsInformation.get(i),
-										this.currentFileEntity.getId(),
-										iastInitializerClauses[i].getFileLocation().getStartingLineNumber(),
-										iastInitializerClauses[i].getFileLocation().getNodeOffset(),
-										argIndex.get(i)
-									)
-							);
-						}
-					}
-				}
-
-			}
-
-		}
-		else if(expression instanceof CPPASTBinaryExpression) {
-			CPPASTBinaryExpression binaryExp = (CPPASTBinaryExpression)expression;
-			if(binaryExp.getOperator() == IASTBinaryExpression.op_assign){
-				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.SET);
-				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
-			}else if(binaryExp.getOperator() <= IASTBinaryExpression.op_binaryOrAssign &
-					binaryExp.getOperator() >= IASTBinaryExpression.op_multiplyAssign){
-				// op_multiplyAssign = 18, op_divideAssign = 19, op_moduloAssign = 20, op_plusAssign = 21,
-				// op_minusAssign = 22, op_shiftLeftAssign = 23, op_shiftRightAssign = 24,
-				// op_binaryAndAssign = 25, op_binaryXorAssign = 26, op_binaryOrAssign = 27
-				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.SET);
-				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.USE);
-				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
-			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmdot){
-				// TODO: operand1.operand2
-				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.UNRESOLVED);
-				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.UNRESOLVED);
-			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmarrow){
-				// TODO: operand1 -> operand2
-				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.UNRESOLVED);
-				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.UNRESOLVED);
-			}else{
-				// *， /， %， +， -， <<， >>， <， >， <=， >=，
-				// &， ^， |， &&， ||， ==， !=， .，
-				// ->， max()， min()， ...
-				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.USE);
-				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
-			}
-		}else {
-			dealExpression(expression);
-		}
-	}
-	
-
-	/**
-	 * 处理表达式节点
-	 *
-	 * @param expression 表达式
-	 * @param expressionType 表达式类型
-	 */
-	public void dealExpressionNode(IASTExpression expression, int expressionType) {
-		/*
-			使用currentRelationType进行设置依赖类型
-		 */
-		if(this.currentRelationType == 0){
-			expressionType = currentRelationType;
-		}
-
-		if(expression instanceof CPPASTIdExpression) {
-			String entityInformation = this.getBinding(((CPPASTIdExpression) expression).getName());
-			IASTFileLocation location = expression.getFileLocation();
-			if(expression.getFileLocation() != null){
-				if(this.currentRelationType == 0){
-					this.relationRepo.addBindingRelation(new BindingRelation(expressionType,
-							this.currentRelationFromEntityName, entityInformation,
-							this.currentFileEntity.getId(),
-							expression.getFileLocation().getStartingLineNumber(),
-							expression.getFileLocation().getNodeOffset()));
-				}
-				else if(entityInformation == null) {
-					this.latestValidContainer().addScopeRelation(expressionType, expression.getRawSignature(),
-							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
-							expression.getFileLocation().getNodeOffset());
-				}
-				else {
-					this.latestValidContainer().addBindingRelation(expressionType,
-							entityInformation,
-							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
-							expression.getFileLocation().getNodeOffset());
-				}
-			}
-		}else if(expression instanceof CPPASTLiteralExpression){
-			/*   自然数值  */
-
-		}else {
-			dealExpression(expression);
-		}
-	}
-	
-	
-	/**
-	 * 通过binding获取实体信息
-	 *
-	 * @param name 需要获取信息的CPPASTIdExpression对象
-	 * @return 返回字符串，包含文件名和节点偏移量，如果获取失败则返回null
-	 */
-	public static String getBinding(IASTName name){
-		name.resolveBinding();
-		IBinding node = name.getBinding();
-		if(node == null) {
-			return null;
-		}
-		IASTNode definitionNode = null;
-		switch(node.getClass().toString()) {
-			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPVariable":
-				definitionNode = ((CPPVariable)node).getDefinition();
-				break;
-			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPParameter":
-				definitionNode = ((CPPParameter)node).getPhysicalNode();
-				break;
-			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPField":
-				definitionNode = ((CPPField)node).getDefinition();
-				break;
-			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPFunction":
-				definitionNode = ((CPPFunction)node).getDefinition();
-				break;
-			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPMethod":
-				definitionNode = ((CPPMethod)node).getDefinition();
-				break;
-			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPEnumerator":
-				definitionNode = ((CPPEnumerator)node).getDefinition();
-				break;
-			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPTypedef":
-				definitionNode = ((CPPTypedef)node).getDefinition();
-				break;
-			case "class org.eclipse.cdt.internal.core.dom.parser.ProblemBinding":
-				break;
-			default:
-				// System.out.println("Haven't resolve binding type: " + node.getClass().toString());
-		}
-		if(definitionNode != null && definitionNode.getFileLocation() != null) {
-			return definitionNode.getFileLocation().getFileName() + definitionNode.getFileLocation().getNodeOffset();
-		}
-		return null;
-	}
-
-	/**
-	 * 根据名称查找特定类型的实体
-	 *
-	 * @param name 实体名称
-	 * @return 查找到的实体，若不存在则返回null
-	 */
-	public Entity findTheTypedEntity(String name){
-		if(name == null) return null;
-		String[] scopeManages = name.split("::");
-		Scope current = this.currentScope;
-		if(scopeManages.length == 1){
-			do{
-				if(current.getSymbol(scopeManages[0]) != null){
-					if(current.getSymbol(scopeManages[0]) instanceof DataAggregateSymbol){
-						return entityRepo.getEntity(current.getSymbol(scopeManages[0]).getEntityID());
-					}
-				}
-				if(current.getEnclosingScope() == current) return null;
-				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
-			}while(current.getEnclosingScope() != null);
-		}
-		else if(scopeManages.length == 2){
-			do{
-				if(current.getSymbol(scopeManages[0]) != null){
-					if(current.getSymbol(scopeManages[0]) instanceof Scope){
-						current = (Scope) current.getSymbol(scopeManages[0]);
-						if(current.getSymbol(scopeManages[1]) != null){
-							if(current.getSymbol(scopeManages[1]) instanceof DataAggregateSymbol){
-								return entityRepo.getEntity(current.getSymbol(scopeManages[1]).getEntityID());
-							}
-						}
-					}
-					break;
-				}
-				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
-				if(current.getEnclosingScope() == current) return null;
-			}while(current.getEnclosingScope() != null);
-		}
-		return null;
-	}
 
 	/**
 	 * 查找变量定义
@@ -1005,7 +737,7 @@ public class HandlerContext {
 	 * @param type 变量类型
 	 * @return 返回VarEntity类型的变量定义
 	 */
-	public VarEntity foundVarDefinition(String varName, Location location, String type) {
+	public VarEntity foundVarDefinition(String varName, Location location, String type, boolean isExtern) {
 		this.currentScope = this.entityStack.peek().getScope();
 		if(location == null) return null;
 		Integer id = entityRepo.generateId();
@@ -1042,7 +774,7 @@ public class HandlerContext {
 	 * @param visibility 字段可见性
 	 * @return 返回找到的字段实体，如果找不到则返回null
 	 */
-	public FieldEntity foundFieldDefinition(String varName, Location location, String type, int visibility) {
+	public FieldEntity foundFieldDefinition(String varName, Location location, String type, int visibility, int storageClass) {
 		this.currentScope = this.entityStack.peek().getScope();
 		if(location == null) return null;
 		Integer id = entityRepo.generateId();
@@ -1203,6 +935,504 @@ public class HandlerContext {
 		BlockEntity entity = new BlockEntity("", "", this.latestValidContainer(),
 				-1, scope, new Location(-1, -1, -1, -1,
 				this.currentFileEntity.getId()));
+	}
+
+	/**
+	 * 获取传入的IASTDeclSpecifier对象的类型
+	 *
+	 * @param declSpeci 传入的IASTDeclSpecifier对象
+	 * @return 返回对象的类型
+	 */
+	public String getType(IASTDeclSpecifier declSpeci) {
+		String type = null;
+
+		if (declSpeci instanceof IASTCompositeTypeSpecifier) {
+			final IASTCompositeTypeSpecifier compositeTypeSpec = (IASTCompositeTypeSpecifier) declSpeci;
+		} else if (declSpeci instanceof IASTElaboratedTypeSpecifier) {
+			final IASTElaboratedTypeSpecifier elaboratedTypeSpec = (IASTElaboratedTypeSpecifier) declSpeci;
+			type = elaboratedTypeSpec.getName().toString();
+		} else if (declSpeci instanceof IASTEnumerationSpecifier) {
+			final IASTEnumerationSpecifier enumerationSpec = (IASTEnumerationSpecifier) declSpeci;
+
+		} else if (declSpeci instanceof IASTSimpleDeclSpecifier) {
+			// No return value or the return value is built-in
+			final IASTSimpleDeclSpecifier simple = (IASTSimpleDeclSpecifier) declSpeci;
+			type = simple.getRawSignature();
+		} else if (declSpeci instanceof IASTNamedTypeSpecifier) {
+			final IASTNamedTypeSpecifier namedTypeSpec = (IASTNamedTypeSpecifier) declSpeci;
+			type = namedTypeSpec.getName().toString();
+		}
+		return type;
+	}
+
+	/**
+	 * 获取给定节点的位置信息
+	 *
+	 * @param node 给定的节点
+	 * @return 返回节点的位置信息，如果节点没有位置信息则返回null
+	 */
+	public Location getLocation(IASTNode node) {
+		if (node.getFileLocation() == null)
+			return null;
+		return new Location(node.getFileLocation().getNodeLength(), node.getFileLocation().getStartingLineNumber(),
+				node.getFileLocation().getEndingLineNumber(), node.getFileLocation().getNodeOffset(),
+				currentFileEntity.getId());
+	}
+
+
+	/**
+	 * 判断给定的节点是否为模板
+	 *
+	 * @param node 给定的节点
+	 * @return 如果节点是模板，返回true；否则返回false
+	 */
+	public boolean isTemplate(IASTNode node) {
+		if (node instanceof CPPASTTemplateDeclaration)
+			return true;
+		if(node instanceof CPPASTCompositeTypeSpecifier){
+			CPPASTCompositeTypeSpecifier compositeTypeSpecifier = (CPPASTCompositeTypeSpecifier)node;
+			if(compositeTypeSpecifier.getParent().getParent() != null){
+				if(compositeTypeSpecifier.getParent().getParent() instanceof CPPASTTemplateDeclaration){
+					return true;
+				}
+			}
+		}
+		if(node instanceof CPPASTDeclarator){
+			CPPASTDeclarator declarator = (CPPASTDeclarator)node;
+			if(declarator.getParent().getParent() != null){
+				if(declarator.getParent().getParent() instanceof CPPASTTemplateDeclaration){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+
+	/**
+	 * 处理表达式节点
+	 *
+	 * @param expression 待处理的表达式节点
+	 */
+	public void dealExpression(IASTExpression expression) {
+		/**
+		 * 判断给定的表达式是否已经被处理过，如果未处理过，则对其进行宏展开并添加宏定义和使用的关联关系，并将表达式对应的哈希码添加到nodeRecord中
+		 *
+		 * @param expression 待处理的表达式
+		 */
+		int hashcode = expression.hashCode();
+		DealMacro:
+		if(!nodeRecord.containsKey(hashcode)) {
+			IASTNode parent = expression.getParent();
+			while(parent != null){
+				if(nodeRecord.containsKey(parent.hashCode())){
+					nodeRecord.put(hashcode, true);
+					break DealMacro;
+				}
+				parent = parent.getParent();
+			}
+			MacroExpansionCollector macroExpansion = new MacroExpansionCollector();
+			expression.accept(macroExpansion);
+			if(macroExpansion.getMacroRecord().size() > 0) {
+				HashSet<IASTPreprocessorMacroDefinition> macroSet = macroExpansion.getMacroRecord();
+				for(IASTPreprocessorMacroDefinition record : macroSet) {
+					record.getFileLocation().getNodeOffset();
+					String entityInformation = record.getFileLocation().getFileName() + record.getFileLocation().getNodeOffset();
+					int relationType = RelationType.MACRO_USE;
+					if(expression.getFileLocation() != null)
+						this.latestValidContainer().addBindingRelation(relationType,
+								entityInformation, this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+								expression.getFileLocation().getNodeOffset());
+				}
+			}
+			nodeRecord.put(hashcode, true);
+		}
+
+		/**
+		 * 如果expression是CPPASTBinaryExpression的实例，则执行以下操作：
+		 * 如果操作符为op_assign，则处理表达式节点并设置关系为SET。
+		 * 如果操作符为op_multiplyAssign、op_divideAssign、op_moduloAssign、op_plusAssign、op_minusAssign、op_shiftLeftAssign、op_shiftRightAssign、op_binaryAndAssign、op_binaryXorAssign、op_binaryOrAssign，则处理表达式节点并分别设置关系为SET和USE。
+		 * 如果操作符为op_pmdot或op_pmarrow，则处理表达式节点并设置为UNRESOLVED。
+		 * 其他情况下，处理表达式节点并设置为USE。
+		 *
+		 * @param expression 需要处理的表达式节点
+		 * @param relationType 关系类型
+		 */
+		if(expression instanceof CPPASTBinaryExpression) {
+			CPPASTBinaryExpression binaryExp = (CPPASTBinaryExpression)expression;
+			if(binaryExp.getOperator() == IASTBinaryExpression.op_assign){
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.SET);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
+			}else if(binaryExp.getOperator() <= IASTBinaryExpression.op_binaryOrAssign &
+					binaryExp.getOperator() >= IASTBinaryExpression.op_multiplyAssign){
+				// op_multiplyAssign = 18, op_divideAssign = 19, op_moduloAssign = 20, op_plusAssign = 21,
+				// op_minusAssign = 22, op_shiftLeftAssign = 23, op_shiftRightAssign = 24,
+				// op_binaryAndAssign = 25, op_binaryXorAssign = 26, op_binaryOrAssign = 27
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.SET);
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.USE);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
+			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmdot){
+				// TODO: operand1.operand2
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.UNRESOLVED);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.UNRESOLVED);
+			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmarrow){
+				// TODO: operand1 -> operand2
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.UNRESOLVED);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.UNRESOLVED);
+			}else{
+				// *， /， %， +， -， <<， >>， <， >， <=， >=，
+				// &， ^， |， &&， ||， ==， !=， .，
+				// ->， max()， min()， ...
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.USE);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
+			}
+		}
+		if(expression instanceof CPPASTCastExpression) {
+			CPPASTCastExpression castExp = (CPPASTCastExpression) expression;
+			this.dealExpressionNode(castExp.getOperand(), RelationType.CAST);
+		}
+		if(expression instanceof CPPASTDeleteExpression) {
+			CPPASTDeleteExpression deleteExp = (CPPASTDeleteExpression)expression;
+			this.dealExpressionNode(deleteExp.getOperand(), RelationType.DELETE);
+		}
+		if(expression instanceof CPPASTUnaryExpression) {
+			CPPASTUnaryExpression unaryExp = (CPPASTUnaryExpression)expression;
+			if(unaryExp.getOperator() == IASTUnaryExpression.op_postFixIncr ||     // i++
+					unaryExp.getOperator() == IASTUnaryExpression.op_postFixDecr ||   //--
+					unaryExp.getOperator() == IASTUnaryExpression.op_tilde || //～
+					unaryExp.getOperator() == IASTUnaryExpression.op_prefixIncr || // ++i
+					unaryExp.getOperator() == IASTUnaryExpression.op_bracketedPrimary //
+			){
+				this.dealExpressionNode(unaryExp.getOperand(), RelationType.USE);
+			}
+		}
+		if(expression instanceof CPPASTFunctionCallExpression) {
+			CPPASTFunctionCallExpression functionCallExpression = (CPPASTFunctionCallExpression)expression;
+			IASTExpression functionNameExpression = functionCallExpression.getFunctionNameExpression();
+			if(functionNameExpression instanceof CPPASTUnaryExpression){}
+			else if(functionNameExpression instanceof CPPASTFieldReference) {
+				String rawSignature = expression.getRawSignature();
+				String callFunctionName = ((CPPASTFieldReference) functionNameExpression).getFieldName().toString();
+				ICPPASTExpression fieldExpression = ((CPPASTFieldReference) functionNameExpression).getFieldOwner();
+				if(fieldExpression instanceof CPPASTIdExpression){
+					String fieldName = ((CPPASTIdExpression) fieldExpression).getName().toString();
+					this.latestValidContainer().addRelationByObject(fieldName, callFunctionName, RelationType.CALL, this.currentFileEntity.getId(),
+							expression.getFileLocation().getStartingLineNumber(), ((CPPASTFunctionCallExpression) expression).getOffset());
+				}else if(fieldExpression instanceof CPPASTFieldReference){
+					String text = expression.getRawSignature();
+				}
+			}
+			else if(functionNameExpression instanceof CPPASTFunctionCallExpression){}
+			else if(functionNameExpression instanceof CPPASTIdExpression){}
+			IASTInitializerClause[] iastInitializerClauses = functionCallExpression.getArguments();
+			this.dealFunctionExpressionNode(functionCallExpression.getFunctionNameExpression(), RelationType.CALL, iastInitializerClauses);
+		}
+		if(expression instanceof CPPASTExpressionList) {
+			CPPASTExpressionList expressionList = (CPPASTExpressionList)expression;
+			for(IASTExpression exp:expressionList.getExpressions()) {
+				this.dealExpression(exp);
+			}
+		}
+		if(expression instanceof CPPASTLiteralExpression){}
+		if(expression instanceof CPPASTFieldReference){
+			CPPASTFieldReference fieldReference = (CPPASTFieldReference)expression;
+			IASTExpression expression1 = fieldReference.getFieldOwner();
+			IType type = fieldReference.getFieldOwnerType();
+			IASTName fieldName = fieldReference.getFieldName();
+			String entityInformation = getBinding(fieldName);
+			int relationType = RelationType.USE;
+			// TODO : 待处理依赖类型
+			if(expression.getFileLocation() != null)
+				this.latestValidContainer().addBindingRelation(relationType,
+						entityInformation, this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+						expression.getFileLocation().getNodeOffset());
+		}
+		/**
+		 * 如果expression是CPPASTConditionalExpression的实例，则处理条件表达式节点
+		 *
+		 * @param expression 要处理的表达式
+		 * @param relationType 关系类型
+		 */
+		if(expression instanceof CPPASTConditionalExpression) {
+			CPPASTConditionalExpression conditionalExpression = (CPPASTConditionalExpression)expression;
+			IASTExpression logicalConditionExpression = conditionalExpression.getLogicalConditionExpression();
+			this.dealExpressionNode(logicalConditionExpression, RelationType.USE);
+			IASTExpression positiveResultExpression = conditionalExpression.getPositiveResultExpression();
+			this.dealExpressionNode(positiveResultExpression, RelationType.USE);
+			IASTExpression negativeResultExpression = conditionalExpression.getNegativeResultExpression();
+			this.dealExpressionNode(negativeResultExpression, RelationType.USE);
+		}
+
+	}
+
+	/**
+	 * 处理函数表达式节点
+	 *
+	 * @param expression 表达式
+	 * @param expressionType 表达式类型
+	 * @param iastInitializerClauses 初始化语句
+	 */
+	public void dealFunctionExpressionNode(IASTExpression expression,int expressionType, IASTInitializerClause[] iastInitializerClauses){
+
+		if(expression instanceof CPPASTIdExpression) {
+			// Begin of arguments processing
+			ArrayList<String> arguementsInformation = new ArrayList<>();
+			ArrayList<Integer> argReCatInfor = new ArrayList<>();
+			ArrayList<Integer> argIndex = new ArrayList<>();
+
+			for(int i=0;i<iastInitializerClauses.length;i++){
+				IASTInitializerClause initializerClause = iastInitializerClauses[i];
+				List<CPPASTFieldReference> fieldReferences = findAllFieldReferences((IASTExpression) initializerClause);
+
+				if(initializerClause instanceof CPPASTUnaryExpression){
+					if(((CPPASTUnaryExpression) initializerClause).getOperator() == IASTUnaryExpression.op_amper){
+						if(((CPPASTUnaryExpression) initializerClause).getOperand() instanceof CPPASTIdExpression) {
+							arguementsInformation.add( this.getBinding(((CPPASTIdExpression) ((CPPASTUnaryExpression) initializerClause).getOperand()).getName()) );
+							argReCatInfor.add( RelationType.ADDR_PARAMETER_USE);
+							argIndex.add(i+1);
+						}
+					}
+				}else if(initializerClause instanceof CPPASTIdExpression){
+					arguementsInformation.add( this.getBinding(((CPPASTIdExpression)initializerClause).getName()) );
+					argReCatInfor.add(RelationType.PARAMETER_USE);
+					argIndex.add(i+1);
+				}else if(initializerClause instanceof CPPASTFieldReference){
+					// 对类或结构体成员变量的访问
+					CPPASTFieldReference fieldReference = (CPPASTFieldReference)initializerClause;
+					IASTName name = fieldReference.getFieldName();
+					name.resolveBinding();
+					String binding = this.getBinding(name);
+					arguementsInformation.add(binding);
+					argReCatInfor.add(RelationType.PARAMETER_USE_FIELD_REFERENCE);
+					argIndex.add(i+1);
+
+				}else if(initializerClause instanceof  CPPASTLiteralExpression){
+					// 常数
+				}else if(initializerClause instanceof CPPASTBinaryExpression){
+					// 双目运算符处理，获取内部全部的IDExpression
+					List<IASTIdExpression> idExpressions = findAllIdExpressions((IASTExpression) initializerClause);
+					for(IASTIdExpression idExpression:idExpressions){
+						String binding = this.getBinding(idExpression.getName());
+						arguementsInformation.add(binding);
+						argReCatInfor.add( RelationType.PARAMETER_USE);
+						argIndex.add(i+1);
+					}
+				}else{
+					// System.out.println("Haven't processing to \" " + initializerClause.getClass().toString() + "\" type parameters");
+				}
+			}
+			// End of arguments processing
+			String entityInformation = this.getBinding(((CPPASTIdExpression) expression).getName());
+			if(expression.getFileLocation() != null){
+				if(entityInformation == null) {
+					this.latestValidContainer().addScopeRelation(expressionType, expression.getRawSignature(),
+							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+							expression.getFileLocation().getNodeOffset());
+					for(int i=0;i<arguementsInformation.size();i++){
+						// for(int i=0;i<iastInitializerClauses.length;i++){
+						if(arguementsInformation.get(i) != null){
+							this.relationRepo.addScopeBindingRelation(new ScopeBindingRelation(
+									argReCatInfor.get(i),
+									expression.getRawSignature(),
+									arguementsInformation.get(i),
+									this.currentFileEntity.getId(),
+									expression.getFileLocation().getStartingLineNumber(),
+									expression.getFileLocation().getNodeOffset(),
+									this.latestValidContainer(),
+									argIndex.get(i)
+							));
+						}
+					}
+				}
+				else {
+					this.latestValidContainer().addBindingRelation(expressionType,
+							entityInformation,
+							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+							expression.getFileLocation().getNodeOffset());
+					for(int i=0;i<arguementsInformation.size();i++){
+						// for(int i=0;i<iastInitializerClauses.length;i++){
+						if(arguementsInformation.get(i) != null){
+							this.relationRepo.addBindingRelation(
+									new BindingRelation(argReCatInfor.get(i),
+											entityInformation, arguementsInformation.get(i),
+											this.currentFileEntity.getId(),
+											iastInitializerClauses[i].getFileLocation().getStartingLineNumber(),
+											iastInitializerClauses[i].getFileLocation().getNodeOffset(),
+											argIndex.get(i)
+									)
+							);
+						}
+					}
+				}
+
+			}
+
+		}
+		else if(expression instanceof CPPASTBinaryExpression) {
+			CPPASTBinaryExpression binaryExp = (CPPASTBinaryExpression)expression;
+			if(binaryExp.getOperator() == IASTBinaryExpression.op_assign){
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.SET);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
+			}else if(binaryExp.getOperator() <= IASTBinaryExpression.op_binaryOrAssign &
+					binaryExp.getOperator() >= IASTBinaryExpression.op_multiplyAssign){
+				// op_multiplyAssign = 18, op_divideAssign = 19, op_moduloAssign = 20, op_plusAssign = 21,
+				// op_minusAssign = 22, op_shiftLeftAssign = 23, op_shiftRightAssign = 24,
+				// op_binaryAndAssign = 25, op_binaryXorAssign = 26, op_binaryOrAssign = 27
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.SET);
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.USE);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
+			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmdot){
+				// TODO: operand1.operand2
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.UNRESOLVED);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.UNRESOLVED);
+			}else if(binaryExp.getOperator() == IASTBinaryExpression.op_pmarrow){
+				// TODO: operand1 -> operand2
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.UNRESOLVED);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.UNRESOLVED);
+			}else{
+				// *， /， %， +， -， <<， >>， <， >， <=， >=，
+				// &， ^， |， &&， ||， ==， !=， .，
+				// ->， max()， min()， ...
+				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.USE);
+				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
+			}
+		}else {
+			dealExpression(expression);
+		}
+	}
+
+
+	/**
+	 * 处理表达式节点
+	 *
+	 * @param expression 表达式
+	 * @param expressionType 表达式类型
+	 */
+	public void dealExpressionNode(IASTExpression expression, int expressionType) {
+		/*
+			使用currentRelationType进行设置依赖类型
+		 */
+		if(this.currentRelationType == 0){
+			expressionType = currentRelationType;
+		}
+
+		if(expression instanceof CPPASTIdExpression) {
+			String entityInformation = this.getBinding(((CPPASTIdExpression) expression).getName());
+			IASTFileLocation location = expression.getFileLocation();
+			if(expression.getFileLocation() != null){
+				if(this.currentRelationType == 0){
+					this.relationRepo.addBindingRelation(new BindingRelation(expressionType,
+							this.currentRelationFromEntityName, entityInformation,
+							this.currentFileEntity.getId(),
+							expression.getFileLocation().getStartingLineNumber(),
+							expression.getFileLocation().getNodeOffset()));
+				}
+				else if(entityInformation == null) {
+					this.latestValidContainer().addScopeRelation(expressionType, expression.getRawSignature(),
+							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+							expression.getFileLocation().getNodeOffset());
+				}
+				else {
+					this.latestValidContainer().addBindingRelation(expressionType,
+							entityInformation,
+							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+							expression.getFileLocation().getNodeOffset());
+				}
+			}
+		}else if(expression instanceof CPPASTLiteralExpression){
+			/*   自然数值  */
+
+		}else {
+			dealExpression(expression);
+		}
+	}
+
+
+	/**
+	 * 通过binding获取实体信息
+	 *
+	 * @param name 需要获取信息的CPPASTIdExpression对象
+	 * @return 返回字符串，包含文件名和节点偏移量，如果获取失败则返回null
+	 */
+	public static String getBinding(IASTName name){
+		name.resolveBinding();
+		IBinding node = name.getBinding();
+		if(node == null) {
+			return null;
+		}
+		IASTNode definitionNode = null;
+		switch(node.getClass().toString()) {
+			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPVariable":
+				definitionNode = ((CPPVariable)node).getDefinition();
+				break;
+			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPParameter":
+				definitionNode = ((CPPParameter)node).getPhysicalNode();
+				break;
+			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPField":
+				definitionNode = ((CPPField)node).getDefinition();
+				break;
+			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPFunction":
+				definitionNode = ((CPPFunction)node).getDefinition();
+				break;
+			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPMethod":
+				definitionNode = ((CPPMethod)node).getDefinition();
+				break;
+			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPEnumerator":
+				definitionNode = ((CPPEnumerator)node).getDefinition();
+				break;
+			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPTypedef":
+				definitionNode = ((CPPTypedef)node).getDefinition();
+				break;
+			case "class org.eclipse.cdt.internal.core.dom.parser.ProblemBinding":
+				break;
+			default:
+				// System.out.println("Haven't resolve binding type: " + node.getClass().toString());
+		}
+		if(definitionNode != null && definitionNode.getFileLocation() != null) {
+			return definitionNode.getFileLocation().getFileName() + definitionNode.getFileLocation().getNodeOffset();
+		}
+		return null;
+	}
+
+	/**
+	 * 根据名称查找特定类型的实体
+	 *
+	 * @param name 实体名称
+	 * @return 查找到的实体，若不存在则返回null
+	 */
+	public Entity findTheTypedEntity(String name){
+		if(name == null) return null;
+		String[] scopeManages = name.split("::");
+		Scope current = this.currentScope;
+		if(scopeManages.length == 1){
+			do{
+				if(current.getSymbol(scopeManages[0]) != null){
+					if(current.getSymbol(scopeManages[0]) instanceof DataAggregateSymbol){
+						return entityRepo.getEntity(current.getSymbol(scopeManages[0]).getEntityID());
+					}
+				}
+				if(current.getEnclosingScope() == current) return null;
+				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+			}while(current.getEnclosingScope() != null);
+		}
+		else if(scopeManages.length == 2){
+			do{
+				if(current.getSymbol(scopeManages[0]) != null){
+					if(current.getSymbol(scopeManages[0]) instanceof Scope){
+						current = (Scope) current.getSymbol(scopeManages[0]);
+						if(current.getSymbol(scopeManages[1]) != null){
+							if(current.getSymbol(scopeManages[1]) instanceof DataAggregateSymbol){
+								return entityRepo.getEntity(current.getSymbol(scopeManages[1]).getEntityID());
+							}
+						}
+					}
+					break;
+				}
+				if(current.getEnclosingScope() != null) current = current.getEnclosingScope();
+				if(current.getEnclosingScope() == current) return null;
+			}while(current.getEnclosingScope() != null);
+		}
+		return null;
 	}
 
 	/**
