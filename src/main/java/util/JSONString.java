@@ -209,7 +209,7 @@ public class JSONString {
 				entitytemp.setEndLine(entity.getLocation().getEndLine());
 				entitytemp.setEndOffset(entity.getLocation().getEndOffset());
 				entitytemp.setParentID(entity.getParentId());
-				entitytemp.setStorageClass(resolveStorage_class(entity.getStorgae_class()));
+				entitytemp.setStorageClass(resolveStorage_class(entity.getStorgaeClass()));
 				entitytemp.setVisibility(resolveVisibility(entity.getVisiblity()));
 
     		}

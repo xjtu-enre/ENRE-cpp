@@ -29,6 +29,7 @@ public class RelationType {
 	public static final int EXTEND = 23;
 	public static final int FLOWTO = 24;
 	public static final int MACRO_USE = 25;
+	public static final int EXTERN_DECLARE = 26;
 
 //	public static String getRelationCategory(int typeID){
 //		switch (typeID){
@@ -136,6 +137,8 @@ public static String getRelationCategory(int typeID){
 			return "Flow To";
 		case MACRO_USE:
 			return "Macro Use";
+		case EXTERN_DECLARE:
+			return "Extern Declare";
 	}
 	return null;
 }

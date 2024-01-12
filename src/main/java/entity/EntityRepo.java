@@ -1,5 +1,7 @@
 package entity;
 
+import org.eclipse.cdt.core.dom.ast.IASTDeclSpecifier;
+
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -33,8 +35,15 @@ public class EntityRepo {
 	private int nextAvaliableIndex;
 
 	/**
+	 * 初始化externVarList和externFuncList两个ArrayList，分别存储extern storage类型的VarEntity和FunctionEntity对象。
+	 */
+	ArrayList<VarEntity> externVarList = new ArrayList<>();
+	ArrayList<FunctionEntity> externFuncList = new ArrayList<>();
+
+
+	/**
 	 * Generate a global unique ID for entity
-	 * 
+	 *
 	 * @return the unique id
 	 */
 
@@ -62,6 +71,13 @@ public class EntityRepo {
 		return allEntitiesByLocation.get(information);
 	}
 
+	/*
+	 * 仅用于声明和实现分离时，给定新的位置信息, locationInfo: file.getQualifiedName() + startOffset()
+	 */
+	public void addEntityByLocation(String locationInfo, Entity entity){
+		allEntitiesByLocation.put(locationInfo, entity);
+	}
+
 	public void add(Entity entity) {
 		allEntitiesById.put(entity.getId(), entity);
 		if(entity.getLocation() == null) {
@@ -78,7 +94,9 @@ public class EntityRepo {
 		if (entity instanceof FileEntity) {
 			fileEntities.add((FileEntity) entity);
 		}
-		if (allEntieisByName.containsKey(Qualifiedname)) {
+		if (entity.getStorgaeClass() == IASTDeclSpecifier.sc_extern){
+
+		}else if (allEntieisByName.containsKey(Qualifiedname)) {
 			Entity existedEntity = allEntieisByName.get(Qualifiedname);
 		} else {
 			allEntieisByName.put(Qualifiedname, entity);
@@ -106,4 +124,19 @@ public class EntityRepo {
 		return -1;
 	}
 
+	public void externVarListAdd(VarEntity var) {
+		externVarList.add(var);
+	}
+
+	public ArrayList<VarEntity> getExternVarList() {
+		return externVarList;
+	}
+
+	public void externFuncListAdd(FunctionEntity func) {
+		externFuncList.add(func);
+	}
+
+	public ArrayList<FunctionEntity> getExternFuncList() {
+		return externFuncList;
+	}
 }

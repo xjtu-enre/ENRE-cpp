@@ -246,7 +246,7 @@ public class HandlerContext {
 	 * @param parameterList 参数列表
 	 * @return 返回函数实体
 	 */
-	public FunctionEntity foundFunctionDeclare(String name, String returnType, Location location, List<ParameterEntity> parameterList){
+	public FunctionEntity foundFunctionDeclare(String name, String returnType, Location location, List<ParameterEntity> parameterList, int storageClass){
 		this.currentScope = this.entityStack.peek().getScope();
 		this.currentScope = this.findTheScope(name);
 		int id = entityRepo.generateId();
@@ -271,6 +271,7 @@ public class HandlerContext {
 		for(ParameterEntity parameterEntity:parameterList){
 			parameterEntity.setParent(functionEntity);
 		}
+		functionEntity.setStorageClass(storageClass);
 		entityRepo.add(functionEntity);
 		return functionEntity;
 	}
@@ -383,6 +384,173 @@ public class HandlerContext {
 			parameterEntity.setParent(functionEntity);
 		}
 		return functionEntity;
+	}
+
+
+	/**
+	 * 根据给定的函数声明器和函数声明，找到相应的函数实体。
+	 *
+	 * @param declarator 函数声明器
+	 * @param declSpecifier 函数声明
+	 * @return 找到的函数实体
+	 */
+	public FunctionEntity foundFunctionDeclaration(CPPASTFunctionDeclarator declarator, ICPPASTDeclSpecifier declSpecifier, int storageClass){
+		FunctionEntity functionEntity = null;
+		IASTName functionName = declarator.getName();
+		functionName.resolveBinding();
+		IBinding iBinding = functionName.getBinding();
+		IASTDeclarator[] declarators = null;
+		if(iBinding instanceof CPPFunction){
+			CPPFunction cppFunction = (CPPFunction)iBinding;
+			cppFunction.isStatic();
+			declarators = cppFunction.getDeclarations();
+		}
+		if(declarators != null){
+			for(IASTDeclarator declarator1:declarators){
+				String name = declarator1.getFileLocation().getFileName() +
+						declarator1.getFileLocation().getNodeOffset();
+				Entity entityByLocation = entityRepo.getEntityByLocation(name);
+				if(entityByLocation instanceof FunctionEntity){
+					functionEntity = (FunctionEntity) entityByLocation;
+					if(storageClass == IASTDeclSpecifier.sc_extern){
+						entityRepo.externFuncListAdd(functionEntity);
+						functionEntity.addRelation(new Relation(this.latestValidContainer(), functionEntity, RelationType.EXTERN_DECLARE, this.currentFileEntity.getId(),
+								declarator1.getFileLocation().getStartingLineNumber(), declarator1.getFileLocation().getNodeOffset()));
+					}else{
+						functionEntity.addRelation(new Relation(this.latestValidContainer(), functionEntity, RelationType.DECLARE, this.currentFileEntity.getId(),
+								declarator1.getFileLocation().getStartingLineNumber(), declarator1.getFileLocation().getNodeOffset()));
+					}
+					return functionEntity;
+				}
+			}
+		}
+
+		List<ParameterEntity> parameterLists = new ArrayList<ParameterEntity>();
+		for(IASTNode node:declarator.getChildren()){
+			if(node instanceof  IASTParameterDeclaration){
+				ParameterEntity parameter = foundParameterDeclaration(((IASTParameterDeclaration) node));
+				if (parameter != null) {
+					parameterLists.add(parameter);
+					parameter.setIndex(parameterLists.size());
+				}
+			}
+		}
+		if (declarator instanceof IASTFunctionDeclarator) {
+			String rawName = declarator.getName().toString();
+			String returnType = getType(declSpecifier);
+			// function pointer
+			if (declarator.getName().toString().equals("")) {
+				for (IASTNode node : declarator.getChildren()) {
+					if (node instanceof CPPASTDeclarator) {
+						rawName = ((CPPASTDeclarator) node).getName().toString();
+						functionEntity = this.foundFunctionDeclare(rawName, returnType, getLocation(declarator), parameterLists, storageClass);
+						IASTDeclarator declarator1 = declarator.getNestedDeclarator();
+						if(declarator1.getPointerOperators().length > 0 ){
+							functionEntity.setPointer();
+						}
+					}
+				}
+			}else{
+				functionEntity = this.foundFunctionDeclare(rawName, returnType, getLocation(declarator), parameterLists, storageClass);
+				if(declarator instanceof CPPASTDeclarator){
+//					if(declarator.getPointerOperators().length > 0 ){
+//						functionEntity.setPointer();
+//					}
+				}
+			}
+			if(functionEntity != null){
+				if(declarator.isPureVirtual()) functionEntity.setPureVirtual();
+				if(isTemplate(declarator)) functionEntity.setTemplate(true);
+				if(storageClass == IASTDeclSpecifier.sc_extern){
+					entityRepo.externFuncListAdd(functionEntity);
+					functionEntity.addRelation(new Relation(this.latestValidContainer(), functionEntity, RelationType.EXTERN_DECLARE, this.currentFileEntity.getId(),
+							functionEntity.getLocation().getStartLine(), functionEntity.getLocation().getStartOffset()));
+				}else{
+					functionEntity.addRelation(new Relation(this.latestValidContainer(), functionEntity, RelationType.DECLARE, this.currentFileEntity.getId(),
+							functionEntity.getLocation().getStartLine(), functionEntity.getLocation().getStartOffset()));
+				}
+				return functionEntity;
+			}
+		}
+
+		return null;
+	}
+
+
+	/**
+	 * 找到参数声明，返回ParameterEntity对象
+	 *
+	 * @param parameterDeclaration 参数声明
+	 * @return 返回ParameterEntity对象
+	 */
+	public ParameterEntity foundParameterDeclaration(IASTParameterDeclaration parameterDeclaration) {
+		ParameterEntity var = null;
+		if (parameterDeclaration.getDeclarator() instanceof CPPASTFunctionDeclarator) {
+			CPPASTFunctionDeclarator functionDeclarator = (CPPASTFunctionDeclarator) parameterDeclaration.getDeclarator();
+			String parameterType = getType(parameterDeclaration.getDeclSpecifier());
+			if (this.getLocation(functionDeclarator.getName()) != null)
+				var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
+						null, latestValidContainer() , entityRepo.generateId(),
+						getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
+			if(parameterDeclaration != null){
+				if (parameterDeclaration.getParent() instanceof IASTStandardFunctionDeclarator) {
+					if(currentFunction()!=null)
+						currentFunction().setCallbackCall();
+				}
+			}
+
+		}
+		else {
+			if (parameterDeclaration.getDeclSpecifier() instanceof CPPASTSimpleDeclSpecifier) {
+				String parameterName = parameterDeclaration.getDeclarator().getName().toString();
+				String parameterType = getType(parameterDeclaration.getDeclSpecifier());
+				IASTNode[] declaratorChild = parameterDeclaration.getDeclarator().getChildren();
+				if (declaratorChild.length == 1) {
+					if (getLocation(parameterDeclaration.getDeclarator().getName()) != null) {
+						var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
+								parameterDeclaration.getDeclarator().getName().toString(),  latestValidContainer(), entityRepo.generateId(),
+								getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
+						entityRepo.add(var);
+					}
+				}
+				else if (declaratorChild.length <= 3) {
+					for (IASTNode node : declaratorChild) {
+						if (node instanceof CPPASTPointer) {
+							if (getLocation(parameterDeclaration.getDeclarator().getName()) != null) {
+								var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
+										parameterDeclaration.getDeclarator().getName().toString(),  null, entityRepo.generateId(),
+										getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
+								entityRepo.add(var);
+								var.setPointer();
+							}
+							break;
+						} else if (node instanceof CPPASTReferenceOperator) {
+							var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
+									parameterDeclaration.getDeclarator().getName().toString(),  null, entityRepo.generateId(),
+									getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
+							break;
+						}else if(node instanceof CPPASTName){
+							var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
+									parameterDeclaration.getDeclarator().getName().toString(),
+									null, entityRepo.generateId(),
+									getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
+						}
+					}
+				}
+			}else{
+				String parameterType = getType(parameterDeclaration.getDeclSpecifier());
+				var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
+						parameterDeclaration.getDeclarator().getName().toString(),  null, entityRepo.generateId(),
+						getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
+				if(parameterDeclaration.getDeclarator() instanceof CPPASTDeclarator){
+					if(parameterDeclaration.getDeclarator().getPointerOperators().length > 0 ){
+						if(var != null) var.setPointer();
+					}
+				}
+				entityRepo.add(var);
+			}
+		}
+		return var;
 	}
 
 	/**
@@ -568,6 +736,304 @@ public class HandlerContext {
 		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), enumertorEntity, RelationType.DEFINE,
 				this.currentFileEntity.getId(), enumertorEntity.getLocation().getStartLine(), enumertorEntity.getLocation().getStartOffset()));
 		return enumertorEntity;
+	}
+
+
+	/**
+	 * 查找变量定义
+	 * @description: build var entity
+	 * @param varName 变量名
+	 * @param location 变量位置
+	 * @param type 变量类型
+	 * @return 返回VarEntity类型的变量定义
+	 */
+	public VarEntity foundVarDefinition(String varName, Location location, String type, int storageClass) {
+		this.currentScope = this.entityStack.peek().getScope();
+		if(location == null) return null;
+		Integer id = entityRepo.generateId();
+		String qualifiedName = varName;
+		if(this.latestValidContainer() instanceof NamespaceEntity) qualifiedName = resolveName(varName);
+		Entity typeEntity = this.findTheTypedEntity(type);
+		if(typeEntity != null){
+			typeEntity = this.findTheTypedEntity(type);
+		}
+		VarEntity varEntity = new VarEntity(varName, qualifiedName,  this.latestValidContainer(), id, location, type);
+		varEntity.setStorageClass(storageClass);
+		entityRepo.add(varEntity);
+		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
+			if(this.currentScope instanceof DataAggregateSymbol) {
+				if(this.currentScope.getSymbolByKind(varName, Configure.Variable)==null) {
+					VariableSymbol v = new VariableSymbol(varName, id);
+					this.currentScope.define(v, Configure.Variable);
+				}
+			}
+		}
+		if(this.latestValidContainer() instanceof ClassEntity){
+			((ClassEntity) this.latestValidContainer()).addContainEntity(id);
+		}
+
+		if(storageClass == IASTDeclSpecifier.sc_extern){
+			entityRepo.externVarListAdd(varEntity);
+			this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), varEntity, RelationType.DECLARE,
+					this.currentFileEntity.getId(), varEntity.getLocation().getStartLine(), varEntity.getLocation().getStartOffset()));
+		}else{
+			this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), varEntity, RelationType.DEFINE,
+					this.currentFileEntity.getId(), varEntity.getLocation().getStartLine(), varEntity.getLocation().getStartOffset()));
+		}
+		return varEntity;
+	}
+
+	/**
+	 * 在当前范围内查找给定名称、类型和可见性的字段定义。
+	 *
+	 * @param varName 字段名称
+	 * @param location 字段位置
+	 * @param type 字段类型
+	 * @param visibility 字段可见性
+	 * @return 返回找到的字段实体，如果找不到则返回null
+	 */
+	public FieldEntity foundFieldDefinition(String varName, Location location, String type, int visibility, int storageClass) {
+		this.currentScope = this.entityStack.peek().getScope();
+		if(location == null) return null;
+		Integer id = entityRepo.generateId();
+		String qualifiedName = resolveName(varName);
+
+		FieldEntity entity = new FieldEntity(varName, qualifiedName,  this.latestValidContainer(), id, location, type);
+		Entity typeEntity = this.findTheTypedEntity(type);
+		if(typeEntity != null){
+			entity.setTypeID(typeEntity.getId());
+		}
+		entity.setVisiblity(visibility);
+		entity.setStorageClass(storageClass);
+		entityRepo.add(entity);
+		if(this.latestValidContainer() != null) {
+			if(this.currentScope instanceof DataAggregateSymbol) {
+				if(this.currentScope.getSymbolByKind(varName, Configure.Variable)==null) {
+					VariableSymbol v = new VariableSymbol(varName, id);
+					this.currentScope.define(v, Configure.Variable);
+				}
+			}
+			this.latestValidContainer().addContainEntity(id);
+		}
+
+		/**
+		 * 如果是extern变量，则在全局查找变量类型
+		 */
+		if(storageClass == IASTDeclSpecifier.sc_extern){
+			entityRepo.externVarListAdd(entity);
+			this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), entity, RelationType.EXTERN_DECLARE,
+					this.currentFileEntity.getId(), entity.getLocation().getStartLine(), entity.getLocation().getStartOffset()));
+		}else{
+			this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), entity, RelationType.DEFINE,
+					this.currentFileEntity.getId(), entity.getLocation().getStartLine(), entity.getLocation().getStartOffset()));
+		}
+		return entity;
+	}
+
+
+	/**
+	 * 查找label定义
+	 *
+	 * @param labelName label名称
+	 * @param location label位置
+	 * @return 返回label实体，如果找不到则返回null
+	 */
+	public LabelEntity foundLabelDefinition(String labelName, Location location) {
+		this.currentScope = this.entityStack.peek().getScope();
+		if(location == null) return null;
+		LabelEntity labelEntity = new LabelEntity(labelName,  resolveName(labelName),  this.latestValidContainer(), entityRepo.generateId(), location, "null");
+		entityRepo.add(labelEntity);
+		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
+			if(!(this.currentScope instanceof DataAggregateSymbol)) {
+				if(this.currentScope.getSymbolByKind(labelName, Configure.Variable)==null) {
+					VariableSymbol v = new VariableSymbol(labelName, -1);
+					this.currentScope.define(v, Configure.Variable);
+				}
+			}
+		}
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), labelEntity, RelationType.DEFINE,
+				this.currentFileEntity.getId(), labelEntity.getLocation().getStartLine(), labelEntity.getLocation().getStartOffset()));
+		return labelEntity;
+	}
+
+	/**
+	 * 构建Typedef实体
+	 *
+	 * @description: build Typedef entity
+	 * @param Name 名称
+	 * @param declSpecifier 声明规范
+	 * @param location 位置
+	 * @return TypedefEntity
+	 */
+	public TypedefEntity foundTypedefDefinition(String Name, ICPPASTDeclSpecifier declSpecifier, Location location) {
+		this.currentScope = this.entityStack.peek().getScope();
+		Entity parent = this.latestValidContainer();
+		String qualifiedName = resolveName(Name);
+		if(declSpecifier instanceof CPPASTCompositeTypeSpecifier){
+			parent = parent.getParent();
+			this.currentScope = this.entityStack.peek().getScope();
+			if(this.currentScope instanceof Symbol){
+				Entity en = this.entityStack.peek().getParent();
+				if(en == null || en instanceof FileEntity|| en.getQualifiedName().equals("")
+						|| en.getQualifiedName().equals("[unnamed]")) qualifiedName = Name;
+				else qualifiedName =  en.getQualifiedName() + "::" + Name;
+			}
+		}
+		TypedefEntity typedefEntity = new TypedefEntity(Name, qualifiedName, parent,
+				entityRepo.generateId(), location);
+		entityRepo.add(typedefEntity);
+		Integer startLine = -1;
+		Integer startOffset = -1;
+		if(typedefEntity.getLocation() != null){
+			startLine = typedefEntity.getLocation().getStartLine();
+			startOffset = typedefEntity.getLocation().getStartOffset();
+		}
+		this.latestValidContainer().addRelation(new Relation(parent, typedefEntity, RelationType.DEFINE,
+				this.currentFileEntity.getId(), startLine, startOffset));
+		return typedefEntity;
+	}
+
+	/**
+	 * 创建新的别名并返回一个AliasEntity对象
+	 *
+	 * @param aliasName 别名名称
+	 * @param referToEntity 别名所指向的实体
+	 * @param location 别名的位置信息
+	 * @return 返回一个AliasEntity对象，表示新创建的别名
+	 */
+	public AliasEntity foundNewAlias(String aliasName, Entity referToEntity, Location location) {
+		this.currentScope = this.entityStack.peek().getScope();
+		AliasEntity currentTypeEntity = new AliasEntity(aliasName, resolveName(aliasName),this.latestValidContainer(),
+				entityRepo.generateId(),aliasName, location);
+		currentTypeEntity.setReferToEntity(referToEntity);
+		entityRepo.add(currentTypeEntity);
+		return currentTypeEntity;
+	}
+
+	/**
+	 * 查找新别名
+	 *
+	 * @param aliasName 别名名称
+	 * @param originalName 原始名称
+	 * @param location 位置
+	 * @return 返回找到的别名实体，如果找不到则返回null
+	 */
+	public AliasEntity foundNewAlias(String aliasName, String originalName, Location location) {
+		this.currentScope = this.entityStack.peek().getScope();
+		if (aliasName.equals(originalName)) return null;
+		AliasEntity currentTypeEntity = new AliasEntity(aliasName,
+				this.resolveName(aliasName), this.latestValidContainer(),
+				entityRepo.generateId(), originalName, location );
+		currentTypeEntity.addBindingRelation(RelationType.ALIAS,  originalName,
+				this.currentFileEntity.getId(), location.getStartLine(), location.getStartOffset());
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), currentTypeEntity, RelationType.DEFINE,
+				this.currentFileEntity.getId(), currentTypeEntity.getLocation().getStartLine(), currentTypeEntity.getLocation().getStartOffset()));
+		entityRepo.add(currentTypeEntity);
+		return currentTypeEntity;
+	}
+
+	/**
+	 * 创建新的命名空间别名的实体
+	 *
+	 * @param aliasName 别名
+	 * @param originalName 原始名称
+	 * @param location 位置信息
+	 * @return 返回新创建的命名空间别名的实体，如果别名和原始名称相同则返回null
+	 */
+	public NamespaceAliasEntity foundNewNamespaceAlias(String aliasName, String originalName, Location location) {
+		this.currentScope = this.entityStack.peek().getScope();
+		if (aliasName.equals(originalName)) return null;
+		NamespaceAliasEntity currentTypeEntity = new NamespaceAliasEntity(aliasName,
+				this.resolveName(aliasName), this.latestValidContainer(),
+				entityRepo.generateId(), originalName, location);
+		currentTypeEntity.addBindingRelation(RelationType.ALIAS,  originalName,
+				this.currentFileEntity.getId(), location.getStartLine(), location.getStartOffset());
+		entityRepo.add(currentTypeEntity);
+		return currentTypeEntity;
+	}
+
+
+	/**
+	 * 找到代码作用域
+	 *
+	 * @param statement 包含代码范围的语句
+	 */
+	public void foundCodeScope(IASTStatement statement) {
+		BaseScope scope = new LocalScope(this.currentScope);
+		BlockEntity entity = new BlockEntity("", "", this.latestValidContainer(),
+				-1, scope, new Location(-1, -1, -1, -1,
+				this.currentFileEntity.getId()));
+	}
+
+
+	/**
+	 * 获取传入的IASTDeclSpecifier对象的类型
+	 *
+	 * @param declSpeci 传入的IASTDeclSpecifier对象
+	 * @return 返回对象的类型
+	 */
+	public String getType(IASTDeclSpecifier declSpeci) {
+		String type = null;
+
+		if (declSpeci instanceof IASTCompositeTypeSpecifier) {
+			final IASTCompositeTypeSpecifier compositeTypeSpec = (IASTCompositeTypeSpecifier) declSpeci;
+		} else if (declSpeci instanceof IASTElaboratedTypeSpecifier) {
+			final IASTElaboratedTypeSpecifier elaboratedTypeSpec = (IASTElaboratedTypeSpecifier) declSpeci;
+			type = elaboratedTypeSpec.getName().toString();
+		} else if (declSpeci instanceof IASTEnumerationSpecifier) {
+			final IASTEnumerationSpecifier enumerationSpec = (IASTEnumerationSpecifier) declSpeci;
+
+		} else if (declSpeci instanceof IASTSimpleDeclSpecifier) {
+			// No return value or the return value is built-in
+			final IASTSimpleDeclSpecifier simple = (IASTSimpleDeclSpecifier) declSpeci;
+			type = simple.getRawSignature();
+		} else if (declSpeci instanceof IASTNamedTypeSpecifier) {
+			final IASTNamedTypeSpecifier namedTypeSpec = (IASTNamedTypeSpecifier) declSpeci;
+			type = namedTypeSpec.getName().toString();
+		}
+		return type;
+	}
+
+	/**
+	 * 获取给定节点的位置信息
+	 *
+	 * @param node 给定的节点
+	 * @return 返回节点的位置信息，如果节点没有位置信息则返回null
+	 */
+	public Location getLocation(IASTNode node) {
+		if (node.getFileLocation() == null)
+			return null;
+		return new Location(node.getFileLocation().getNodeLength(), node.getFileLocation().getStartingLineNumber(),
+				node.getFileLocation().getEndingLineNumber(), node.getFileLocation().getNodeOffset(),
+				currentFileEntity.getId());
+	}
+
+	/**
+	 * 判断给定的节点是否为模板
+	 *
+	 * @param node 给定的节点
+	 * @return 如果节点是模板，返回true；否则返回false
+	 */
+	public boolean isTemplate(IASTNode node) {
+		if (node instanceof CPPASTTemplateDeclaration)
+			return true;
+		if(node instanceof CPPASTCompositeTypeSpecifier){
+			CPPASTCompositeTypeSpecifier compositeTypeSpecifier = (CPPASTCompositeTypeSpecifier)node;
+			if(compositeTypeSpecifier.getParent().getParent() != null){
+				if(compositeTypeSpecifier.getParent().getParent() instanceof CPPASTTemplateDeclaration){
+					return true;
+				}
+			}
+		}
+		if(node instanceof CPPASTDeclarator){
+			CPPASTDeclarator declarator = (CPPASTDeclarator)node;
+			if(declarator.getParent().getParent() != null){
+				if(declarator.getParent().getParent() instanceof CPPASTTemplateDeclaration){
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 
@@ -791,7 +1257,7 @@ public class HandlerContext {
 							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
 							expression.getFileLocation().getNodeOffset());
 					for(int i=0;i<arguementsInformation.size();i++){
-					// for(int i=0;i<iastInitializerClauses.length;i++){
+						// for(int i=0;i<iastInitializerClauses.length;i++){
 						if(arguementsInformation.get(i) != null){
 							this.relationRepo.addScopeBindingRelation(new ScopeBindingRelation(
 									argReCatInfor.get(i),
@@ -802,7 +1268,7 @@ public class HandlerContext {
 									expression.getFileLocation().getNodeOffset(),
 									this.latestValidContainer(),
 									argIndex.get(i)
-									));
+							));
 						}
 					}
 				}
@@ -812,15 +1278,15 @@ public class HandlerContext {
 							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
 							expression.getFileLocation().getNodeOffset());
 					for(int i=0;i<arguementsInformation.size();i++){
-					// for(int i=0;i<iastInitializerClauses.length;i++){
+						// for(int i=0;i<iastInitializerClauses.length;i++){
 						if(arguementsInformation.get(i) != null){
 							this.relationRepo.addBindingRelation(
 									new BindingRelation(argReCatInfor.get(i),
-										entityInformation, arguementsInformation.get(i),
-										this.currentFileEntity.getId(),
-										iastInitializerClauses[i].getFileLocation().getStartingLineNumber(),
-										iastInitializerClauses[i].getFileLocation().getNodeOffset(),
-										argIndex.get(i)
+											entityInformation, arguementsInformation.get(i),
+											this.currentFileEntity.getId(),
+											iastInitializerClauses[i].getFileLocation().getStartingLineNumber(),
+											iastInitializerClauses[i].getFileLocation().getNodeOffset(),
+											argIndex.get(i)
 									)
 							);
 						}
@@ -997,213 +1463,6 @@ public class HandlerContext {
 		return null;
 	}
 
-	/**
-	 * 查找变量定义
-	 * @description: build var entity
-	 * @param varName 变量名
-	 * @param location 变量位置
-	 * @param type 变量类型
-	 * @return 返回VarEntity类型的变量定义
-	 */
-	public VarEntity foundVarDefinition(String varName, Location location, String type) {
-		this.currentScope = this.entityStack.peek().getScope();
-		if(location == null) return null;
-		Integer id = entityRepo.generateId();
-		String qualifiedName = varName;
-		if(this.latestValidContainer() instanceof NamespaceEntity) qualifiedName = resolveName(varName);
-		Entity typeEntity = this.findTheTypedEntity(type);
-		if(typeEntity != null){
-			typeEntity = this.findTheTypedEntity(type);
-		}
-		VarEntity varEntity = new VarEntity(varName, qualifiedName,  this.latestValidContainer(), id, location, type);
-		entityRepo.add(varEntity);
-		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
-			if(this.currentScope instanceof DataAggregateSymbol) {
-				if(this.currentScope.getSymbolByKind(varName, Configure.Variable)==null) {
-					VariableSymbol v = new VariableSymbol(varName, id);
-					this.currentScope.define(v, Configure.Variable);
-				}
-			}
-		}
-		if(this.latestValidContainer() instanceof ClassEntity){
-			((ClassEntity) this.latestValidContainer()).addContainEntity(id);
-		}
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), varEntity, RelationType.DEFINE,
-				this.currentFileEntity.getId(), varEntity.getLocation().getStartLine(), varEntity.getLocation().getStartOffset()));
-		return varEntity;
-	}
-
-	/**
-	 * 在当前范围内查找给定名称、类型和可见性的字段定义。
-	 *
-	 * @param varName 字段名称
-	 * @param location 字段位置
-	 * @param type 字段类型
-	 * @param visibility 字段可见性
-	 * @return 返回找到的字段实体，如果找不到则返回null
-	 */
-	public FieldEntity foundFieldDefinition(String varName, Location location, String type, int visibility) {
-		this.currentScope = this.entityStack.peek().getScope();
-		if(location == null) return null;
-		Integer id = entityRepo.generateId();
-		String qualifiedName = resolveName(varName);
-
-		FieldEntity entity = new FieldEntity(varName, qualifiedName,  this.latestValidContainer(), id, location, type);
-		Entity typeEntity = this.findTheTypedEntity(type);
-		if(typeEntity != null){
-			entity.setTypeID(typeEntity.getId());
-		}
-		entity.setVisiblity(visibility);
-		entityRepo.add(entity);
-		if(this.latestValidContainer() != null) {
-			if(this.currentScope instanceof DataAggregateSymbol) {
-				if(this.currentScope.getSymbolByKind(varName, Configure.Variable)==null) {
-					VariableSymbol v = new VariableSymbol(varName, id);
-					this.currentScope.define(v, Configure.Variable);
-				}
-			}
-			this.latestValidContainer().addContainEntity(id);
-		}
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), entity, RelationType.DEFINE,
-				this.currentFileEntity.getId(), entity.getLocation().getStartLine(), entity.getLocation().getStartOffset()));
-		return entity;
-	}
-
-	/**
-	 * 查找label定义
-	 *
-	 * @param labelName label名称
-	 * @param location label位置
-	 * @return 返回label实体，如果找不到则返回null
-	 */
-	public LabelEntity foundLabelDefinition(String labelName, Location location) {
-		this.currentScope = this.entityStack.peek().getScope();
-		if(location == null) return null;
-		LabelEntity labelEntity = new LabelEntity(labelName,  resolveName(labelName),  this.latestValidContainer(), entityRepo.generateId(), location, "null");
-		entityRepo.add(labelEntity);
-		if(this.latestValidContainer() instanceof DataAggregateEntity ) {
-			if(!(this.currentScope instanceof DataAggregateSymbol)) {
-				if(this.currentScope.getSymbolByKind(labelName, Configure.Variable)==null) {
-					VariableSymbol v = new VariableSymbol(labelName, -1);
-					this.currentScope.define(v, Configure.Variable);
-				}
-			}
-		}
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), labelEntity, RelationType.DEFINE,
-				this.currentFileEntity.getId(), labelEntity.getLocation().getStartLine(), labelEntity.getLocation().getStartOffset()));
-		return labelEntity;
-	}
-	
-	/**
-	 * 构建Typedef实体
-	 *
-	 * @description: build Typedef entity
-	 * @param Name 名称
-	 * @param declSpecifier 声明规范
-	 * @param location 位置
-	 * @return TypedefEntity
-	 */
-	public TypedefEntity foundTypedefDefinition(String Name, ICPPASTDeclSpecifier declSpecifier, Location location) {
-		this.currentScope = this.entityStack.peek().getScope();
-		Entity parent = this.latestValidContainer();
-		String qualifiedName = resolveName(Name);
-		if(declSpecifier instanceof CPPASTCompositeTypeSpecifier){
-			parent = parent.getParent();
-			this.currentScope = this.entityStack.peek().getScope();
-			if(this.currentScope instanceof Symbol){
-				Entity en = this.entityStack.peek().getParent();
-				if(en == null || en instanceof FileEntity|| en.getQualifiedName().equals("")
-						|| en.getQualifiedName().equals("[unnamed]")) qualifiedName = Name;
-				else qualifiedName =  en.getQualifiedName() + "::" + Name;
-			}
-		}
-		TypedefEntity typedefEntity = new TypedefEntity(Name, qualifiedName, parent,
-				entityRepo.generateId(), location);
-		entityRepo.add(typedefEntity);
-		Integer startLine = -1;
-		Integer startOffset = -1;
-		if(typedefEntity.getLocation() != null){
-			startLine = typedefEntity.getLocation().getStartLine();
-			startOffset = typedefEntity.getLocation().getStartOffset();
-		}
-		this.latestValidContainer().addRelation(new Relation(parent, typedefEntity, RelationType.DEFINE,
-				this.currentFileEntity.getId(), startLine, startOffset));
-		return typedefEntity;		
-	}
-	
-
-	/**
-	 * 查找新别名
-	 *
-	 * @param aliasName 别名名称
-	 * @param originalName 原始名称
-	 * @param location 位置
-	 * @return 返回找到的别名实体，如果找不到则返回null
-	 */
-	public AliasEntity foundNewAlias(String aliasName, String originalName, Location location) {
-		this.currentScope = this.entityStack.peek().getScope();
-		if (aliasName.equals(originalName)) return null;
-		AliasEntity currentTypeEntity = new AliasEntity(aliasName, 
-				this.resolveName(aliasName), this.latestValidContainer(),
-				entityRepo.generateId(), originalName, location );
-		currentTypeEntity.addBindingRelation(RelationType.ALIAS,  originalName,
-				this.currentFileEntity.getId(), location.getStartLine(), location.getStartOffset());
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), currentTypeEntity, RelationType.DEFINE,
-				this.currentFileEntity.getId(), currentTypeEntity.getLocation().getStartLine(), currentTypeEntity.getLocation().getStartOffset()));
-		entityRepo.add(currentTypeEntity);
-		return currentTypeEntity;		
-	}
-
-	/**
-	 * 创建新的命名空间别名的实体
-	 *
-	 * @param aliasName 别名
-	 * @param originalName 原始名称
-	 * @param location 位置信息
-	 * @return 返回新创建的命名空间别名的实体，如果别名和原始名称相同则返回null
-	 */
-	public NamespaceAliasEntity foundNewNamespaceAlias(String aliasName, String originalName, Location location) {
-		this.currentScope = this.entityStack.peek().getScope();
-		if (aliasName.equals(originalName)) return null;
-		NamespaceAliasEntity currentTypeEntity = new NamespaceAliasEntity(aliasName,
-				this.resolveName(aliasName), this.latestValidContainer(),
-				entityRepo.generateId(), originalName, location);
-		currentTypeEntity.addBindingRelation(RelationType.ALIAS,  originalName,
-				this.currentFileEntity.getId(), location.getStartLine(), location.getStartOffset());
-		entityRepo.add(currentTypeEntity);
-		return currentTypeEntity;
-	}
-	
-
-	/**
-	 * 创建新的别名并返回一个AliasEntity对象
-	 *
-	 * @param aliasName 别名名称
-	 * @param referToEntity 别名所指向的实体
-	 * @param location 别名的位置信息
-	 * @return 返回一个AliasEntity对象，表示新创建的别名
-	 */
-	public AliasEntity foundNewAlias(String aliasName, Entity referToEntity, Location location) {
-		this.currentScope = this.entityStack.peek().getScope();
-		AliasEntity currentTypeEntity = new AliasEntity(aliasName, resolveName(aliasName),this.latestValidContainer(),
-				entityRepo.generateId(),aliasName, location);
-		currentTypeEntity.setReferToEntity(referToEntity);
-		entityRepo.add(currentTypeEntity);
-		return currentTypeEntity;		
-	}
-
-
-	/**
-	 * 找到代码作用域
-	 *
-	 * @param statement 包含代码范围的语句
-	 */
-	public void foundCodeScope(IASTStatement statement) {
-		BaseScope scope = new LocalScope(this.currentScope);
-		BlockEntity entity = new BlockEntity("", "", this.latestValidContainer(),
-				-1, scope, new Location(-1, -1, -1, -1,
-				this.currentFileEntity.getId()));
-	}
 
 	/**
 	 * 返回最新的FunctionEntity实体
@@ -1245,8 +1504,7 @@ public class HandlerContext {
 		}
 		return null;
 	}
-	
-	
+
 
 	/**
 	 * 返回栈顶的实体对象，并从栈中弹出。

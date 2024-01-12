@@ -207,9 +207,9 @@ public abstract class Entity {
 
 	public int getVisiblity() {return this.visibility; }
 
-	public void setStorage_class(int tag) { this.storage_class = tag; }
+	public void setStorageClass(int tag) { this.storage_class = tag; }
 
-	public int getStorgae_class() { return this.storage_class; }
+	public int getStorgaeClass() { return this.storage_class; }
 
 	public void setGlobal(){ this.global = true; }
 
