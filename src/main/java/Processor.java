@@ -1,6 +1,8 @@
 import cdt.CDTParser;
 import cdt.TypeBinding;
 import entity.EntityRepo;
+import entity.FunctionEntity;
+import entity.VarEntity;
 import relation.RelationContext;
 import relation.RelationRepo;
 import symtab.Type;
@@ -10,6 +12,7 @@ import util.JSONString;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -74,16 +77,20 @@ public class Processor {
 		this.relationcontext.FunctionDeal();
 		this.relationcontext.NamespaceAliasDeal();
 		this.relationcontext.relationListDealAfter();
+		this.relationcontext.externRelationDeal();
 	}
 
 	/**
-	 * 类型绑定
+	 * 类型绑定:包含类型绑定、extern信息处理等，需要依赖构建
 	 *
 	 * @throws Exception 类型绑定过程中可能抛出的异常
 	 */
 	public void typeBinding() throws Exception{
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
+		ArrayList<VarEntity> extern_var = cdtparser.getEntityRepo().getExternVarList();
+		ArrayList<FunctionEntity> exter_func = cdtparser.getEntityRepo().getExternFuncList();
 		this.typeBinding = new TypeBinding(entityrepo);
+		this.typeBinding.dealExternRelation(extern_var, exter_func);
 		this.typeBinding.typeBindingDeal();
 	}
 

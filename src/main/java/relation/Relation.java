@@ -55,4 +55,12 @@ public class Relation {
 	public Integer getStartLine() {return this.startLine; }
 	public Integer getStartOffset() {return this.startOffset; }
 	public Integer getParameterIndex() { return this.parameterIndex; }
+
+	public void reSetFromEntity(Entity fromEntity){
+		this.fromEntity = fromEntity;
+	}
+
+	public void reSetToEntity(Entity toEntity){
+		this.toEntity = toEntity;
+	}
 }
