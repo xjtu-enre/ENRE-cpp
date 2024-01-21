@@ -204,7 +204,6 @@ public class CppVisitor extends ASTVisitor {
 			FunctionEntity functionEntity = null;
 			IASTFunctionDefinition functionDefinition = (IASTFunctionDefinition) declaration;
 			IASTDeclarator declarator = functionDefinition.getDeclarator();
-
 			IASTName cppastName = declarator.getName();
 			cppastName.resolveBinding();
 			IBinding iBinding = cppastName.getBinding();
@@ -224,11 +223,10 @@ public class CppVisitor extends ASTVisitor {
 				}
 			}
 			if(functionEntity != null){
-//				functionEntity.setLocation(getLocation(functionDefinition.getDeclarator()));
 				Location location = context.getLocation(functionDefinition.getDeclarator());
 				this.entityrepo.addEntityByLocation(this.entityrepo.getEntity(location.getFile()).getQualifiedName() + location.getStartOffset(),
 						functionEntity);
-				functionEntity.setLocation(location);
+				functionEntity.setLocation(context.getLocation(functionDefinition.getDeclarator()));
 				context.entityStack.push(functionEntity);
 			}
 			else{
@@ -327,6 +325,10 @@ public class CppVisitor extends ASTVisitor {
 	 */
 	@Override
 	public int visit(IASTExpression expression) {
+		if(expression.getRawSignature().contains("g_f32_io_inte_buf")){
+			System.out.println(expression.getRawSignature());
+			System.out.println("TEST");
+		}
 		if(expression.getFileLocation()!=null)
 			if(!expression.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
 				return super.visit(expression);
@@ -340,7 +342,7 @@ public class CppVisitor extends ASTVisitor {
 			}
 			context.dealExpression(expression);
 		}
-		return PROCESS_CONTINUE;
+		return PROCESS_SKIP;
 	}
 
 	/**
@@ -355,13 +357,13 @@ public class CppVisitor extends ASTVisitor {
 	public void dealWithSimpleDeclaration(IASTSimpleDeclaration simpleDeclaration){
 		IASTDeclSpecifier declSpec = simpleDeclaration.getDeclSpecifier();
 		int visibility = this.getVisibility(simpleDeclaration);
-		int storage_class = declSpec.getStorageClass();
+		int storageClass = declSpec.getStorageClass();
 		/**
 		 * 获取信息：如存储类、类型等
 		 */
 		if(declSpec.getParent() instanceof CPPASTSimpleDeclaration){
 			visibility = this.getVisibility((IASTSimpleDeclaration) declSpec.getParent());
-			storage_class = declSpec.getStorageClass();
+			storageClass = declSpec.getStorageClass();
 		}
 		Entity entity = null;
 		if(declSpec instanceof ICPPASTDeclSpecifier) {
@@ -390,7 +392,7 @@ public class CppVisitor extends ASTVisitor {
 								 * 此处仅仅考虑的是声明类对象。不考虑是否为extern关系
 								 */
 								this.specifierEntity = context.foundFieldDefinition(name, context.getLocation(declarator),
-										typeName, getVisibility((IASTSimpleDeclaration) declSpec.getParent()), 0);
+										typeName, getVisibility((IASTSimpleDeclaration) declSpec.getParent()),0);
 								if(declarator instanceof CPPASTDeclarator){
 									if(declarator.getPointerOperators().length > 0 ){
 										if(this.specifierEntity != null) this.specifierEntity.setPointer();
@@ -405,7 +407,7 @@ public class CppVisitor extends ASTVisitor {
 						/*
 						 * TODO: 抽取extern关系
 						 */
-						entity = context.foundFunctionDeclaration((CPPASTFunctionDeclarator) declarator, declSpecifier, storage_class);
+						entity = context.foundFunctionDeclaration((CPPASTFunctionDeclarator) declarator, declSpecifier, storageClass);
 					}else if(declarator instanceof CPPASTDeclarator){
 
 					}else{
@@ -421,12 +423,13 @@ public class CppVisitor extends ASTVisitor {
 						/*
 						 * TODO: 抽取extern关系
 						 */
-						entity = context.foundFunctionDeclaration((CPPASTFunctionDeclarator) declarator, declSpecifier, storage_class);
+						entity = context.foundFunctionDeclaration((CPPASTFunctionDeclarator) declarator, declSpecifier, storageClass);
 					}else if(declarator instanceof CPPASTDeclarator){
 						if(declarator.getName() != null){
 							String varName = this.resolveEntityName(declarator.getName());
 							String type = this.context.getType(declSpecifier);
-							entity = context.foundFieldDefinition(varName, context.getLocation(declarator), type, visibility, storage_class);
+
+							entity = context.foundFieldDefinition(varName, context.getLocation(declarator), type, visibility, storageClass);
 							if(declarator.getInitializer() instanceof CPPASTEqualsInitializer){
 								entity.addRelation(new Relation(entity.getParent(), entity, RelationType.SET, currentfile.getId(), entity.getStartLine(), entity.getLocation().getStartOffset()));
 							}
@@ -464,7 +467,7 @@ public class CppVisitor extends ASTVisitor {
 						}
 						String varName = this.resolveEntityName(declarator.getName());
 						String type = this.context.getType(declSpecifier);
-						entity = context.foundVarDefinition(varName, context.getLocation(declarator.getName()), type, storage_class);
+						entity = context.foundVarDefinition(varName, context.getLocation(declarator.getName()), type, storageClass);
 						if(declSpecifier instanceof CPPASTNamedTypeSpecifier){
 							IBinding[] bindings = ((CPPASTNamedTypeSpecifier) declSpecifier).findBindings(((CPPASTNamedTypeSpecifier) declSpecifier).getName(), true);
 							for(IBinding binding:bindings){
@@ -485,7 +488,7 @@ public class CppVisitor extends ASTVisitor {
 						/*
 						 * TODO: 抽取extern关系
 						 */
-						entity = context.foundFunctionDeclaration((CPPASTFunctionDeclarator) declarator, declSpecifier, storage_class);
+						entity = context.foundFunctionDeclaration((CPPASTFunctionDeclarator) declarator, declSpecifier, storageClass);
 					}else if(declarator instanceof CPPASTDeclarator){
 
 					}else{
@@ -546,14 +549,7 @@ public class CppVisitor extends ASTVisitor {
 							this.currentfile.getId(), baseSpecifier.getFileLocation().getStartingLineNumber(),
 							baseSpecifier.getFileLocation().getNodeOffset());
 				}
-//				if(declSpec.getParent() instanceof CPPASTSimpleDeclaration){
-//					if(this.specifierEntity != null){
-//						visibility = this.getVisibility((IASTSimpleDeclaration) declSpec.getParent());
-//						storage_class = declSpec.getStorageClass();
-//						this.specifierEntity.setStorage_class(storage_class);
-//						this.specifierEntity.setVisiblity(visibility);
-//					}
-//				}
+
 			}
 			/**
 			 * 遍历simpleDeclaration中的每个声明器，找到新的typedef定义
@@ -579,12 +575,13 @@ public class CppVisitor extends ASTVisitor {
 		}
 		if(entity!=null){
 			entity.setVisiblity(visibility);
-			entity.setStorageClass(storage_class);
+			entity.setStorageClass(storageClass);
 			if(entity instanceof VarEntity & simpleDeclaration.getParent() instanceof CPPASTTranslationUnit){
 				entity.setGlobal();
 			}
 		}
 	}
+
 
 
 	/**
@@ -618,11 +615,10 @@ public class CppVisitor extends ASTVisitor {
 		return formatName;
 	}
 
-
-
 	public FileEntity getfile() {
 		return this.context.currentFileEntity;
 	}
+
 
 
 	public void showASTNode(IASTNode node, int i) {
@@ -634,7 +630,6 @@ public class CppVisitor extends ASTVisitor {
 			showASTNode(child, i + 1);
 		}
 	}
-
 
 
 	/**

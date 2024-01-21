@@ -93,7 +93,7 @@ public class TypeBinding {
                 if(current.getEnclosingScope() == null) return null;
                 if(current.getEnclosingScope() != null)
                     if(current.getEnclosingScope() == current) return null;
-                    current = current.getEnclosingScope();
+                current = current.getEnclosingScope();
             }while( current != null);
         }
         else if(scopeManages.length == 2){
@@ -129,7 +129,8 @@ public class TypeBinding {
         for(FunctionEntity func: extern_func){
             Entity en = entityRepo.getEntityByName(func.getName());
             if(en != null){
-                func.setExternalId(en.getExternalId());
+                if(en instanceof FunctionEntity)
+                    func.setExternalId(en.getId());
             }
         }
     }

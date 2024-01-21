@@ -14,6 +14,7 @@ import org.eclipse.cdt.core.dom.ast.*;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.*;
 import util.UnionFind;
 
+import javax.swing.plaf.synth.SynthStyle;
 import java.util.*;
 
 
@@ -35,6 +36,7 @@ public class HandlerContext {
 		nodeRecord 用于记录当前节点是否已经过宏定义展开处理，避免重复处理
 	 */
 	HashMap<Integer, Boolean> nodeRecord = new HashMap<>();
+
 
 
 	public HandlerContext(EntityRepo entityrepo, RelationRepo relationRepo) {
@@ -182,15 +184,15 @@ public class HandlerContext {
 
 
 	/**
-	* @methodsName: makeFile
-	* @param:  String filefullpath
-	* @return: FileEntity
-	*/
+	 * @methodsName: makeFile
+	 * @param:  String filefullpath
+	 * @return: FileEntity
+	 */
 	public FileEntity makeFile(String filefullpath) {
 		String[] name = filefullpath.split("[/|\\\\]");
 		GlobalScope scope = new GlobalScope(null);
 
-		currentFileEntity = new FileEntity(name[name.length-1], filefullpath, 
+		currentFileEntity = new FileEntity(name[name.length-1], filefullpath,
 				null, entityRepo.generateId(),filefullpath, scope);
 		entityRepo.add(currentFileEntity);
 		entityStack.push(currentFileEntity);
@@ -336,6 +338,8 @@ public class HandlerContext {
 			if(scopeFunctionEntity.equals(name, parameterLists)){
 				shouldNewEntity = false;
 				scopeFunctionEntity.setLocation(location);
+				entityRepo.addEntityByLocation(entityRepo.getEntity(location.getFile()).getQualifiedName() + location.getStartOffset(),
+						scopeFunctionEntity);
 				this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), scopeFunctionEntity,
 						RelationType.DEFINE, this.currentFileEntity.getId(), scopeFunctionEntity.getStartLine(),
 						scopeFunctionEntity.getLocation().getStartOffset()));
@@ -346,6 +350,8 @@ public class HandlerContext {
 					if(scopeFunctionEntity.equals(name, parameterLists)) {
 						shouldNewEntity = false;
 						scopeFunctionEntity.setLocation(location);
+						entityRepo.addEntityByLocation(entityRepo.getEntity(location.getFile()).getQualifiedName() + location.getStartOffset(),
+								scopeFunctionEntity);
 						this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(),
 								scopeFunctionEntity, RelationType.DEFINE, this.currentFileEntity.getId(),
 								scopeFunctionEntity.getLocation().getStartLine(), scopeFunctionEntity.getLocation().getStartOffset()));
@@ -355,6 +361,9 @@ public class HandlerContext {
 				}
 			}
 		}
+		/*
+		 * 查询不到现有信息，直接生成新实体
+		 */
 		if(shouldNewEntity){
 			int id = entityRepo.generateId();
 			symbol = new FunctionSymbol(name, id);
@@ -385,7 +394,6 @@ public class HandlerContext {
 		}
 		return functionEntity;
 	}
-
 
 	/**
 	 * 根据给定的函数声明器和函数声明，找到相应的函数实体。
@@ -476,7 +484,6 @@ public class HandlerContext {
 		return null;
 	}
 
-
 	/**
 	 * 找到参数声明，返回ParameterEntity对象
 	 *
@@ -487,15 +494,15 @@ public class HandlerContext {
 		ParameterEntity var = null;
 		if (parameterDeclaration.getDeclarator() instanceof CPPASTFunctionDeclarator) {
 			CPPASTFunctionDeclarator functionDeclarator = (CPPASTFunctionDeclarator) parameterDeclaration.getDeclarator();
-			String parameterType = getType(parameterDeclaration.getDeclSpecifier());
+			String parameterType = this.getType(parameterDeclaration.getDeclSpecifier());
 			if (this.getLocation(functionDeclarator.getName()) != null)
 				var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
-						null, latestValidContainer() , entityRepo.generateId(),
+						null, this.latestValidContainer() , entityRepo.generateId(),
 						getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
 			if(parameterDeclaration != null){
 				if (parameterDeclaration.getParent() instanceof IASTStandardFunctionDeclarator) {
-					if(currentFunction()!=null)
-						currentFunction().setCallbackCall();
+					if(this.currentFunction()!=null)
+						this.currentFunction().setCallbackCall();
 				}
 			}
 
@@ -503,12 +510,12 @@ public class HandlerContext {
 		else {
 			if (parameterDeclaration.getDeclSpecifier() instanceof CPPASTSimpleDeclSpecifier) {
 				String parameterName = parameterDeclaration.getDeclarator().getName().toString();
-				String parameterType = getType(parameterDeclaration.getDeclSpecifier());
+				String parameterType = this.getType(parameterDeclaration.getDeclSpecifier());
 				IASTNode[] declaratorChild = parameterDeclaration.getDeclarator().getChildren();
 				if (declaratorChild.length == 1) {
 					if (getLocation(parameterDeclaration.getDeclarator().getName()) != null) {
 						var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
-								parameterDeclaration.getDeclarator().getName().toString(),  latestValidContainer(), entityRepo.generateId(),
+								parameterDeclaration.getDeclarator().getName().toString(),  this.latestValidContainer(), entityRepo.generateId(),
 								getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
 						entityRepo.add(var);
 					}
@@ -538,7 +545,7 @@ public class HandlerContext {
 					}
 				}
 			}else{
-				String parameterType = getType(parameterDeclaration.getDeclSpecifier());
+				String parameterType = this.getType(parameterDeclaration.getDeclSpecifier());
 				var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
 						parameterDeclaration.getDeclarator().getName().toString(),  null, entityRepo.generateId(),
 						getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
@@ -651,8 +658,8 @@ public class HandlerContext {
 		entityStack.push(structEntity);
 		return structEntity;
 	}
-	
-	
+
+
 	/**
 	 * 查找Union定义
 	 *
@@ -664,7 +671,7 @@ public class HandlerContext {
 	public UnionEntity foundUnionDefinition(String UnionName, Location location) {
 		this.currentScope = this.entityStack.peek().getScope();
 		int id = entityRepo.generateId();
-		
+
 		UnionScope symbol = new UnionScope(UnionName, id);
 		if(this.currentScope.getSymbolByKind(UnionName, Configure.Union)==null) {
 			this.currentScope.define(symbol, Configure.Union);
@@ -681,7 +688,7 @@ public class HandlerContext {
 		entityStack.push(unionEntity);
 		return unionEntity;
 	}
-	
+
 
 	/**
 	 * 根据枚举名称和位置查找枚举定义
@@ -705,7 +712,7 @@ public class HandlerContext {
 				this.currentScope.define(symbol, Configure.Enum);
 			}
 		}
-		
+
 		EnumEntity enumeration = new EnumEntity(enumName, resolveName(enumName),
 				this.latestValidContainer(), id, symbol, location);
 		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), enumeration, RelationType.DEFINE,
@@ -714,8 +721,8 @@ public class HandlerContext {
 		entityStack.push(enumeration);
 		return enumeration;
 	}
-	
-	
+
+
 
 	/**
 	 * 查找枚举定义
@@ -737,6 +744,7 @@ public class HandlerContext {
 				this.currentFileEntity.getId(), enumertorEntity.getLocation().getStartLine(), enumertorEntity.getLocation().getStartOffset()));
 		return enumertorEntity;
 	}
+
 
 
 	/**
@@ -830,7 +838,6 @@ public class HandlerContext {
 		return entity;
 	}
 
-
 	/**
 	 * 查找label定义
 	 *
@@ -851,7 +858,7 @@ public class HandlerContext {
 				}
 			}
 		}
-		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), labelEntity, RelationType.DEFINE,
+		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), labelEntity, RelationType.EXTERN_DECLARE,
 				this.currentFileEntity.getId(), labelEntity.getLocation().getStartLine(), labelEntity.getLocation().getStartOffset()));
 		return labelEntity;
 	}
@@ -893,22 +900,6 @@ public class HandlerContext {
 		return typedefEntity;
 	}
 
-	/**
-	 * 创建新的别名并返回一个AliasEntity对象
-	 *
-	 * @param aliasName 别名名称
-	 * @param referToEntity 别名所指向的实体
-	 * @param location 别名的位置信息
-	 * @return 返回一个AliasEntity对象，表示新创建的别名
-	 */
-	public AliasEntity foundNewAlias(String aliasName, Entity referToEntity, Location location) {
-		this.currentScope = this.entityStack.peek().getScope();
-		AliasEntity currentTypeEntity = new AliasEntity(aliasName, resolveName(aliasName),this.latestValidContainer(),
-				entityRepo.generateId(),aliasName, location);
-		currentTypeEntity.setReferToEntity(referToEntity);
-		entityRepo.add(currentTypeEntity);
-		return currentTypeEntity;
-	}
 
 	/**
 	 * 查找新别名
@@ -954,6 +945,24 @@ public class HandlerContext {
 
 
 	/**
+	 * 创建新的别名并返回一个AliasEntity对象
+	 *
+	 * @param aliasName 别名名称
+	 * @param referToEntity 别名所指向的实体
+	 * @param location 别名的位置信息
+	 * @return 返回一个AliasEntity对象，表示新创建的别名
+	 */
+	public AliasEntity foundNewAlias(String aliasName, Entity referToEntity, Location location) {
+		this.currentScope = this.entityStack.peek().getScope();
+		AliasEntity currentTypeEntity = new AliasEntity(aliasName, resolveName(aliasName),this.latestValidContainer(),
+				entityRepo.generateId(),aliasName, location);
+		currentTypeEntity.setReferToEntity(referToEntity);
+		entityRepo.add(currentTypeEntity);
+		return currentTypeEntity;
+	}
+
+
+	/**
 	 * 找到代码作用域
 	 *
 	 * @param statement 包含代码范围的语句
@@ -964,7 +973,6 @@ public class HandlerContext {
 				-1, scope, new Location(-1, -1, -1, -1,
 				this.currentFileEntity.getId()));
 	}
-
 
 	/**
 	 * 获取传入的IASTDeclSpecifier对象的类型
@@ -1007,6 +1015,7 @@ public class HandlerContext {
 				node.getFileLocation().getEndingLineNumber(), node.getFileLocation().getNodeOffset(),
 				currentFileEntity.getId());
 	}
+
 
 	/**
 	 * 判断给定的节点是否为模板
@@ -1111,8 +1120,17 @@ public class HandlerContext {
 				// *， /， %， +， -， <<， >>， <， >， <=， >=，
 				// &， ^， |， &&， ||， ==， !=， .，
 				// ->， max()， min()， ...
-				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.USE);
-				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
+				List<IASTIdExpression> idExpressions = findAllIdExpressions((IASTExpression)binaryExp);
+				for(IASTIdExpression idExpression:idExpressions){
+					String entityInformation = this.getBinding(idExpression.getName());
+					this.latestValidContainer().addBindingRelation(RelationType.USE,
+							entityInformation,
+							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+							expression.getFileLocation().getNodeOffset());
+
+				}
+//				this.dealExpressionNode(binaryExp.getOperand1(), RelationType.USE);
+//				this.dealExpressionNode(binaryExp.getOperand2(), RelationType.USE);
 			}
 		}
 		if(expression instanceof CPPASTCastExpression) {
@@ -1172,8 +1190,8 @@ public class HandlerContext {
 			// TODO : 待处理依赖类型
 			if(expression.getFileLocation() != null)
 				this.latestValidContainer().addBindingRelation(relationType,
-					entityInformation, this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
-					expression.getFileLocation().getNodeOffset());
+						entityInformation, this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+						expression.getFileLocation().getNodeOffset());
 		}
 		/**
 		 * 如果expression是CPPASTConditionalExpression的实例，则处理条件表达式节点
@@ -1203,7 +1221,7 @@ public class HandlerContext {
 	public void dealFunctionExpressionNode(IASTExpression expression,int expressionType, IASTInitializerClause[] iastInitializerClauses){
 
 		if(expression instanceof CPPASTIdExpression) {
-			// Begin of arguments processing
+			// 开始处理参数
 			ArrayList<String> arguementsInformation = new ArrayList<>();
 			ArrayList<Integer> argReCatInfor = new ArrayList<>();
 			ArrayList<Integer> argIndex = new ArrayList<>();
@@ -1249,7 +1267,8 @@ public class HandlerContext {
 					// System.out.println("Haven't processing to \" " + initializerClause.getClass().toString() + "\" type parameters");
 				}
 			}
-			// End of arguments processing
+			// 处理参数结束
+
 			String entityInformation = this.getBinding(((CPPASTIdExpression) expression).getName());
 			if(expression.getFileLocation() != null){
 				if(entityInformation == null) {
@@ -1328,7 +1347,7 @@ public class HandlerContext {
 			dealExpression(expression);
 		}
 	}
-	
+
 
 	/**
 	 * 处理表达式节点
@@ -1340,7 +1359,7 @@ public class HandlerContext {
 		/*
 			使用currentRelationType进行设置依赖类型
 		 */
-		if(this.currentRelationType == 0){
+		if(this.currentRelationType != 0){
 			expressionType = currentRelationType;
 		}
 
@@ -1349,11 +1368,15 @@ public class HandlerContext {
 			IASTFileLocation location = expression.getFileLocation();
 			if(expression.getFileLocation() != null){
 				if(this.currentRelationType == 0){
-					this.relationRepo.addBindingRelation(new BindingRelation(expressionType,
-							this.currentRelationFromEntityName, entityInformation,
-							this.currentFileEntity.getId(),
-							expression.getFileLocation().getStartingLineNumber(),
-							expression.getFileLocation().getNodeOffset()));
+//					this.relationRepo.addBindingRelation(new BindingRelation(expressionType,
+//							this.currentRelationFromEntityName, entityInformation,
+//							this.currentFileEntity.getId(),
+//							expression.getFileLocation().getStartingLineNumber(),
+//							expression.getFileLocation().getNodeOffset()));
+					this.latestValidContainer().addBindingRelation(expressionType,
+							entityInformation,
+							this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+							expression.getFileLocation().getNodeOffset());
 				}
 				else if(entityInformation == null) {
 					this.latestValidContainer().addScopeRelation(expressionType, expression.getRawSignature(),
@@ -1367,6 +1390,12 @@ public class HandlerContext {
 							expression.getFileLocation().getNodeOffset());
 				}
 			}
+		}else if(expression instanceof CPPASTArraySubscriptExpression){
+			CPPASTArraySubscriptExpression cppastArraySubscriptExpression = (CPPASTArraySubscriptExpression)expression;
+			ICPPASTExpression arrayExpression = cppastArraySubscriptExpression.getArrayExpression();
+			if(arrayExpression instanceof CPPASTIdExpression | arrayExpression instanceof CPPASTArraySubscriptExpression){
+				dealExpressionNode(arrayExpression, expressionType);
+			}
 		}else if(expression instanceof CPPASTLiteralExpression){
 			/*   自然数值  */
 
@@ -1374,8 +1403,8 @@ public class HandlerContext {
 			dealExpression(expression);
 		}
 	}
-	
-	
+
+
 	/**
 	 * 通过binding获取实体信息
 	 *
@@ -1392,6 +1421,15 @@ public class HandlerContext {
 		switch(node.getClass().toString()) {
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPVariable":
 				definitionNode = ((CPPVariable)node).getDefinition();
+				if(definitionNode == null){
+					IASTName[] declarationNames = ((CPPVariable)node).getDeclarations();
+					for(IASTName declarationName:declarationNames){
+						String infor = declarationName.getFileLocation().getFileName() + declarationName.getFileLocation().getNodeOffset();
+						if(infor != null){
+							return infor;
+						}
+					}
+				}
 				break;
 			case "class org.eclipse.cdt.internal.core.dom.parser.cpp.CPPParameter":
 				definitionNode = ((CPPParameter)node).getPhysicalNode();
@@ -1463,7 +1501,6 @@ public class HandlerContext {
 		return null;
 	}
 
-
 	/**
 	 * 返回最新的FunctionEntity实体
 	 *
@@ -1486,9 +1523,9 @@ public class HandlerContext {
 	public DataAggregateEntity latestValidContainer() {
 		for (int i = entityStack.size() - 1; i >= 0; i--) {
 			Entity t = entityStack.get(i);
-			if (t instanceof FunctionEntity) 
+			if (t instanceof FunctionEntity)
 				return (FunctionEntity)t;
-			if (t instanceof FileEntity)	
+			if (t instanceof FileEntity)
 				return (FileEntity)t;
 			if (t instanceof StructEntity)
 				return (StructEntity)t;
@@ -1506,6 +1543,7 @@ public class HandlerContext {
 	}
 
 
+
 	/**
 	 * 返回栈顶的实体对象，并从栈中弹出。
 	 *
@@ -1518,14 +1556,14 @@ public class HandlerContext {
 		}
 		return null;
 	}
-	
-	
+
+
 	/**
-	* @methodsName: popScope
-	* @description: pop scope from stack
-	* @param: null
-	* @return: void
-	*/
+	 * @methodsName: popScope
+	 * @description: pop scope from stack
+	 * @param: null
+	 * @return: void
+	 */
 	public void popScope() {
 //		this.currentScope = this.currentScope.getEnclosingScope();
 //		if(this.currentScope instanceof FunctionSymbol){
@@ -1535,5 +1573,5 @@ public class HandlerContext {
 //		}
 	}
 
-	
+
 }

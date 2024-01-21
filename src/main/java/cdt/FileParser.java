@@ -58,84 +58,88 @@ public class FileParser {
 	 */
 	public void parse( ) throws Exception {
 //		try{
-			if(exitFile(filepath)) {
-				if(isFileParse(filepath)) {
-					return ;
-				}
+		if(exitFile(filepath)) {
+			if(isFileParse(filepath)) {
+				return ;
 			}
-			System.out.println("Parse file path: " + this.filepath);
-			fileList.put(filepath,1);
-			final FileContent content = FileContent.createForExternalFileLocation(filepath);
-			if(content == null){
-				return;
+		}
+		System.out.println("Parse file path: " + this.filepath);
+		fileList.put(filepath,1);
+		final FileContent content = FileContent.createForExternalFileLocation(filepath);
+		if(content == null){
+			return;
+		}
+		IParserLogService log = new DefaultLogService();
+		boolean isIncludePath = false;
+		String[] includePaths = new String[0];
+		definedMacros.put("__cplusplus", "1");
+		definedMacros.put("DT_VOID", "");
+		IASTTranslationUnit tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
+				new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
+				EmptyCIndex.INSTANCE, 0, log);
+
+		CppVisitor visitor = new CppVisitor(entityrepo, relationrepo, filepath);
+		fileEntity = visitor.getfile();
+		HashMap<String, Integer> includePathset = getdirectedinclude(tu);
+
+//			ArrayList<String> includeFilePathsArray = new ArrayList<>();
+		for(String includePath:includePathset.keySet()) {
+			if(!isFileParse(includePath)) {
+				FileParser fileparse = new FileParser(includePath, entityrepo, relationrepo, fileList, Program_environment);
+				fileparse.parse();
 			}
-			IParserLogService log = new DefaultLogService();
-			boolean isIncludePath = false;
-			String[] includePaths = new String[0];
-			definedMacros.put("__cplusplus", "1");
-			IASTTranslationUnit tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
-					new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
-					EmptyCIndex.INSTANCE, 0, log);
-
-			CppVisitor visitor = new CppVisitor(entityrepo, relationrepo, filepath);
-			fileEntity = visitor.getfile();
-			HashMap<String, Integer> includePathset = getdirectedinclude(tu);
-
-			ArrayList<String> includeFilePathsArray = new ArrayList<>();
-			for(String includePath:includePathset.keySet()) {
-
-				if(!isFileParse(includePath)) {
-					FileParser fileparse = new FileParser(includePath, entityrepo, relationrepo, fileList, Program_environment);
-					fileparse.parse();
-				}
-				if(entityrepo.getEntityByName(includePath)!=null && entityrepo.getEntityByName(includePath) instanceof FileEntity) {
-					FileEntity includeFileEntity = (FileEntity)entityrepo.getEntityByName(includePath);
-					fileEntity.addincludeEntity(includeFileEntity);
-					fileEntity.addRelation(new Relation(fileEntity, includeFileEntity, RelationType.INCLUDE, fileEntity.getId(),
-							includePathset.get(includePath), -1));
-					includeFilePathsArray.add(includeFileEntity.getQualifiedName());
-					definedMacros.putAll(includeFileEntity.getMacroRepo());
-					fileEntity.getMacroRepo().putAll(includeFileEntity.getMacroRepo());
-				}
-				isIncludePath = true;
+			if(entityrepo.getEntityByName(includePath)!=null && entityrepo.getEntityByName(includePath) instanceof FileEntity) {
+				FileEntity includeFileEntity = (FileEntity)entityrepo.getEntityByName(includePath);
+				fileEntity.addincludeEntity(includeFileEntity);
+				fileEntity.addRelation(new Relation(fileEntity, includeFileEntity, RelationType.INCLUDE, fileEntity.getId(),
+						includePathset.get(includePath), -1));
+//					includeFilePathsArray.add(includeFileEntity.getQualifiedName());
+				definedMacros.putAll(includeFileEntity.getMacroRepo());
+				fileEntity.getMacroRepo().putAll(includeFileEntity.getMacroRepo());
 			}
-			getMacro(filepath);
-			if(isIncludePath) {
-				final String[] EMPTY_ARRAY_STRING = new String[0];
-				Map<String, String> macroMap = new HashMap<>();
-				// Returns an array of paths that are searched when processing an include directive.
-				String[] includePath = new String[includeFilePathsArray.size()];
-				String[] includeFiles = new String[includeFilePathsArray.size()];
-				for(int i=0; i<includeFilePathsArray.size();i++){
-					String filePath = includeFilePathsArray.get(i);
-					File file = new File(filePath);
-					includePath[i] = file.getParent();
-					includeFiles[i] = file.getName();
-				}
-				String[] macroFiles = EMPTY_ARRAY_STRING;
-				IScannerInfo scannerInfo = new ExtendedScannerInfo(macroMap, includePath, macroFiles, includeFiles);;
-				InternalFileContentProvider includeContentProvider = new InternalFileContentProvider() {
-					@Override
-					public InternalFileContent getContentForInclusion(String filePath, IMacroDictionary macroDictionary) {
-						InternalFileContent ifc = (InternalFileContent) FileContent.createForExternalFileLocation(filePath);
-						return ifc;
-					}
-					@Override
-					public InternalFileContent getContentForInclusion(IIndexFileLocation ifl, String astPath) {
-						InternalFileContent c = InternalParserUtil.createFileContent(ifl);
-						return c;
-					}
-				};
+			isIncludePath = true;
+		}
+		getMacro(filepath);
+		/*
+		 * 当存在Include关系时，建立一个include循环
+		 */
+		ArrayList<String> includeFilePathsArray =new ArrayList<String>(fileEntity.getIncludeFilePathsArray());
 
-				IIndex idx = new CIndex(new IIndexFragment[] {});
-				int options = ILanguage.OPTION_PARSE_INACTIVE_CODE;
-
-				tu = GPPLanguage.getDefault().getASTTranslationUnit(content, scannerInfo, includeContentProvider, idx, options, log);
+		if(isIncludePath) {
+			final String[] EMPTY_ARRAY_STRING = new String[0];
+			Map<String, String> macroMap = new HashMap<>();
+			// Returns an array of paths that are searched when processing an include directive.
+			String[] includePath = new String[includeFilePathsArray.size()];
+			String[] includeFiles = new String[includeFilePathsArray.size()];
+			for(int i=0; i<includeFilePathsArray.size();i++){
+				String filePath = includeFilePathsArray.get(i);
+				File file = new File(filePath);
+				includePath[i] = file.getParent();
+				includeFiles[i] = file.getName();
 			}
-			IASTPreprocessorStatement[] statements= tu.getAllPreprocessorStatements();
-			getallstatements(statements);
+			String[] macroFiles = EMPTY_ARRAY_STRING;
+			IScannerInfo scannerInfo = new ExtendedScannerInfo(macroMap, includePath, macroFiles, includeFiles);;
+			InternalFileContentProvider includeContentProvider = new InternalFileContentProvider() {
+				@Override
+				public InternalFileContent getContentForInclusion(String filePath, IMacroDictionary macroDictionary) {
+					InternalFileContent ifc = (InternalFileContent) FileContent.createForExternalFileLocation(filePath);
+					return ifc;
+				}
+				@Override
+				public InternalFileContent getContentForInclusion(IIndexFileLocation ifl, String astPath) {
+					InternalFileContent c = InternalParserUtil.createFileContent(ifl);
+					return c;
+				}
+			};
 
-			tu.accept(visitor);
+			IIndex idx = new CIndex(new IIndexFragment[] {});
+			int options = ILanguage.OPTION_PARSE_INACTIVE_CODE;
+			tu = GPPLanguage.getDefault().getASTTranslationUnit(content, scannerInfo, includeContentProvider, idx, options, log);
+		}
+		IASTPreprocessorStatement[] statements= tu.getAllPreprocessorStatements();
+		getallstatements(statements);
+
+		tu.accept(visitor);
 	}
 
 
@@ -339,8 +343,8 @@ public class FileParser {
 		if (scanner==null) return;
 		Map<String, IMacroBinding> macros = scanner.getMacroDefinitions();
 	}
-	
-	
+
+
 
 	public String uniformPath(String root, String include_file) {
 		String[] root_split = root.split("[/|\\\\]");
@@ -368,7 +372,7 @@ public class FileParser {
 				return sb.toString();
 			}
 		}
-		
+
 		boolean isRoot = false;
 		int same_location = -1;
 		int include_file_length = include_file_split.length;
@@ -447,7 +451,7 @@ public class FileParser {
 			if (i<pathStack.size()-1)
 				sb.append(File.separator);
 		}
-		
+
 		return sb.toString();
 	}
 
