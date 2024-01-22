@@ -14,7 +14,7 @@ name: Use Declaration
 
 ###### Ordinary Use
 
-```cpp
+```CPP
 extern int var1;
 int func() {
     int local_var = var1; // use of var1
@@ -31,7 +31,7 @@ relation:
             loc: file0:3:21
 ```
 ###### Deref Use
-```cpp
+```CPP
 int func(int i){
     int a,*b=0;
     a = *b; 
@@ -48,7 +48,7 @@ relation:
             to: Variable:'b'
 ```
 ###### Class Member Use
-```cpp
+```CPP
 class A{
 public:
     int x;
@@ -70,7 +70,7 @@ relation:
 
 
 ###### Class Use
-```cpp
+```CPP
 class A{ /* empty */ }
 int main(){
     A a;
@@ -89,7 +89,7 @@ relation:
 
 
 ###### Function Use Macro
-```cpp
+```CPP
 #define dou double
 int main(){
     dou number;

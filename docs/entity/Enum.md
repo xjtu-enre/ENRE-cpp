@@ -23,7 +23,7 @@ enum struct|class name : type ;	(4)
 
 
 ###### Enum Declaration
-```cpp
+```CPP
 enum A : int;
 ```
 
@@ -37,7 +37,7 @@ enum A : int;
 ```
 
 ###### Enum
-```cpp
+```CPP
 enum Color {};
 ```
 
@@ -51,7 +51,7 @@ enum Color {};
 ```
 
 ###### Enum Class
-```cpp
+```CPP
 enum class Handle {};
 ```
 
@@ -65,7 +65,7 @@ enum class Handle {};
 ```
 
 ###### Enum Struct
-```cpp
+```CPP
 enum struct Handle {};
 ```
 
@@ -80,7 +80,7 @@ enum struct Handle {};
 
 
 ###### Typedef Enum
-```cpp
+```CPP
 typedef enum{
     Monday = 1;
     Tuesday
@@ -97,7 +97,7 @@ typedef enum{
 ```
 
 ###### Enums with no enumerators
-```cpp
+```CPP
 enum class byte : unsigned char { };
 enum class E : int { };
 E e1{ 0 };

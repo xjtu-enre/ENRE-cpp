@@ -1,19 +1,19 @@
-import cdt.CDTParser;
-import cdt.TypeBinding;
+package cdt;
+
+import entity.Entity;
 import entity.EntityRepo;
-import entity.FunctionEntity;
-import entity.VarEntity;
+import relation.Relation;
 import relation.RelationContext;
 import relation.RelationRepo;
-import symtab.Type;
 import util.FileTraversal;
 import util.FileUtil;
 import util.JSONString;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -28,13 +28,13 @@ public class Processor {
 	TypeBinding typeBinding;
 	RelationContext relationcontext ;
 	
-
 	/**
-	 * 解析指定目录下所有文件
-	 *
-	 * @param inputSrcPath 指定目录路径
-	 * @throws Exception 解析文件过程中可能抛出的异常
-	 */
+	* @methodsName: parseAllFlie
+	* @description: Enter the project root path, start the project analysis
+	* @param:  String inputSrcPath
+	* @return: void
+	* @throws: 
+	*/
 	public static void parseAllFile(String inputSrcPath) throws Exception {
 		FileTraversal fileTrasversal = new FileTraversal(new FileTraversal.IFileVisitor() {
 			@Override
@@ -51,11 +51,12 @@ public class Processor {
 	}
 	
 	/**
-	 * 解析单个文件
-	 *
-	 * @param inputSrcPath 输入源路径
-	 * @throws Exception 解析过程中可能抛出的异常
-	 */
+	* @methodsName: parseFile
+	* @description: Analyze individual files
+	* @param:  String inputSrcPath
+	* @return: void
+	* @throws: 
+	*/
 	public static void parseFile(String inputSrcPath) throws Exception {
 		cdtparser.setFileList(fileList);
 		cdtparser.parseFile(inputSrcPath);
@@ -63,10 +64,12 @@ public class Processor {
 	
 	
 	/**
-	 * 依赖构建函数
-	 *
-	 * @throws Exception 抛出异常
-	 */
+	* @methodsName: dependencyBuild
+	* @description: Dependency analysis function
+	* @param:  null
+	* @return: void
+	* @throws: 
+	*/
 	public void dependencyBuild() throws Exception {
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
 		RelationRepo relationRepo = cdtparser.getRelationRepo();
@@ -77,34 +80,29 @@ public class Processor {
 		this.relationcontext.FunctionDeal();
 		this.relationcontext.NamespaceAliasDeal();
 		this.relationcontext.relationListDealAfter();
-		this.relationcontext.externRelationDeal();
 	}
 
-	/**
-	 * 类型绑定:包含类型绑定、extern信息处理等，需要依赖构建
-	 *
-	 * @throws Exception 类型绑定过程中可能抛出的异常
-	 */
 	public void typeBinding() throws Exception{
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
-		ArrayList<VarEntity> extern_var = cdtparser.getEntityRepo().getExternVarList();
-		ArrayList<FunctionEntity> exter_func = cdtparser.getEntityRepo().getExternFuncList();
 		this.typeBinding = new TypeBinding(entityrepo);
-		this.typeBinding.dealExternRelation(extern_var, exter_func);
 		this.typeBinding.typeBindingDeal();
 	}
 
-	/**
-	 * 输出文件
-	 *
-	 * @param projectName 项目名称
-	 * @throws Exception 异常
-	 */
 	public void outputFile(String projectName) throws Exception {
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
 		JSONString node_str = new JSONString();
 		FileOutputStream outputStream = new FileOutputStream(projectName + "_out.json");
-		node_str.writeJsonStream(outputStream, entityrepo.getEntities(), this.relationcontext.getRelationRepo().getrelationrepo());
+		node_str.writeJsonStream(outputStream, entityrepo.getEntities(),
+				this.relationcontext.getRelationRepo().getrelationrepo());
+
+	}
+
+	public Map<Integer, Entity> getEntities(){
+		return cdtparser.getEntityRepo().getEntities();
+	}
+
+	public List<Relation> getRelations(){
+		return this.relationcontext.getRelationRepo().getrelationrepo();
 	}
 
 }

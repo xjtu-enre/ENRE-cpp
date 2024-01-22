@@ -21,17 +21,17 @@ __has_include ( < h-pp-tokens > )	(5)	(since C++17)
 
 ##### Examples 
 ###### Include
-```cpp
-//// file.cpp
+```CPP
+//// file.CPP
 #include <file0.h>
 #include <file1.h>
 ```
-```cpp
+```CPP
 //// file0.h
 int main(){}
 ```
 
-```cpp
+```CPP
 //// file1.h
 int main(){}
 ```
@@ -41,22 +41,22 @@ name: Include
 relation:
     type: Include
     items:
-        -   from: File:'file.cpp'
+        -   from: File:'file.CPP'
             to: File:'file0.h'
             loc: file0:1:11:1:17
-        -   from: File:'file.cpp'
+        -   from: File:'file.CPP'
             to: File:'file1.h'
             loc: file0:2:11:2:17
 ```
 
 ###### Include occur in Function Body
-```cpp
-//// file.cpp
+```CPP
+//// file.CPP
 int main(){
     #include "file0.h"
 }
 ```
-```cpp
+```CPP
 //// file0.h
 int main(){}
 ```

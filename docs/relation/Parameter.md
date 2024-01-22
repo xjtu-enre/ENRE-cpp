@@ -14,7 +14,7 @@ name: Parameter
 ##### Examples
 
 ###### Parameter
-```cpp
+```CPP
 int func(int i){
     return i;
 }
@@ -31,7 +31,7 @@ relation:
 ```
 
 ###### Array Parameter
-```cpp
+```CPP
 int func(int array[]) {
     return -1;
 }

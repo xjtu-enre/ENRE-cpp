@@ -24,7 +24,7 @@ namespace alias_name = nested_name::ns_name;	(3)
 ##### Examples
 
 ###### Using Alias
-```cpp
+```CPP
 namespace base{
     namespace flags{
         class child{
@@ -44,7 +44,7 @@ entity:
 ```
 
 ###### Template Alias
-```cpp
+```CPP
 template<class T>
 using Vec = vector<T, Alloc<T>>; // 类型标识为 vector<T, Alloc<T>>
 ```
@@ -61,7 +61,7 @@ entity:
 
 
 ###### Namespace aliases
-```cpp
+```CPP
 namespace foo {
     namespace bar {
          namespace baz {

@@ -16,7 +16,7 @@ noexcept noexcept(true) throw()
 ##### Examples
 
 ###### Try Catch Exception
-```cpp
+```CPP
 class DbNotFoundError : public std::exception{
     using std::exception::exception;
 };
@@ -38,7 +38,7 @@ relation:
 ```
 
 ###### Throw Exception
-```cpp
+```CPP
 class CConnectionFailed : public std::runtime_error{};
 void CallRPC()
 {

@@ -16,7 +16,7 @@ struct-key attr struct-head-name : base-specifier-list { member-specification }	
 ##### Examples
 
 ###### Struct
-```cpp
+```CPP
 struct MyStruct {
     int value;
 };
@@ -31,7 +31,7 @@ entity:
 ```
 
 ###### Anonymous Struct
-```cpp
+```CPP
 struct{
     int value;
 };
@@ -46,7 +46,7 @@ entity:
 ```
 
 ###### Struct use macro
-```cpp
+```CPP
 #define Mystruct struct 
 Mystruct cell{
     int value;

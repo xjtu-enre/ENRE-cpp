@@ -19,7 +19,7 @@ CallDeclaration :
 
 ###### Function Call
 
-```cpp
+```CPP
 void run_benchmark() {}
 void epoll(){
     run_benchmark();
@@ -38,7 +38,7 @@ relation:
 
 ###### Cross-file Function Call
 
-```cpp
+```CPP
 //// @ext h
 void run_benchmark() {}
 class Dog{
@@ -47,7 +47,7 @@ public:
 }
 ```
 
-```cpp
+```CPP
 #include "file0.h"
 void epoll(){
     run_benchmark();
@@ -71,7 +71,7 @@ relation:
 
 ###### Method Function Call
 
-```cpp
+```CPP
 class dog
 {
 public:
@@ -102,7 +102,7 @@ relation:
 ###### Deref Call
 If an Variable can deref as a function, there maybe a deref call.
 
-```cpp
+```CPP
 void run_benchmark(void (*setup)(void*), void* data) {
     int i;
     for (i = 0; i < count; i++) {
@@ -124,7 +124,7 @@ relation:
 ```
 
 ###### Function Continuous Call
-```cpp
+```CPP
 int funcA(){
     return -1;
 }
@@ -154,7 +154,7 @@ relation:
 
 ###### Function Extern Call
 
-```cpp
+```CPP
 extern int func1(void);
 int func() {
     func1();
@@ -172,7 +172,7 @@ relation:
 ```
 
 ###### Call Class Method Call
-```cpp
+```CPP
 class A{
 public:
     int func(){
@@ -196,7 +196,7 @@ relation:
 ```
 
 ###### Template Function Call Function
-```cpp
+```CPP
 int func(){
     return 0;
 }
@@ -217,7 +217,7 @@ relation:
 ```
 
 ###### Template Call Template
-```cpp
+```CPP
 template<typename S>
 int func(S &s){
     return 0;
@@ -239,7 +239,7 @@ relation:
 ```
 
 ###### Function Call Template
-```cpp
+```CPP
 template<typename S>
 int func(S &s){
     return 0;
@@ -261,7 +261,7 @@ relation:
 ```
 
 ###### Operator Function call
-```cpp
+```CPP
 struct S
 {
    operator ()

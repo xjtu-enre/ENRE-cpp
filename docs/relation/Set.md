@@ -15,7 +15,7 @@ name: Set
 
 ###### Set
 
-```cpp
+```CPP
 int func(int i){
     int j;
     j = i;
@@ -33,7 +33,7 @@ relation:
 ```
 
 ###### Deref Set
-```cpp
+```CPP
 int func(int i){
     int *a,b=0;
     *a = b; 

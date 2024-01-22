@@ -13,7 +13,7 @@ attr(optional) access-specifier(optional) virtual-specifier(optional) class-or-d
 ##### Examples
 
 ###### Struct Extend 
-```cpp
+```CPP
 struct Base {
     int a, b, c;
 };
@@ -42,7 +42,7 @@ relation:
 
 ###### Multi Extend
 
-```cpp
+```CPP
 class Collection { };
 class Book {};
 class CollectionOfBook : public Book, public Collection {};
@@ -63,7 +63,7 @@ relation:
 
 ###### Template Struct Extend
 
-```cpp
+```CPP
 template<class T>
 struct Base<T>{};
 struct Derived : public Base<std::string>{};
@@ -82,7 +82,7 @@ relation:
 
 ###### Template Class Extend
 
-```cpp
+```CPP
 template<class T>
 class Base<T>{};
 class Derived : public Base<std::string>{};

@@ -16,7 +16,7 @@ class-key attr(optional) class-head-name : base-specifier-list { member-specific
 ##### Examples
 
 ###### Class
-```cpp
+```CPP
 class Base { /* empty */};
 class Extend : public Base {/* empty */ };
 ```
@@ -34,7 +34,7 @@ entity:
 ```
 
 ###### Class With Object
-```cpp
+```CPP
 class objClass { /* empty */} obj;
 ```
 
@@ -48,7 +48,7 @@ entity:
 ```
 
 ###### Anonymous Class
-```cpp
+```CPP
 class { /* empty */ };   
 ```
 
@@ -62,7 +62,7 @@ class { /* empty */ };
 ```
 
 ###### Nested Class
-```cpp
+```CPP
 class enclose
 {
     class nested // private member
@@ -84,7 +84,7 @@ class enclose
 ```
 
 ###### Class with final specifier
-```cpp
+```CPP
 class Vector final {
 };
 ```
@@ -99,7 +99,7 @@ class Vector final {
 ```
 
 ###### Class with private-public-protected
-```cpp
+```CPP
 class ExampleClass {
 public:
     int publicVar;
