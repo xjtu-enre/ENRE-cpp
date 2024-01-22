@@ -11,11 +11,27 @@ import java.util.Map;
 public class RelationRepo {
 	
 	List<Relation> dep = new ArrayList<Relation>();
+	private List<BindingRelation> RelationListByBinding = new ArrayList<BindingRelation>();
+	private List<ScopeBindingRelation> RelationListByScopeBinding = new ArrayList<ScopeBindingRelation>();
 	public RelationRepo() {
-		
+
 	}
-	
-	
+
+	public void addScopeBindingRelation(ScopeBindingRelation relation){
+		RelationListByScopeBinding.add(relation);
+	}
+
+	public List<ScopeBindingRelation> getScopeBindingList(){
+		return RelationListByScopeBinding;
+	}
+
+	public void addBindingRelation(BindingRelation relation){
+		RelationListByBinding.add(relation);
+	}
+
+	public List<BindingRelation> getBindingList(){
+		return RelationListByBinding;
+	}
 	/**
 	* @methodsName: addRelation
 	* @description: add a relation into repo

@@ -21,7 +21,7 @@ friend typename-specifier ;         (4)	(since C++11)
 
 ###### Friend Function
 
-```cpp
+```CPP
 class classA{
 public:
     void funcA(){
@@ -50,7 +50,7 @@ relation:
 
 ###### Template Class friends
 
-```cpp
+```CPP
 template<class T> class A {}; // primary
 template<> class A<int> {}; // full
 class X {
@@ -70,7 +70,7 @@ relation:
 
 ###### Template Function friends
 
-```cpp
+```CPP
 class classA{
 public:
     void funcA(){
@@ -94,7 +94,7 @@ relation:
 
 ###### Struct Function Friends
 
-```cpp
+```CPP
 struct X {
     friend void f() {}
 };
@@ -112,7 +112,7 @@ relation:
 ```
 ###### Struct Class Friends
 
-```cpp
+```CPP
 class c{};
 struct X {
     friend class c;

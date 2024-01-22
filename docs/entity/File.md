@@ -17,7 +17,7 @@ name: File
 ##### Examples
 
 ###### File
-```cpp
+```CPP
 //// file.cpp
 ```
 ```yaml

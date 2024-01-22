@@ -18,7 +18,7 @@ using declarator-list ;
 
 ###### Function using Namespace
 
-```cpp
+```CPP
 namespace ns{}
 void func(){
     using namespace ns;
@@ -37,7 +37,7 @@ relation:
 
 ###### File using Namespace
 
-```cpp
+```CPP
 namespace ns{}
 using namespace ns;
 ```
@@ -47,14 +47,14 @@ name: File using Namespace
 relation:
   type: Using
   items:
-    -   from: File:'file0.cpp'
+    -   from: File:'file0.CPP'
         to: Namespace:'ns'
         loc: file0:2:17:2:18
 ```
 
 ###### Class Using Function
 
-```cpp
+```CPP
 class Base {
 private:
     void func() {  }
@@ -77,7 +77,7 @@ relation:
 
 ###### Class Using Variable
 
-```cpp
+```CPP
 class Base {
 private:
     int value = 0;

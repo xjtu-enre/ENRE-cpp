@@ -15,7 +15,7 @@ typedef specifiers-and-qualifiers declarators-and-initializers(optional) ;
 ##### Examples
 
 ###### typedef built-in type
-```cpp
+```CPP
 typedef int int_t;
 ```
 
@@ -29,7 +29,7 @@ typedef int int_t;
 ```
 
 ###### struct typdef 
-```cpp
+```CPP
 typedef struct{ double hi, lo; } range;
 ```
 
@@ -43,7 +43,7 @@ typedef struct{ double hi, lo; } range;
 ```
 
 ###### Function Pointer Typedef
-```cpp
+```CPP
 typedef int (*t_somefunc)(int,int);
 ```
 ```yaml

@@ -19,7 +19,7 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
 
 ###### Normal Enumerator
 
-```cpp
+```CPP
     enum Color { 
         red, 
         green, 
@@ -44,7 +44,7 @@ enum-key can be one of enum, enum class, or enum struct (since C++11).
 
 ###### Enumerator with default value
 
-```cpp
+```CPP
 enum DAY {
     saturday,
     sunday = 0,
@@ -86,7 +86,7 @@ enum DAY {
 
 ###### Enumerator in enum class
 
-```cpp
+```CPP
 namespace CardGame_Scoped
 {
     enum class Suit { Diamonds, Hearts, Clubs, Spades };

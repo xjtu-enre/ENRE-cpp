@@ -9,6 +9,7 @@ public class VarEntity extends Entity{
 	protected boolean isPoint = false;
 	/* Bind the type entity ID to the current var entity */
 	protected Integer TypeID = -1;
+	protected String storageClass;
 	
 	public VarEntity(String name, String qualifiedName,  Entity parent, Integer id, Location location, String type) {
 		super(name,qualifiedName, parent, id, location);

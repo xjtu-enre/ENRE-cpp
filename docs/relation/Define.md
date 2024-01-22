@@ -16,7 +16,7 @@ name: Define Declaration
 
 ###### Define
 
-```cpp
+```CPP
 class Units{
     int x;
 };
@@ -33,10 +33,10 @@ relation:
         -   from: Class:'Units'
             to: Variable:'x'
             loc: file0:2:9
-        -   from: File:'file0.cpp'
+        -   from: File:'file0.CPP'
             to: Class:'Units'
             loc: file0:1:7
-        -   from: File:'file0.cpp'
+        -   from: File:'file0.CPP'
             to: Function:'main'
             loc: file0:4:0
         -   from: Function:'main'
@@ -46,7 +46,7 @@ relation:
 
 ###### Define Enumerator
 
-```cpp
+```CPP
 enum weekday {
     Monday = 1;
     Tuesday = 2;

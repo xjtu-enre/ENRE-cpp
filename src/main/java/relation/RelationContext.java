@@ -1,15 +1,14 @@
 package relation;
 
 import entity.*;
-import entity.Entity.BindingRelation;
+
 import org.eclipse.cdt.core.model.IFunction;
+import org.eclipse.cdt.internal.core.model.LibraryReferenceArchive;
 import symtab.*;
 import util.Configure;
 import util.Tuple;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class RelationContext {
 	EntityRepo entityRepo;
@@ -17,10 +16,10 @@ public class RelationContext {
 	List<FileEntity> FileList;
 	int entityRepoSize;
 
-	public RelationContext(EntityRepo entityrepo) {
+	public RelationContext(EntityRepo entityrepo, RelationRepo relationRepo) {
 		this.entityRepo = entityrepo;
 		entityRepoSize = entityrepo.generateId();
-		this.relationRepo = new RelationRepo();
+		this.relationRepo = relationRepo;
 		this.FileList = entityrepo.getFileEntities();
 	}
 
@@ -36,14 +35,16 @@ public class RelationContext {
 		while (iterator.hasNext()) {
 			Entity entity = iterator.next();
 			for(BindingRelation bindingre :entity.getRelationListByBinding()) {
-				Entity toEntity = entityRepo.getEntityByLocation(bindingre.getLocationInfor());
-				if(toEntity == null) {
-					toEntity = this.findTheEntity(bindingre.getLocationInfor(), entity);
-					if(toEntity == null) continue;
+				if(bindingre.getLocationInfor() != null){
+					Entity toEntity = entityRepo.getEntityByLocation(bindingre.getLocationInfor());
+					if(toEntity == null) {
+						toEntity = this.findTheEntity(bindingre.getLocationInfor(), entity);
+						if(toEntity == null) continue;
+					}
+					Relation re = new Relation(entity, toEntity, bindingre.getRelationType(), bindingre.getFileID(),
+							bindingre.getStartLine(), bindingre.getStartOffset(), bindingre.getParameterIndex());
+					relationRepo.addRelation(re);
 				}
-				Relation re = new Relation(entity, toEntity, bindingre.getRelationType(), bindingre.getFileID(),
-						bindingre.getStartLine(), bindingre.getStartOffset());
-				relationRepo.addRelation(re);
 			}
 			for(ScopeRelation relation :entity.getRelationListByScope()) {
 				Entity toEntity = this.findTheEntity(relation.getToEntity(), entity);
@@ -79,6 +80,28 @@ public class RelationContext {
 				relationRepo.addRelation(relation);
 			}
 		}
+		for(BindingRelation bindingRelation: relationRepo.getBindingList()){
+			if(bindingRelation.getFromEntityInfo() != null && bindingRelation.getLocationInfor()!=null){
+				Entity FromEntity = entityRepo.getEntityByLocation(bindingRelation.getFromEntityInfo());
+				Entity toEntity = entityRepo.getEntityByLocation(bindingRelation.getLocationInfor());
+				if(FromEntity!= null && toEntity != null) {
+					Relation re = new Relation(FromEntity, toEntity, bindingRelation.getRelationType(), bindingRelation.getFileID(),
+							bindingRelation.getStartLine(),bindingRelation.getStartOffset(), bindingRelation.getParameterIndex());
+					relationRepo.addRelation(re);
+				}
+			}
+		}
+		for(ScopeBindingRelation scopeBindingRelation: relationRepo.getScopeBindingList()){
+			Entity fromEntity = this.findTheEntity(scopeBindingRelation.getFromEntityInfo(), scopeBindingRelation.getDataAggregateEntity());
+			if(fromEntity == null) fromEntity = entityRepo.getEntityByName(scopeBindingRelation.getFromEntityInfo());
+			if(fromEntity == null) continue;
+			Entity toEntity = entityRepo.getEntityByLocation(scopeBindingRelation.getLocationInfor());
+			if(toEntity != null) {
+				Relation re = new Relation(fromEntity, toEntity, scopeBindingRelation.getRelationType(), scopeBindingRelation.getFileID(),
+						scopeBindingRelation.getStartLine(),scopeBindingRelation.getStartOffset(), scopeBindingRelation.getParameterIndex());
+				relationRepo.addRelation(re);
+			}
+		}
 	}
 
 	public void AggregateDeal() {
@@ -100,7 +123,7 @@ public class RelationContext {
 						String usingEntity = relation.getToEntity();
 						Entity toEntity = this.findTheEntity(usingEntity, entity);
 						if(toEntity!=null) {
-							Relation re = new Relation(entity, toEntity, "Using", relation.getFileID(),
+							Relation re = new Relation(entity, toEntity, RelationType.USING, relation.getFileID(),
 									relation.getStartLine(), relation.getStartOffset());
 							relationRepo.addRelation(re);
 						}
@@ -125,7 +148,7 @@ public class RelationContext {
 				for (ScopeRelation friend_relation : friend_relations) {
 					Entity fromentity = this.findTheEntity(friend_relation.getToEntity(), entity);
 					if (fromentity != null) {
-						Relation re = new Relation(entity, fromentity,  "Friend",
+						Relation re = new Relation(entity, fromentity,  RelationType.FRIEND,
 								friend_relation.getFileID(), friend_relation.getStartLine(), friend_relation.getStartOffset());
 						relationRepo.addRelation(re);
 					}
@@ -134,7 +157,7 @@ public class RelationContext {
 				for (ScopeRelation friend_relation : friend_Functions) {
 					Entity fromentity = this.findTheEntity(friend_relation.getToEntity(), entity);
 					if (fromentity != null) {
-						Relation re = new Relation(entity, fromentity,  "Friend",
+						Relation re = new Relation(entity, fromentity,  RelationType.FRIEND,
 								friend_relation.getFileID(), friend_relation.getStartLine(), friend_relation.getStartOffset());
 						relationRepo.addRelation(re);
 					}
@@ -166,7 +189,7 @@ public class RelationContext {
 				for (Entity parameterEntity : ((FunctionEntity) entity).getParameter()) {
 					if (parameterEntity != null) {
 						if(parameterEntity.getLocation() != null){
-							Relation re = new Relation(entity, parameterEntity, "Parameter",
+							Relation re = new Relation(entity, parameterEntity, RelationType.PARAMETER,
 									parameterEntity.getLocation().getFile(),
 									parameterEntity.getLocation().getStartLine(), parameterEntity.getLocation().getStartOffset());
 							relationRepo.addRelation(re);
@@ -175,7 +198,7 @@ public class RelationContext {
 				}
 				Entity returnEntity = ((FunctionEntity) entity).getReturnEntity();
 				if (returnEntity != null) {
-					Relation re = new Relation(entity, returnEntity, "Return");
+					Relation re = new Relation(entity, returnEntity, RelationType.RETURN);
 					relationRepo.addRelation(re);
 				}
 //				if (entity instanceof FunctionEntity) {
@@ -202,7 +225,7 @@ public class RelationContext {
 					if(entity.getScope() == null) continue;
 					Entity namespace = this.findTheEntity(((NamespaceAliasEntity) entity).getToNamespaceName(), entity);
 					if(namespace != null){
-						Relation aliasDep= new Relation(entity, namespace, "Alias", entity.getLocation().getFile(),
+						Relation aliasDep= new Relation(entity, namespace, RelationType.ALIAS, entity.getLocation().getFile(),
 								entity.getLocation().getStartLine(), entity.getLocation().getStartOffset());
 						relationRepo.addRelation(aliasDep);
 					}
@@ -341,7 +364,7 @@ public class RelationContext {
 					Entity toEntity = entityRepo.getEntity(toScope.getSymbolByKind(function_name, Configure.Function).getEntityID());
 					Relation re = new Relation(
 							toEntity, entityRepo.getEntity(fromScope.getSymbolByKind(function_name, Configure.Function).getEntityID()),
-							 "Override", toEntity.getLocation().getFile(), toEntity.getLocation().getStartLine(),
+							 RelationType.OVERRIDE, toEntity.getLocation().getFile(), toEntity.getLocation().getStartLine(),
 							toEntity.getLocation().getStartOffset());
 					relationRepo.addRelation(re);
 				}
@@ -359,17 +382,72 @@ public class RelationContext {
 						Entity parent = entityRepo.getEntity(entity.getParentId());
 						Entity type = entityRepo.getEntity(((VarEntity) entity).getTypeID());
 						if(parent instanceof StructEntity & type instanceof StructEntity){
-							relationRepo.addRelation(new Relation(parent, type, "Embed",
+							relationRepo.addRelation(new Relation(parent, type, RelationType.EMBED,
 									entity.getLocation().getFile(), entity.getLocation().getStartLine(),
 									entity.getLocation().getStartOffset()));
 						}else if(parent instanceof FunctionEntity & type instanceof StructEntity){
 							if(entity.getLocation() != null)
-								relationRepo.addRelation(new Relation(parent, type, "typeUse",
+								relationRepo.addRelation(new Relation(parent, type, RelationType.TYPEUSE,
 										entity.getLocation().getFile(), entity.getLocation().getStartLine(),
 										entity.getLocation().getStartOffset()));
 						}
 					}
 				}
+			}
+		}
+		/*
+			Add dependencies on arguments and parameters
+		 */
+		Map<Integer, Map<Integer, Integer>> function_parameter = new HashMap<>();
+		List<Relation> relationList = this.getRelationRepo().getrelationrepo();
+		for (Relation relation: relationList) {
+			if(relation.getType() == RelationType.PARAMETER){
+				Entity from_entity = relation.getFromEntity();
+				Entity to_entity =relation.getToEntity();
+				if(to_entity instanceof ParameterEntity){
+					if(function_parameter.get(from_entity.getId()) == null){
+						function_parameter.put(from_entity.getId(), new HashMap<Integer, Integer>());
+					}
+					function_parameter.get(from_entity.getId()).put(((ParameterEntity) to_entity).getIndex(), to_entity.getId());
+				}
+
+			}
+		}
+		List<Relation> flowToRelation = new ArrayList<>();
+		for(Relation relation: relationList) {
+			if (relation.getType() == RelationType.PARAMETER_USE ||
+					relation.getType() == RelationType.ADDR_PARAMETER_USE ||
+					relation.getType() == RelationType.PARAMETER_USE_FIELD_REFERENCE) {
+				Entity from_entity = relation.getFromEntity();
+				Entity to_entity = relation.getToEntity();
+				if(from_entity instanceof FunctionEntity){
+					Integer parameterIndex = relation.getParameterIndex();
+					if(parameterIndex != -1 &&
+							function_parameter.containsKey(from_entity.getId()) &&
+							function_parameter.get(from_entity.getId()).containsKey(parameterIndex)){
+						flowToRelation.add(new Relation(to_entity,
+								entityRepo.getEntity(function_parameter.get(from_entity.getId()).get(parameterIndex)),
+								RelationType.FLOWTO,
+								relation.getFileID(),
+								relation.getStartLine(),
+								relation.getStartOffset()));
+					}
+				}
+			}
+		}
+		for(Relation relation : flowToRelation){
+			this.relationRepo.addRelation(relation);
+		}
+	}
+
+	public void externRelationDeal(){
+		for(Relation re: relationRepo.getrelationrepo()){
+			if(re.getType() == RelationType.DECLARE) continue;
+			if(re.getFromEntity().getExternalId() != -1){
+				re.reSetFromEntity(entityRepo.getEntity(re.getFromEntity().getExternalId()));
+			}
+			if(re.getToEntity().getExternalId() != -1){
+				re.reSetToEntity(entityRepo.getEntity(re.getToEntity().getExternalId()));
 			}
 		}
 	}

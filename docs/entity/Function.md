@@ -25,7 +25,7 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
 ##### Examples
 
 ###### Function 
-```cpp
+```CPP
 void func(){ /* empty */ }
 ```
 
@@ -39,7 +39,7 @@ entity:
 ```
 
 ###### Function with Parameter
-```cpp
+```CPP
 void func(int i){ /* empty */ }
 ```
 
@@ -53,7 +53,7 @@ entity:
 ```
 
 ###### Inline Function
-```cpp
+```CPP
 inline void func(){ /* empty */ }
 ```
 
@@ -67,7 +67,7 @@ entity:
 ```
 
 ###### Struct Method
-```cpp
+```CPP
 struct Linear {
     int func() {
         return 0;
@@ -85,7 +85,7 @@ struct Linear {
 ```
 
 ###### Functions with Variable Argument Lists
-```cpp
+```CPP
 void func( char *szTypes, ... ){ /* empty */ }
 ```
 
@@ -99,7 +99,7 @@ entity:
 ```
 
 ###### Deleted Functions
-```cpp
+```CPP
 struct deletedFunction
 {
   deletedFunction() =default;
@@ -120,7 +120,7 @@ entity:
 ```
 
 ###### Virtual Functions
-```cpp
+```CPP
 class Account {
 public:
     virtual void func(){ /* empty */ }
@@ -137,7 +137,7 @@ entity:
 ```
 
 ###### Constructors
-```cpp
+```CPP
 class Box {
 public:
     // Default constructor
@@ -170,7 +170,7 @@ entity:
 
 
 ###### Overload Function
-```cpp
+```CPP
 int overloadFunction(){
     /* empty */
 }
@@ -199,7 +199,7 @@ int overloadFunction(char i){
 
 ###### Overload Function Declaration
 
-```cpp
+```CPP
 int overloadFunction();
 int overloadFunction(int i);
 int overloadFunction(const int i);
@@ -218,7 +218,7 @@ int overloadFunction(const int i);
 ```
 
 ###### Overload Class Method
-```cpp
+```CPP
 class foo{
 public:
     int overloadFunction();

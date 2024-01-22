@@ -14,7 +14,7 @@ name: Modify
 ##### Examples
 
 ######  Increment Modify
-```cpp
+```CPP
 int func(){
     int i = 0;
     i++;
@@ -32,7 +32,7 @@ relation:
 ```
 
 ######  One’s Compliment Modify
-```cpp
+```CPP
 int func(){
     int i = 0;
     ~i;
@@ -51,7 +51,7 @@ relation:
 
 
 ######  Increment Deref Modify
-```cpp
+```CPP
 int main(){
     int *a,*b=0;
     ++*a; // deref modify of a
@@ -69,7 +69,7 @@ relation:
 ```
 
 ######  File Modify
-```cpp
+```CPP
 int i = 0;
 int j = i++;
 ```
@@ -80,13 +80,13 @@ relation:
     type: Modify
     extra: false
     items:
-        -   from: File:'file0.cpp'
+        -   from: File:'file0.CPP'
             to: Variable:'i'
             loc: file0:2:9
 ```
 
 ######  Template Modify
-```cpp
+```CPP
 template<typename T>
 void func(){
     int i = 0;
@@ -107,7 +107,7 @@ relation:
 
 
 ######  Modify in for loop
-```cpp
+```CPP
 void main(){
     for(int i=0;i<10;i++){}
 }

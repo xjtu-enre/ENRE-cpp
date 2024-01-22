@@ -19,7 +19,7 @@ name: Macro
 ##### Examples
 
 ###### Macro
-```cpp
+```CPP
 #define F(...) f(0 __VA_OPT__(,) __VA_ARGS__)
 ```
 
@@ -34,7 +34,7 @@ name: Macro
 
 
 ###### NULL Macro
-```cpp
+```CPP
 #define EMPTY
 ```
 
@@ -49,7 +49,7 @@ name: Macro
 
 
 ###### Conditional Macro
-```cpp
+```CPP
 #define EMPTY
 #ifdef EMPTY
 #define FULL

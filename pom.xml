@@ -46,7 +46,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.6</version>
+                <version>3.0.0</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -138,7 +138,7 @@
         <dependency>
             <groupId>eclipse-photon</groupId>
             <artifactId>org.eclipse.core.runtime</artifactId>
-            <version>3.14.0.v20180417-0825</version>
+            <version>3.16.0.v20190823-1314</version>
         </dependency>
         <dependency>
             <groupId>eclipse-photon</groupId>
@@ -159,6 +159,17 @@
             <groupId>eclipse-photon</groupId>
             <artifactId>org.eclipse.core.jobs</artifactId>
             <version>3.10.500.v20190620-1426</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.orbit.bundles</groupId>
+            <artifactId>com.ibm.icu</artifactId>
+            <version>64.2.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

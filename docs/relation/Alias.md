@@ -21,7 +21,7 @@ namespace alias_name = nested_name::ns_name;	(3)
 
 ##### Examples
 ###### Namespace Alias
-```cpp
+```CPP
 namespace ns{}
 namespace text = ns;
 ```
@@ -38,7 +38,7 @@ relation:
 
 
 ###### Using Alias
-```cpp
+```CPP
 namespace foo {
     namespace bar {
          namespace baz {
@@ -68,7 +68,7 @@ relation:
 ```
 
 ###### Template Alias
-```cpp
+```CPP
 class vector{};
 template<class T>
 using Vec = vector; 

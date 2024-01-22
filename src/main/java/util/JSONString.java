@@ -11,6 +11,7 @@ import org.eclipse.cdt.core.dom.ast.IASTDeclSpecifier;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPMember;
 import org.json.JSONObject;
 import relation.Relation;
+import relation.RelationType;
 import symtab.FunctionSymbol;
 
 import java.io.IOException;
@@ -26,17 +27,17 @@ public class JSONString {
 	Configure configure = Configure.getConfigureInstance();
 	public String resolveStorage_class(int tag){
 		switch(tag) {
-			case IASTDeclSpecifier.sc_typedef:
+			case IASTDeclSpecifier.sc_typedef: // 1
 				return "typedef";
-			case IASTDeclSpecifier.sc_extern:
+			case IASTDeclSpecifier.sc_extern: // 2
 				return "extern";
-			case IASTDeclSpecifier.sc_static:
+			case IASTDeclSpecifier.sc_static: // 3
 				return "static";
-			case IASTDeclSpecifier.sc_auto:
+			case IASTDeclSpecifier.sc_auto: // 4
 				return "auto";
-			case IASTDeclSpecifier.sc_register:
+			case IASTDeclSpecifier.sc_register: // 5
 				return "register";
-			case IASTDeclSpecifier.sc_mutable:
+			case IASTDeclSpecifier.sc_mutable: // 6
 				return "mutable";
 		}
 		return null;
@@ -68,6 +69,10 @@ public class JSONString {
 			resolvedName = "Function";
 			break;
 		case "class entity.FunctionEntity":
+			if(entity.getPointer()){
+				resolvedName = "Function Pointer";
+				break;
+			}
 			resolvedName = "Function";
 			break;
 		case "class entity.ClassEntity":
@@ -140,6 +145,9 @@ public class JSONString {
 		private String returnType;
 		private String typedefType;
 		private Integer parameterIndex = null;
+		private Boolean isGlobal;
+		private Boolean isPointer;
+		private Boolean isTaskNode;
 
 		public EntityTemp(String name, Integer key, String category, Integer entityFile){
 			this.qualifiedName = name;
@@ -165,6 +173,9 @@ public class JSONString {
 			this.typedefType = typedefType;
 		}
 		public void setParameterIndex(int index) {this.parameterIndex = index;}
+		public void setIsGlobal(boolean isGlobal) {this.isGlobal = isGlobal;}
+		public void setIsPointer(boolean isPointer) {this.isPointer = isPointer; }
+		public void setIsTaskNode(boolean isTaskNode) {this.isTaskNode = isTaskNode; }
 	}
 	
 	public EntityTemp resolveEntity(Entity entity) {
@@ -181,6 +192,7 @@ public class JSONString {
     	Integer entityFile = null;
     	
     	EntityTemp entitytemp;
+
 		if(entity instanceof NamespaceEntity){
 			entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile);
 			entitytemp.setParentID(entity.getParentId());
@@ -197,7 +209,7 @@ public class JSONString {
 				entitytemp.setEndLine(entity.getLocation().getEndLine());
 				entitytemp.setEndOffset(entity.getLocation().getEndOffset());
 				entitytemp.setParentID(entity.getParentId());
-				entitytemp.setStorageClass(resolveStorage_class(entity.getStorgae_class()));
+				entitytemp.setStorageClass(resolveStorage_class(entity.getStorgaeClass()));
 				entitytemp.setVisibility(resolveVisibility(entity.getVisiblity()));
 
     		}
@@ -228,28 +240,17 @@ public class JSONString {
 		if(entity instanceof ParameterEntity){
 			entitytemp.setParameterIndex(((ParameterEntity) entity).getIndex());
 		}
+		if(entity.getGlobal()) entitytemp.setIsGlobal(true);
+		if(entity.getPointer() && entity instanceof VarEntity) entitytemp.setIsPointer(true);
+		if(entity instanceof FunctionEntity && ((FunctionEntity)entity).isTaskNode()) entitytemp.setIsTaskNode(true);
     	return entitytemp;
 	}
-	
-	public void writeEntityJsonStream(OutputStream out, Map<Integer, Entity> entityList) throws IOException {
-        JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
-        writer.setIndent("  ");
-        writer.beginArray();
-        for (Integer en:entityList.keySet()) {
-        	Entity entity = entityList.get(en);
-        	GsonBuilder builder = new GsonBuilder(); 
-        	builder.setPrettyPrinting();
-            Gson gson = builder.create(); 
-            gson.toJson(this.resolveEntity(entity), EntityTemp.class, writer);
-        }
-        writer.endArray();
-        writer.close();
-    }
 
 	class RelationTemp {
 		private String category;
 		private Integer from;
 		private Integer to;
+		private Integer parameterIndex;
 
 		class Location{
 			private Integer file = null;
@@ -258,8 +259,9 @@ public class JSONString {
 		}
 		private Location loc;
 
-		public RelationTemp(String type, Integer from, Integer to){
-			this.category = type;
+		public RelationTemp(int type, Integer from, Integer to){
+			String typeName = RelationType.getRelationCategory(type);
+			this.category = typeName;
 			this.from = from;
 			this.to = to;
 		}
@@ -278,27 +280,12 @@ public class JSONString {
 			if(this.loc == null) this.loc = new Location();
 			this.loc.offset = Offset;
 		}
+
+		public void setParameterIndex(Integer parameterIndex){
+			this.parameterIndex = parameterIndex;
+		}
 	}
 
-	public void writeRelationJsonStream(OutputStream out,
-			Map<String, List<Tuple<Integer, Integer>>> relationList) throws IOException {
-		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
-        writer.setIndent("  ");
-        writer.beginArray();
-        for (String Type: relationList.keySet()) {
-        	List<Tuple<Integer, Integer>> relationListByType = relationList.get(Type);
-        	for(Tuple<Integer, Integer> relation:relationListByType) {
-        		String jsonString = "{\"category\":\""+Type+"\", \"src\":"+relation.getFirst()+", \"dest\":\""+ relation.getSecond() +"\"}";
-            	GsonBuilder builder = new GsonBuilder();
-                builder.setPrettyPrinting();
-                Gson gson = builder.create();
-                RelationTemp relationtemp = gson.fromJson(jsonString, RelationTemp.class);
-                gson.toJson(relationtemp, RelationTemp.class, writer);
-        	}
-        }
-        writer.endArray();
-        writer.close();
-	}
 
 	class AllTemp {
 		private List<EntityTemp> variables;
@@ -315,7 +302,7 @@ public class JSONString {
 										List<Relation> relationList) throws IOException {
 		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
 		writer.setIndent("  ");
-		writer.beginArray();
+//		writer.beginArray();
 		GsonBuilder builder = new GsonBuilder();
 		Gson gson = builder.create();
 		List<EntityTemp> entityTempList = new ArrayList<EntityTemp>();
@@ -323,6 +310,7 @@ public class JSONString {
 
 		for (Integer en:entityList.keySet()) {
         	Entity entity = entityList.get(en);
+			if(entity.getExternalId() != -1) continue;
 			builder.setPrettyPrinting();
 			entityTempList.add(this.resolveEntity(entity));
 		}
@@ -331,6 +319,9 @@ public class JSONString {
 		for (Relation relation: relationList) {
 			RelationTemp relationtemp = new RelationTemp(relation.getType(), relation.getFromEntity().getId(),
 					relation.getToEntity().getId());
+			if(relation.getFileID() == null){
+				System.out.println("TEST");
+			}
 			if(relation.getFileID() != -1){
 				relationtemp.setFile(relation.getFileID());
 			}
@@ -340,12 +331,15 @@ public class JSONString {
 			if(relation.getStartOffset() != -1){
 				relationtemp.setOffset(relation.getStartOffset());
 			}
+			if(relation.getParameterIndex() != null && relation.getParameterIndex() != -1){
+				relationtemp.setParameterIndex(relation.getParameterIndex());
+			}
 			relationTempList.add(relationtemp);
 		}
 		AllTemp allTemp = new AllTemp(entityTempList, relationTempList);
 		gson.toJson(allTemp, AllTemp.class, writer);
 
-		writer.endArray();
+//		writer.endArray();
 		writer.close();
 	}
 }

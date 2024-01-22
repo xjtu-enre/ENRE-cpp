@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="com.ibm.icu_64.2.0.v20190507-1337">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jars/com.ibm.icu_64.2.0.v20190507-1337.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

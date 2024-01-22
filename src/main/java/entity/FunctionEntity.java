@@ -14,12 +14,16 @@ public class FunctionEntity extends DataAggregateEntity{
 	boolean isCallbackCall = false;
 	boolean hasBeenDefined = false;
 	boolean isPureVirtual = false;
+	boolean isTaskNode = false;
 	
 	
 	public FunctionEntity(String name, String qualifiedName, Entity parent, Integer id, BaseScope scope, Location location) {
 		super(name, qualifiedName, parent, id, scope, location);
 		parameter =  new ArrayList();
 		this.nameWithSignature = null;
+		if(name.startsWith("s_") && name.endsWith("Main")){
+			this.isTaskNode = true;
+		}
 	}
 	public void clearParamter(){
 		parameter = new ArrayList();
@@ -77,4 +81,6 @@ public class FunctionEntity extends DataAggregateEntity{
 
 	public void setPureVirtual() { this.isPureVirtual = true; }
 	public boolean isPureVirtual() { return this.isPureVirtual; }
+
+	public boolean isTaskNode() {return this.isTaskNode; }
 }

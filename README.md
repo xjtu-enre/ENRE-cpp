@@ -22,6 +22,7 @@
 ## Build & Installation
 in case on the GNU/Linux and Mac platform:
 ```
+// chmod a+x install.sh
 ./install.sh
 ```
 in case on the Windows platfrom:
@@ -64,7 +65,7 @@ java -jar -Xmx64g -Xms8g ENRE-CPP.jar  demo-projects/electron electron
 
 ## Documentation
 Specifications on which kinds of entities and relations can be
-captured and any other details can be found in [documents](docs/README.md)
+captured and any other details can be found in [documents](enre-ts/docs/README.md)
 
 ## References
 - [cpp reference](https://en.cppreference.com/w/)

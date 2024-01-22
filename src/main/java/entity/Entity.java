@@ -1,5 +1,6 @@
 package entity;
 
+import relation.BindingRelation;
 import relation.ObjectRelation;
 import relation.Relation;
 import relation.ScopeRelation;
@@ -15,35 +16,15 @@ import java.util.*;
  */
 public abstract class Entity {
 	Integer id = -1;
+	/*
+	 * external id is used to record the id of entity in other system, such as
+	 */
+	Integer externalId = -1;
 	String qualifiedName;
 	String name;
 	Entity parent;
 	Set<Entity> children;
 	private Location location;
-
-	public class BindingRelation {
-		String RelationType;
-		String EntityType;
-		String EntityLocationInfor;
-		Integer startLine;
-		Integer startOffset;
-		Integer fileID;
-		public BindingRelation(String retype, String entype, String eninfor, Integer fileID, Integer line, Integer Offset) {
-			this.RelationType = retype;
-			this.EntityType = entype;
-			this.EntityLocationInfor = eninfor;
-			this.fileID = fileID;
-			this.startLine = line;
-			this.startOffset = Offset;
-		}
-		public String getLocationInfor() {
-			return this.EntityLocationInfor;
-		}
-		public String getRelationType() {return this.RelationType;}
-		public Integer getFileID() {return this.fileID;}
-		public Integer getStartLine() {return this.startLine; }
-		public Integer getStartOffset() {return this.startOffset; }
-	}
 
 	private List<BindingRelation> RelationListByBinding = new ArrayList<BindingRelation>();
 	private ArrayList<ScopeRelation> RelationListByScope = new ArrayList<ScopeRelation>();
@@ -56,6 +37,9 @@ public abstract class Entity {
 	int visibilityLabel = 1;
 	int visibility = -1;
 	int storage_class = -1;
+
+	boolean global = false;
+	boolean isPointer = false;
 
 
 	public Entity(String name, String qualifiedName, Entity parent, Integer id) {
@@ -227,9 +211,21 @@ public abstract class Entity {
 
 	public int getVisiblity() {return this.visibility; }
 
-	public void setStorage_class(int tag) { this.storage_class = tag; }
+	public void setStorageClass(int tag) { this.storage_class = tag; }
 
-	public int getStorgae_class() { return this.storage_class; }
+	public int getStorgaeClass() { return this.storage_class; }
+
+	public void setGlobal(){ this.global = true; }
+
+	public boolean getGlobal() { return this.global; }
+
+	public void setPointer(){
+		this.isPointer = true;
+	}
+	public boolean getPointer() {
+		return this.isPointer;
+	}
+
 
 	public List<Entity> getChild() {
 		List<Entity> childlist = new ArrayList<Entity>();
@@ -261,19 +257,19 @@ public abstract class Entity {
 	 * add and get relation by binding or scope resolution
 	 * 
 	 */
-	public void addBindingRelation(String retype, String entype, String eninfor, Integer fileID, Integer line, Integer offset) {
-		this.RelationListByBinding.add(new BindingRelation(retype, entype, eninfor, fileID, line, offset));
+	public void addBindingRelation(int retype,  String eninfor, Integer fileID, Integer line, Integer offset) {
+		this.RelationListByBinding.add(new BindingRelation(retype,  eninfor, fileID, line, offset));
 	}
 	
 	public List<BindingRelation> getRelationListByBinding(){
 		return this.RelationListByBinding;
 	}
 	
-	public void addScopeRelation(String retype, String entityName, Integer fileID, Integer line, Integer offset) {
+	public void addScopeRelation(int retype, String entityName, Integer fileID, Integer line, Integer offset) {
 		this.RelationListByScope.add(new ScopeRelation(this, entityName, retype, fileID, line, offset));
 	}
 
-	public void addRelationByObject(String object, String entityName, String relationType, Integer fileID, Integer line, Integer offset) {
+	public void addRelationByObject(String object, String entityName, int relationType, Integer fileID, Integer line, Integer offset) {
 		this.RelationListByObject.add(new ObjectRelation(object, this, entityName, relationType, fileID, line, offset));
 	}
 
@@ -283,6 +279,14 @@ public abstract class Entity {
 
 	public List<ObjectRelation> getRelationListByObject(){
 		return this.RelationListByObject;
+	}
+
+	public void setExternalId(Integer id) {
+		this.externalId = id;
+	}
+
+	public Integer getExternalId() {
+		return this.externalId;
 	}
 
 }

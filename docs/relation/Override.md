@@ -13,7 +13,7 @@ name: Override
 ##### Examples
 
 ######  Override
-```cpp
+```CPP
 class A{
     public: void func();
 }
@@ -33,7 +33,7 @@ relation:
 ```
 
 ######  Virtual Function Override
-```cpp
+```CPP
 class A{
     public: virtual void func();
 }
@@ -54,7 +54,7 @@ relation:
 
 
 <!-- ######  Operator Function Override
-```cpp
+```CPP
 struct Complex {
    Complex( double r, double i ) : re(r), im(i) {}
    Complex operator+( Complex &other );
@@ -73,7 +73,7 @@ relation:
 
 
 ######  Function Override with Override keyword
-```cpp
+```CPP
 class BaseClass
 {
     virtual void funcA();
