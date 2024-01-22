@@ -1,0 +1,1 @@
+template <class T, class Allocator = allocator<T>> class vector;

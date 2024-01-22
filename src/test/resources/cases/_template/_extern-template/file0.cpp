@@ -1,0 +1,1 @@
+extern template class tuple;

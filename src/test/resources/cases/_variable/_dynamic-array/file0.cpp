@@ -1,0 +1,1 @@
+int* parray = new int [10];
