@@ -18,7 +18,7 @@ template < parameter-list > concept concept-name = constraint-expression ;	(3)	(
 
 ###### Class Template
 
-```cpp
+```CPP
 template<typename T>
 class S{};
 ```
@@ -34,7 +34,7 @@ class S{};
 ```
 
 ###### Struct Template
-```cpp
+```CPP
 template<typename T>
 struct S{};
 ```
@@ -50,7 +50,7 @@ struct S{};
 ```
 
 ###### Function Template
-```cpp
+```CPP
 template<class T>
 void func(T x);
 ```
@@ -66,7 +66,7 @@ void func(T x);
 ```
 
 ###### Variadic template
-```cpp
+```CPP
 template<typename... Values> class tuple;
 template<typename First, typename... Rest> class tuple;
 template<typename... Params> void my_printf(const std::string &str_format, Params... parameters);
@@ -91,7 +91,7 @@ template<typename... Params> void my_printf(const std::string &str_format, Param
 ```
 
 ###### Extern template
-```cpp
+```CPP
 extern template class tuple;
 ```
 
@@ -106,7 +106,7 @@ extern template class tuple;
 ```
 
 ###### Templates as template parameters
-```cpp
+```CPP
 template<typename T, template<typename U, int I> class Arr>
 class tuple
 { /* empty */ };
@@ -128,7 +128,7 @@ class tuple
 
 
 ###### Templates with Default template arguments
-```cpp
+```CPP
 template <class T, class Allocator = allocator<T>> class vector;
 ```
 
@@ -143,7 +143,7 @@ template <class T, class Allocator = allocator<T>> class vector;
 ```
 
 ###### Template specialization
-```cpp
+```CPP
 template <typename K, typename V>
 class MyMap{ /* Empty */ };
 template<typename V>
@@ -165,34 +165,8 @@ class MyMap<string, V> { /* Empty */ };
 ```
 
 
-###### Nested Class Template
-```cpp
-template <class T> class X
-{
-   template <class T>
-   struct Y
-   {
-      T m_t;
-      Y(T t): m_t(t) { }
-   };
-};
-```
-
-```yaml
-    name: Nested Class Template
-    entity:
-        items:
-            -   name: X
-                loc: 1:7:1:7
-                type: Class Template
-            -   name: Y
-                loc: 4:11:4:11
-                kind: Struct Template
-                type: Template
-```
-
 ###### Function Template Instantiation
-```cpp
+```CPP
 
 template<class T> void f(T) { }
 template void f<int> (int);

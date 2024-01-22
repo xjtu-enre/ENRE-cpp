@@ -1,9 +1,10 @@
-import cdt.CDTParser;
-import cdt.TypeBinding;
+package cdt;
+
+import entity.Entity;
 import entity.EntityRepo;
+import relation.Relation;
 import relation.RelationContext;
 import relation.RelationRepo;
-import symtab.Type;
 import util.FileTraversal;
 import util.FileUtil;
 import util.JSONString;
@@ -11,6 +12,8 @@ import util.JSONString;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -89,8 +92,17 @@ public class Processor {
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
 		JSONString node_str = new JSONString();
 		FileOutputStream outputStream = new FileOutputStream(projectName + "_out.json");
-		node_str.writeJsonStream(outputStream, entityrepo.getEntities(), this.relationcontext.getRelationRepo().getrelationrepo());
+		node_str.writeJsonStream(outputStream, entityrepo.getEntities(),
+				this.relationcontext.getRelationRepo().getrelationrepo());
 
+	}
+
+	public Map<Integer, Entity> getEntities(){
+		return cdtparser.getEntityRepo().getEntities();
+	}
+
+	public List<Relation> getRelations(){
+		return this.relationcontext.getRelationRepo().getrelationrepo();
 	}
 
 }

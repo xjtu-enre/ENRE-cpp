@@ -25,7 +25,7 @@ name: Variable
 ##### Examples
 
 ###### Point Variable
-```cpp
+```CPP
 int a = 0;
 int *p = &a;
 ```
@@ -40,7 +40,7 @@ int *p = &a;
 ```
 
 ###### Allocate space for Pointer
-```cpp
+```CPP
 int *p = new int;
 ```
 
@@ -54,7 +54,7 @@ int *p = new int;
 ```
 
 ###### Dynamic Array
-```cpp
+```CPP
 int* parray = new int [10];
 ```
 
@@ -68,7 +68,7 @@ int* parray = new int [10];
 ```
 
 ###### built-in Variable
-```cpp
+```CPP
 int x;
 ```
 
@@ -82,7 +82,7 @@ int x;
 ```
 
 ###### Parameter
-```cpp
+```CPP
 int func(int x){}
 ```
 
@@ -96,7 +96,7 @@ int func(int x){}
 ```
 
 ###### Member Object
-```cpp
+```CPP
 class c{
 private:
     int member;
@@ -114,7 +114,7 @@ private:
 
 
 ###### Global Variable with External Linkage
-```cpp
+```CPP
 // Declare a global variable with external linkage
 extern int globalVar;
 
@@ -143,7 +143,7 @@ entity:
 ```
 
 ###### Static Variable
-```cpp
+```CPP
 void increment() {
     static int count = 0;
     count++;
@@ -178,7 +178,7 @@ entity:
 
 
 ###### Auto Keyword
-```cpp
+```CPP
 #include <iostream>
 
 int main() {
@@ -203,7 +203,7 @@ entity:
 ```
 
 ###### Register Keyword
-```cpp
+```CPP
 int main() {
     register int x = 42;
     std::cout << "x = " << x << std::endl;

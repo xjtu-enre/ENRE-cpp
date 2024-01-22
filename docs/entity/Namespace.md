@@ -23,7 +23,7 @@ namespace ns-name :: inline member-name { declarations }	(9)	(since C++20)
 ##### Examples
 
 ###### Namespace
-```cpp
+```CPP
 namespace ns{}
 ```
 
@@ -37,7 +37,7 @@ namespace ns{}
 ```
 
 ###### Nested Namespace
-```cpp
+```CPP
 namespace foo {
     namespace bar {
          namespace baz {
@@ -63,7 +63,7 @@ namespace foo {
 ```
 
 ###### Unnamed Namespace
-```cpp
+```CPP
 namespace{
     int i; 
 }
@@ -79,7 +79,7 @@ namespace{
 ```
 
 ###### Inline Namespace
-```cpp
+```CPP
 namespace Test{
     inline namespace new_ns { \* empty *\  }
 }

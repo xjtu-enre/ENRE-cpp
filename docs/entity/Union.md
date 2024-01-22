@@ -15,7 +15,7 @@ union attr class-head-name { member-specification }
 
 ##### Examples
 ###### Union
-```cpp
+```CPP
 union month
 {
     int s[2]; 
@@ -33,7 +33,7 @@ entity:
 ```
 
 ###### Anonymous Union
-```cpp
+```CPP
 struct widget{
     union{
         long id_num;
@@ -51,7 +51,7 @@ entity:
 ```
 
 ###### Unrestricted unions
-```cpp
+```CPP
 struct Point { \* empty *\ };
 union U{
     Point p;
