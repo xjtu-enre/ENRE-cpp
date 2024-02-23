@@ -51,6 +51,6 @@ typedef int (*t_somefunc)(int,int);
     entity:
         items:
             -   name: t_somefunc
-                type: Typedef
+                type: Function Pointer
                 loc: 1:15:1:24
 ```

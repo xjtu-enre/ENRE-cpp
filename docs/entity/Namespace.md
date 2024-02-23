@@ -73,7 +73,7 @@ namespace{
     name: Unnamed Namespace
     entity:
         items:
-            -   name: <Anonymous as="Namespace">
+            -   name: [unnamed]
                 loc: 1:0:1:0
                 type: Namespace
 ```

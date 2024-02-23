@@ -170,7 +170,6 @@ class MyMap<string, V> { /* Empty */ };
 
 template<class T> void f(T) { }
 template void f<int> (int);
-template void f(char);
 ```
 
 ```yaml
@@ -178,7 +177,7 @@ template void f(char);
     entity:
         items:
             -   name: f
-                loc: 1:24:1:24
+                loc: 0:24:0:24
                 kind: Function Template
                 type: Template
 ```
