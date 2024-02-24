@@ -308,6 +308,16 @@ public class CppVisitor extends ASTVisitor {
 					context.popScope();
 					context.exitLastedEntity();
 				}
+			}else if(declSpec instanceof CPPASTElaboratedTypeSpecifier) {
+				CPPASTElaboratedTypeSpecifier cppastElaboratedTypeSpecifier = (CPPASTElaboratedTypeSpecifier) declSpec;
+				int kind = cppastElaboratedTypeSpecifier.getKind();
+				switch (kind) {
+					case ICPPASTElaboratedTypeSpecifier.k_struct:
+					case ICPPASTElaboratedTypeSpecifier.k_union:
+					case ICPPASTElaboratedTypeSpecifier.k_class:
+						context.popScope();
+						context.exitLastedEntity();
+				}
 			}
 		} else if (declaration instanceof IASTFunctionDefinition) {
 			// function definition
@@ -378,11 +388,11 @@ public class CppVisitor extends ASTVisitor {
 						));
 					}
 				}
-				CPPASTElaboratedTypeSpecifier elaboratedTypeSpecifier = (CPPASTElaboratedTypeSpecifier)declSpec;
-				int type = elaboratedTypeSpecifier.getKind();
+				CPPASTElaboratedTypeSpecifier cppastElaboratedTypeSpecifier = (CPPASTElaboratedTypeSpecifier)declSpec;
+				int kind = cppastElaboratedTypeSpecifier.getKind();
 				for(IASTDeclarator declarator : simpleDeclaration.getDeclarators()){
 					String name = declarator.getName().toString();
-					switch (type) {
+					switch (kind) {
 						case CPPASTElaboratedTypeSpecifier.k_struct:
 						case CPPASTElaboratedTypeSpecifier.k_union:
 						case CPPASTElaboratedTypeSpecifier.k_class:
@@ -402,7 +412,7 @@ public class CppVisitor extends ASTVisitor {
 
 					}
 				}
-				for (IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
+				for(IASTDeclarator declarator : simpleDeclaration.getDeclarators()) {
 					if(declarator instanceof CPPASTFunctionDeclarator){
 						/*
 						 * TODO: 抽取extern关系
@@ -413,6 +423,35 @@ public class CppVisitor extends ASTVisitor {
 					}else{
 						System.out.println( "INFO: Haven't deal with " + declarator.getClass().toString() + " in " + declSpec.getClass().toString());
 					}
+				}
+				// -----------------------------------------
+				String methodName = cppastElaboratedTypeSpecifier.getName().toString();
+				if(cppastElaboratedTypeSpecifier.getName() instanceof ICPPASTTemplateId) {
+					ICPPASTTemplateId templateId = (ICPPASTTemplateId)(cppastElaboratedTypeSpecifier.getName());
+					methodName = templateId.getTemplateName().toString();
+				}
+				if(methodName.equals("")){
+					if(declSpec != null){
+						if(declSpec.getParent() instanceof CPPASTSimpleDeclaration && declSpec.getStorageClass() == IASTDeclSpecifier.sc_typedef){
+							if(simpleDeclaration.getDeclarators().length == 1){
+								methodName = simpleDeclaration.getDeclarators()[0].getName().toString();
+							}
+						}else methodName = "[unnamed]";
+					}
+				}
+				boolean isTemplate = context.isTemplate(declSpec);
+				switch (kind) {
+					case ICPPASTElaboratedTypeSpecifier.k_struct:
+						this.specifierEntity = context.foundStructDefinition(methodName,
+								context.getLocation(cppastElaboratedTypeSpecifier), isTemplate);
+						break;
+					case ICPPASTElaboratedTypeSpecifier.k_union:
+						this.specifierEntity = context.foundUnionDefinition(methodName,
+								context.getLocation(cppastElaboratedTypeSpecifier));
+						break;
+					case ICPPASTElaboratedTypeSpecifier.k_class:
+						this.specifierEntity = context.foundClassDefinition(methodName,
+								context.getLocation(cppastElaboratedTypeSpecifier), isTemplate);
 				}
 			}
 			else if(declSpecifier instanceof CPPASTSimpleDeclSpecifier) {
