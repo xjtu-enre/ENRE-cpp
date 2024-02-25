@@ -1067,6 +1067,14 @@ public class HandlerContext {
 				}
 			}
 		}
+		if(node instanceof CPPASTElaboratedTypeSpecifier){
+			CPPASTElaboratedTypeSpecifier cppastElaboratedTypeSpecifier = (CPPASTElaboratedTypeSpecifier)node;
+			if(cppastElaboratedTypeSpecifier.getParent().getParent() != null){
+				if(cppastElaboratedTypeSpecifier.getParent().getParent() instanceof CPPASTTemplateDeclaration){
+					return true;
+				}
+			}
+		}
 		if(node instanceof CPPASTDeclarator){
 			CPPASTDeclarator declarator = (CPPASTDeclarator)node;
 			if(declarator.getParent().getParent() != null){

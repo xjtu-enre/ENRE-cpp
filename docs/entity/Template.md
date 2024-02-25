@@ -65,31 +65,6 @@ void func(T x);
                 type: Template
 ```
 
-###### Variadic template
-```CPP
-template<typename... Values> class tuple;
-template<typename First, typename... Rest> class tuple;
-template<typename... Params> void my_printf(const std::string &str_format, Params... parameters);
-```
-
-```yaml
-    name: Variadic template
-    entity:
-        items:
-            -   name: tuple
-                loc: 1:36:1:40
-                kind: Class Template
-                type: Template
-            -   name: tuple
-                loc: 2:50:2:54
-                kind: Class Template
-                type: Template
-            -   name: my_printf
-                loc: 3:35:3:43
-                kind: Function Template
-                type: Template
-```
-
 ###### Extern template
 ```CPP
 extern template class tuple;
