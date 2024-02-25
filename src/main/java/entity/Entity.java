@@ -40,6 +40,7 @@ public abstract class Entity {
 
 	boolean global = false;
 	boolean isPointer = false;
+	boolean isTemplate = false;
 
 
 	public Entity(String name, String qualifiedName, Entity parent, Integer id) {
@@ -224,6 +225,17 @@ public abstract class Entity {
 	}
 	public boolean getPointer() {
 		return this.isPointer;
+	}
+
+	/*
+	 * Determines whether this entity is a template
+	 */
+	public void setTemplate(boolean isTemplate) {
+		this.isTemplate = isTemplate;
+	}
+
+	public boolean getIsTemplate() {
+		return this.isTemplate;
 	}
 
 

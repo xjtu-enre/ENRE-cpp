@@ -1,9 +1,7 @@
 package cdt;
 import entity.*;
 import entity.FieldEntity;
-import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTCastExpression;
-import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTDeclSpecifier;
-import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTExpression;
+import org.eclipse.cdt.core.dom.ast.cpp.*;
 import org.eclipse.cdt.internal.core.dom.parser.ProblemBinding;
 import org.eclipse.cdt.internal.core.dom.parser.ProblemType;
 import relation.*;
@@ -497,7 +495,7 @@ public class HandlerContext {
 			String parameterType = this.getType(parameterDeclaration.getDeclSpecifier());
 			if (this.getLocation(functionDeclarator.getName()) != null)
 				var = new ParameterEntity(parameterDeclaration.getDeclarator().getName().toString(),
-						null, this.latestValidContainer() , entityRepo.generateId(),
+						parameterDeclaration.getDeclarator().getName().toString(), this.latestValidContainer() , entityRepo.generateId(),
 						getLocation(parameterDeclaration.getDeclarator().getName()), parameterType);
 			if(parameterDeclaration != null){
 				if (parameterDeclaration.getParent() instanceof IASTStandardFunctionDeclarator) {
@@ -560,6 +558,41 @@ public class HandlerContext {
 		return var;
 	}
 
+	/**
+	 * 找到模板实体的参数声明，返回ParameterEntity对象
+	 *
+	 * @param templateParameter 参数声明
+	 * @return 返回ParameterEntity对象
+	 */
+	public ParameterEntity foundTemplateParameterDeclaration(ICPPASTTemplateParameter templateParameter) {
+		ParameterEntity var = null;
+		if(templateParameter instanceof CPPASTSimpleTypeTemplateParameter){
+			CPPASTSimpleTypeTemplateParameter cppastSimpleTypeTemplateParameter = (CPPASTSimpleTypeTemplateParameter)templateParameter;
+			if (this.getLocation(cppastSimpleTypeTemplateParameter.getName()) != null){
+				var = new ParameterEntity(cppastSimpleTypeTemplateParameter.getName().toString(),
+						cppastSimpleTypeTemplateParameter.getName().toString(), this.latestValidContainer() , entityRepo.generateId(),
+						getLocation(cppastSimpleTypeTemplateParameter.getName()), "");
+				if(var!= null)
+					entityRepo.add(var);
+			}
+		}else if(templateParameter instanceof CPPASTTemplatedTypeTemplateParameter){
+			CPPASTTemplatedTypeTemplateParameter cppastTemplatedTypeTemplateParameter = (CPPASTTemplatedTypeTemplateParameter) templateParameter;
+			int parameterType = cppastTemplatedTypeTemplateParameter.getParameterType();
+			if(parameterType == ICPPASTTemplatedTypeTemplateParameter.tt_class){
+				if (this.getLocation(cppastTemplatedTypeTemplateParameter.getName()) != null){
+					var = new ParameterEntity(cppastTemplatedTypeTemplateParameter.getName().toString(),
+							cppastTemplatedTypeTemplateParameter.getName().toString(), this.latestValidContainer() , entityRepo.generateId(),
+							getLocation(cppastTemplatedTypeTemplateParameter.getName()),
+							"");
+					if(var != null){
+						var.setTemplate(true);
+						entityRepo.add(var);
+					}
+				}
+			}
+		}
+		return var;
+	}
 	/**
 	 * 查找命名空间
 	 *

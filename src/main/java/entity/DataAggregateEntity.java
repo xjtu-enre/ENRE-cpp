@@ -12,7 +12,6 @@ import java.util.List;
 public class DataAggregateEntity extends Entity{
 	
 	boolean isScopeTrue = true;
-	boolean isTemplate = false;
 	boolean isSpecializationTemplate = false;
 	List<Entity> useList = new ArrayList<Entity>();
 	List<ScopeRelation> usingImport = new ArrayList<ScopeRelation>();
@@ -46,18 +45,7 @@ public class DataAggregateEntity extends Entity{
 	public List<Entity> getUse() {
 		return this.useList;
 	}
-	
-	
-	/*
-	 * Determines whether this entity is a template
-	 */
-	public void setTemplate(boolean isTemplate) {
-		this.isTemplate = isTemplate;
-	}
-	
-	public boolean getIsTemplate() {
-		return this.isTemplate;
-	}
+
 	
 	/*
 	 * Determines whether this template is a Specialization

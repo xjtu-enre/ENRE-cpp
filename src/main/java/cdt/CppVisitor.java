@@ -570,17 +570,41 @@ public class CppVisitor extends ASTVisitor {
 
 				boolean isTemplate = context.isTemplate(declSpec);
 				switch (type) {
-					case IASTCompositeTypeSpecifier.k_struct:
+					case ICPPASTCompositeTypeSpecifier.k_struct:
 						this.specifierEntity = context.foundStructDefinition(methodName,
 								context.getLocation(typeSpecifier), isTemplate);
 						break;
-					case IASTCompositeTypeSpecifier.k_union:
+					case ICPPASTCompositeTypeSpecifier.k_union:
 						this.specifierEntity = context.foundUnionDefinition(methodName,
 								context.getLocation(typeSpecifier));
 						break;
-					case 3:
+					case ICPPASTCompositeTypeSpecifier.k_class:
 						this.specifierEntity = context.foundClassDefinition(methodName,
 								context.getLocation(typeSpecifier), isTemplate);
+				}
+				if(isTemplate){
+					/*
+					 * 处理模板的参数，这里只做简单处理
+					 */
+					CPPASTCompositeTypeSpecifier compositeTypeSpecifier = (CPPASTCompositeTypeSpecifier)declSpec;
+					if(compositeTypeSpecifier.getParent().getParent() != null){
+						if(compositeTypeSpecifier.getParent().getParent() instanceof CPPASTTemplateDeclaration){
+							CPPASTTemplateDeclaration cppastTemplateDeclaration = (CPPASTTemplateDeclaration)(compositeTypeSpecifier.getParent().getParent());
+							ICPPASTTemplateParameter[] icppastTemplateParameters = cppastTemplateDeclaration.getTemplateParameters();
+							for(ICPPASTTemplateParameter templateParameter : icppastTemplateParameters){
+								ParameterEntity parameter = context.foundTemplateParameterDeclaration(templateParameter);
+								if (parameter != null) {
+									this.specifierEntity.addRelation(
+											new Relation(
+													this.specifierEntity, parameter, RelationType.PARAMETER, currentfile.getId(),
+													parameter.getStartLine(), parameter.getLocation().getStartOffset()
+											)
+									);
+
+								}
+							}
+						}
+					}
 				}
 				for (ICPPASTBaseSpecifier baseSpecifier : baseSpecifiers) {
 					this.specifierEntity.addScopeRelation(RelationType.EXTEND,

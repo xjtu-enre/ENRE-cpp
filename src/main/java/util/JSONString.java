@@ -114,15 +114,15 @@ public class JSONString {
 		default:
 			System.out.println("Unmapped entity type:"+ typeName);
 		}
-		
-    	if(entity instanceof DataAggregateEntity) {
-    		if(((DataAggregateEntity) entity).getIsTemplate()) {
-    			resolvedName = resolvedName + " Template";
-//    			if(((DataAggregateEntity) entity).getIsSpecializationTemplate()) {
-//    				resolvedName = resolvedName + " Specialization";
-//    			}
-    		}
-    	}
+
+
+		if(entity.getIsTemplate()) {
+			if(entity instanceof ParameterEntity)
+				resolvedName = "Template " + resolvedName;
+			else
+				resolvedName = resolvedName + " Template";
+		}
+
     	
 		return resolvedName;
 	}
