@@ -317,6 +317,8 @@ public class JSONString {
 
 		List<RelationTemp> relationTempList = new ArrayList<RelationTemp>();
 		for (Relation relation: relationList) {
+			if(relation.getFromEntity() == null || relation.getToEntity() == null)
+				continue;
 			RelationTemp relationtemp = new RelationTemp(relation.getType(), relation.getFromEntity().getId(),
 					relation.getToEntity().getId());
 			if(relation.getFileID() == null){

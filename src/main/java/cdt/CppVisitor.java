@@ -215,6 +215,8 @@ public class CppVisitor extends ASTVisitor {
 			}
 			if(declarators != null){
 				for(IASTDeclarator declarator1:declarators){
+					if(declarator1 == null)
+						continue;
 					String name = declarator1.getFileLocation().getFileName() +
 							declarator1.getFileLocation().getNodeOffset();
 					Entity entityByLocation = this.entityrepo.getEntityByLocation(name);

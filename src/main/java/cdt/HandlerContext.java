@@ -1098,6 +1098,8 @@ public class HandlerContext {
 		 *
 		 * @param expression 待处理的表达式
 		 */
+		if(expression == null)
+			return;
 		int hashcode = expression.hashCode();
 		DealMacro:
 		if(!nodeRecord.containsKey(hashcode)) {
@@ -1269,8 +1271,6 @@ public class HandlerContext {
 
 			for(int i=0;i<iastInitializerClauses.length;i++){
 				IASTInitializerClause initializerClause = iastInitializerClauses[i];
-				List<CPPASTFieldReference> fieldReferences = findAllFieldReferences((IASTExpression) initializerClause);
-
 				if(initializerClause instanceof CPPASTUnaryExpression){
 					if(((CPPASTUnaryExpression) initializerClause).getOperator() == IASTUnaryExpression.op_amper){
 						if(((CPPASTUnaryExpression) initializerClause).getOperand() instanceof CPPASTIdExpression) {
@@ -1344,8 +1344,8 @@ public class HandlerContext {
 									new BindingRelation(argReCatInfor.get(i),
 											entityInformation, arguementsInformation.get(i),
 											this.currentFileEntity.getId(),
-											iastInitializerClauses[i].getFileLocation().getStartingLineNumber(),
-											iastInitializerClauses[i].getFileLocation().getNodeOffset(),
+											iastInitializerClauses[argIndex.get(i)-1].getFileLocation().getStartingLineNumber(),
+											iastInitializerClauses[argIndex.get(i)-1].getFileLocation().getNodeOffset(),
 											argIndex.get(i)
 									)
 							);
