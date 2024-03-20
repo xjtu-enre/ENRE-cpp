@@ -67,7 +67,8 @@ void func(T x);
 
 ###### Extern template
 ```CPP
-extern template class tuple;
+template<typename T> class tuple;
+extern template class tuple<int>;
 ```
 
 ```yaml
