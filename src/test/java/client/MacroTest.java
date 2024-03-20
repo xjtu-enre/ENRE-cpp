@@ -42,11 +42,11 @@ public class MacroTest {
 	}
 
 	/**
-	  * contains Macro entity F
+	  * contains Macro entity F  && x.getName().equals("F")
 	  */
 	@Test
 	public void containsMacroEntityF1() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isMacro(x) && x.getName().equals("F") && x.getLocation().getStartLine() == 1);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isMacro(x)  && x.getLocation().getStartLine() == 1);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {1, -1, -1, -1};

@@ -46,7 +46,7 @@ public class OverloadClassMethodTest {
 	  */
 	@Test
 	public void containsFunctionEntityfoo__overloadFunction3() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isFunction(x) && x.getName().equals("foo__overloadFunction") && x.getLocation().getStartLine() == 3);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isFunction(x) && x.getName().equals("overloadFunction") && x.getLocation().getStartLine() == 3);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {3, -1, -1, -1};
@@ -58,7 +58,7 @@ public class OverloadClassMethodTest {
 	  */
 	@Test
 	public void containsFunctionEntityfoo__overloadFunction4() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isFunction(x) && x.getName().equals("foo__overloadFunction") && x.getLocation().getStartLine() == 4);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isFunction(x) && x.getName().equals("overloadFunction") && x.getLocation().getStartLine() == 4);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {4, -1, -1, -1};
@@ -70,7 +70,7 @@ public class OverloadClassMethodTest {
 	  */
 	@Test
 	public void containsFunctionEntityfoo__overloadFunction5() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isFunction(x) && x.getName().equals("foo__overloadFunction") && x.getLocation().getStartLine() == 5);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isFunction(x) && x.getName().equals("overloadFunction") && x.getLocation().getStartLine() == 5);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {5, -1, -1, -1};

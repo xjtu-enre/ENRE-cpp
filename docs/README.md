@@ -26,7 +26,7 @@
 | [Alias](relation/Alias.md)         |                                                                                                             |
 | [Call](relation/Call.md)           | Call relation indicates a reference to a known C/C++ function.                                              |
 | [Define](relation/Define.md)       | Define relation indicates the definition of an entity.                                                      |
-| [Except](relation/Except.md) | Exception relation indicates exceptions which may throw from function                                       |
+| [Except](relation/Except.md)       | Exception relation indicates exceptions which may throw from function                                       |
 | [Extend](relation/Extend.md)       | Extend relation indicates the inheritance relation between classes.                                         |
 | [Friend](relation/Friend.md)       | Friend relation indicates the granting of friendship to a class or member function.                         |
 | [Include](relation/Include.md)     | Include relation indicates a reference to an include file.                                                  |
@@ -35,7 +35,10 @@
 | [Parameter](relation/Parameter.md) | TBD.                                                                                                        |
 | [Set](relation/Set.md)             | A Set relation indicates any explicit assignment of a variable.                                             |
 | [Use](relation/Use.md)             | A Use relation indicates a reference in an active region of code to a known C/C++ variable.                 |
-| [Using](relation/Using.md)           | TBD.                                                                                                        |
+| [Using](relation/Using.md)         | TBD.                                                                                                        |
+| [Cast](relation/Cast.md)           | TBD.                                                                                                        |
+| [Contains](relation/Contains.md)   | TBD.                                                                                                        |
+| [Declares](relation/Declares.md)   | TBD.                                                                                                        |
 
 ## Other information
 

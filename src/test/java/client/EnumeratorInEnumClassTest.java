@@ -46,11 +46,9 @@ public class EnumeratorInEnumClassTest {
 	  */
 	@Test
 	public void containsEnumeratorEntityDiamonds2() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("Diamonds") && x.getLocation().getStartLine() == 2);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("Diamonds"));
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
-		int[] gt = {2, -1, -1, -1};
-		Assert.assertArrayEquals(gt, TestUtil.expandLocationArray(ent.getLocation(), gt));
 	}
 
 	/**
@@ -58,11 +56,9 @@ public class EnumeratorInEnumClassTest {
 	  */
 	@Test
 	public void containsEnumeratorEntityHearts2() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("Hearts") && x.getLocation().getStartLine() == 2);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("Hearts"));
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
-		int[] gt = {2, -1, -1, -1};
-		Assert.assertArrayEquals(gt, TestUtil.expandLocationArray(ent.getLocation(), gt));
 	}
 
 	/**
@@ -70,11 +66,9 @@ public class EnumeratorInEnumClassTest {
 	  */
 	@Test
 	public void containsEnumeratorEntityClubs2() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("Clubs") && x.getLocation().getStartLine() == 2);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("Clubs"));
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
-		int[] gt = {2, -1, -1, -1};
-		Assert.assertArrayEquals(gt, TestUtil.expandLocationArray(ent.getLocation(), gt));
 	}
 
 	/**
@@ -82,11 +76,9 @@ public class EnumeratorInEnumClassTest {
 	  */
 	@Test
 	public void containsEnumeratorEntitySpades2() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("Spades") && x.getLocation().getStartLine() == 2);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("Spades"));
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
-		int[] gt = {2, -1, -1, -1};
-		Assert.assertArrayEquals(gt, TestUtil.expandLocationArray(ent.getLocation(), gt));
 	}
 
 

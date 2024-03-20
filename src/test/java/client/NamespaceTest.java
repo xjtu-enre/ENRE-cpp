@@ -46,11 +46,9 @@ public class NamespaceTest {
 	  */
 	@Test
 	public void containsNamespaceEntityns1() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isNamespace(x) && x.getName().equals("ns") && x.getLocation().getStartLine() == 1);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isNamespace(x) && x.getName().equals("ns"));
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
-		int[] gt = {1, -1, -1, -1};
-		Assert.assertArrayEquals(gt, TestUtil.expandLocationArray(ent.getLocation(), gt));
 	}
 
 

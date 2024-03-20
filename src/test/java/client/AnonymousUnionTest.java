@@ -46,7 +46,7 @@ public class AnonymousUnionTest {
 	  */
 	@Test
 	public void containsUnionEntity_Anonymous_asUnion_2() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isUnion(x) && x.getName().equals("_Anonymous_asUnion_") && x.getLocation().getStartLine() == 2);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isUnion(x) && x.getName().equals("[unnamed]") && x.getLocation().getStartLine() == 2);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {2, -1, -1, -1};
