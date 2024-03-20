@@ -46,7 +46,7 @@ public class EnumeratorWithDefaultValueTest {
 	  */
 	@Test
 	public void containsEnumeratorEntityDAY__saturday2() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("DAY__saturday") && x.getLocation().getStartLine() == 2);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("saturday") && x.getLocation().getStartLine() == 2);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {2, -1, -1, -1};
@@ -58,7 +58,7 @@ public class EnumeratorWithDefaultValueTest {
 	  */
 	@Test
 	public void containsEnumeratorEntityDAY__sunday3() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("DAY__sunday") && x.getLocation().getStartLine() == 3);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("sunday") && x.getLocation().getStartLine() == 3);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {3, -1, -1, -1};
@@ -70,7 +70,7 @@ public class EnumeratorWithDefaultValueTest {
 	  */
 	@Test
 	public void containsEnumeratorEntityDAY__monday4() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("DAY__monday") && x.getLocation().getStartLine() == 4);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("monday") && x.getLocation().getStartLine() == 4);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {4, -1, -1, -1};
@@ -82,7 +82,7 @@ public class EnumeratorWithDefaultValueTest {
 	  */
 	@Test
 	public void containsEnumeratorEntityDAY__tuesday5() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("DAY__tuesday") && x.getLocation().getStartLine() == 5);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("tuesday") && x.getLocation().getStartLine() == 5);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {5, -1, -1, -1};
@@ -94,7 +94,7 @@ public class EnumeratorWithDefaultValueTest {
 	  */
 	@Test
 	public void containsEnumeratorEntityDAY__wednesday6() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("DAY__wednesday") && x.getLocation().getStartLine() == 6);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("wednesday") && x.getLocation().getStartLine() == 6);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {6, -1, -1, -1};
@@ -106,7 +106,7 @@ public class EnumeratorWithDefaultValueTest {
 	  */
 	@Test
 	public void containsEnumeratorEntityDAY__thursday7() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("DAY__thursday") && x.getLocation().getStartLine() == 7);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("thursday") && x.getLocation().getStartLine() == 7);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {7, -1, -1, -1};
@@ -118,7 +118,7 @@ public class EnumeratorWithDefaultValueTest {
 	  */
 	@Test
 	public void containsEnumeratorEntityDAY__friday8() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("DAY__friday") && x.getLocation().getStartLine() == 8);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("friday") && x.getLocation().getStartLine() == 8);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {8, -1, -1, -1};

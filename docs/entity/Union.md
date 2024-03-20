@@ -45,7 +45,7 @@ struct widget{
 name: Anonymous Union
 entity:
     items:
-        -   name: widget::[unnamed]
+        -   name: <Anonymous as="Union">
             loc: 2:10:2:10
             type: Union
 ```

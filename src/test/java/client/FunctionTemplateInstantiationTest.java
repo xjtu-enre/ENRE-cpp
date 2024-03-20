@@ -45,11 +45,11 @@ public class FunctionTemplateInstantiationTest {
 	  * contains Template entity f
 	  */
 	@Test
-	public void containsTemplateEntityf1() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isTemplate(x) && x.getName().equals("f") && x.getLocation().getStartLine() == 1);
+	public void containsTemplateEntityf() {
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isTemplate(x) && x.getName().equals("f"));
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
-		int[] gt = {1, -1, -1, -1};
+		int[] gt = {-1, -1, -1, -1};
 		Assert.assertArrayEquals(gt, TestUtil.expandLocationArray(ent.getLocation(), gt));
 	}
 

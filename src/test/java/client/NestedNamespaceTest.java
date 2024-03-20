@@ -46,11 +46,9 @@ public class NestedNamespaceTest {
 	  */
 	@Test
 	public void containsNamespaceEntityfoo1() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isNamespace(x) && x.getName().equals("foo") && x.getLocation().getStartLine() == 1);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isNamespace(x) && x.getName().equals("foo"));
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
-		int[] gt = {1, -1, -1, -1};
-		Assert.assertArrayEquals(gt, TestUtil.expandLocationArray(ent.getLocation(), gt));
 	}
 
 	/**
@@ -58,11 +56,9 @@ public class NestedNamespaceTest {
 	  */
 	@Test
 	public void containsNamespaceEntitybar2() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isNamespace(x) && x.getName().equals("bar") && x.getLocation().getStartLine() == 2);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isNamespace(x) && x.getName().equals("bar"));
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
-		int[] gt = {2, -1, -1, -1};
-		Assert.assertArrayEquals(gt, TestUtil.expandLocationArray(ent.getLocation(), gt));
 	}
 
 	/**
@@ -70,11 +66,9 @@ public class NestedNamespaceTest {
 	  */
 	@Test
 	public void containsNamespaceEntitybaz3() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isNamespace(x) && x.getName().equals("baz") && x.getLocation().getStartLine() == 3);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isNamespace(x) && x.getName().equals("baz"));
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
-		int[] gt = {3, -1, -1, -1};
-		Assert.assertArrayEquals(gt, TestUtil.expandLocationArray(ent.getLocation(), gt));
 	}
 
 

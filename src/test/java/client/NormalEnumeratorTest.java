@@ -46,7 +46,7 @@ public class NormalEnumeratorTest {
 	  */
 	@Test
 	public void containsEnumeratorEntityColor__red2() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("Color__red") && x.getLocation().getStartLine() == 2);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("red") && x.getLocation().getStartLine() == 2);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {2, -1, -1, -1};
@@ -58,7 +58,7 @@ public class NormalEnumeratorTest {
 	  */
 	@Test
 	public void containsEnumeratorEntityColor__green3() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("Color__green") && x.getLocation().getStartLine() == 3);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("green") && x.getLocation().getStartLine() == 3);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {3, -1, -1, -1};
@@ -70,7 +70,7 @@ public class NormalEnumeratorTest {
 	  */
 	@Test
 	public void containsEnumeratorEntityColor__blue4() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("Color__blue") && x.getLocation().getStartLine() == 4);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("blue") && x.getLocation().getStartLine() == 4);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {4, -1, -1, -1};

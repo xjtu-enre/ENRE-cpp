@@ -40,7 +40,7 @@ struct{
 name: Anonymous Struct
 entity:
     items:
-        -   name:[unnamed]
+        -   name: [unnamed]
             loc: 1:0:1:0
             type: Struct
 ```

@@ -133,11 +133,11 @@ name: Global Variable with External Linkage
 entity:
   items:
     - name: globalVar
-      loc: 5:1:5:16
+      loc: 4:1:4:16
       type: variable
       storage_class: external
     - name: main
-      loc: 7:1:10:2
+      loc: 6:1:10:2
       type: function
       visibility: public
 ```

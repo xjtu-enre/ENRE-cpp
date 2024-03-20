@@ -46,7 +46,7 @@ public class ConditionalMacroTest {
 	  */
 	@Test
 	public void containsMacroEntityEMPTY1() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isMacro(x) && x.getName().equals("EMPTY") && x.getLocation().getStartLine() == 1);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isMacro(x) && x.getQualifiedName().equals("EMPTY") && x.getLocation().getStartLine() == 1);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {1, -1, -1, -1};
@@ -58,7 +58,7 @@ public class ConditionalMacroTest {
 	  */
 	@Test
 	public void containsMacroEntityFULL3() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isMacro(x) && x.getName().equals("FULL") && x.getLocation().getStartLine() == 3);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isMacro(x) && x.getQualifiedName().equals("FULL") && x.getLocation().getStartLine() == 3);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {3, -1, -1, -1};

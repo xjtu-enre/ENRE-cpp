@@ -100,6 +100,7 @@ public class JudgeCate {
     }
 
     public boolean isMacro (Entity en){
+        //System.out.println("en.getId"+ en.getId());
         if(en.getId() == -1){
             return false;
         }
@@ -140,12 +141,22 @@ public class JudgeCate {
         return en instanceof StructEntity;
     }
 
-    public boolean isTypedef (Entity en){
-        if(en.getId() == -1){
-            return false;
-        }
-        return en instanceof TypedefEntity;
+//    public boolean isTypedef (Entity en){
+//        if(en.getId() == -1){
+//            return false;
+//        }
+//        return en instanceof TypedefEntity;
+//    }
+public boolean isTypedef(Entity en) {
+    if (en.getId() == -1) {
+        return false;
     }
+    if (en instanceof TypedefEntity) {
+        return true;
+    }
+    else
+        return false;
+}
 
     public boolean isUnion (Entity en){
         if(en.getId() == -1){
