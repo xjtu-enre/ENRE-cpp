@@ -48,6 +48,7 @@ public class Processor {
 		fileList = fileTrasversal.getfile();
 		fileTrasversal.extensionFilter(SUFFIX);
 		fileTrasversal.travers(inputSrcPath);
+		cdtparser.printMap();
 	}
 	
 	/**

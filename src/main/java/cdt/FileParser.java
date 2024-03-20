@@ -40,6 +40,7 @@ public class FileParser {
 	Map<String, String> definedMacros = new HashMap<>();
 	Set<String> Program_environment;
 	Configure configure = Configure.getConfigureInstance();
+	MacroRepo macroRepo = new MacroRepo();
 	public FileParser(String filepath, EntityRepo entityrepo,RelationRepo relationrepo, HashMap<String,Integer> fileList, Set<String> environment) {
 		this.filepath = filepath;
 		this.entityrepo = entityrepo;
@@ -74,6 +75,7 @@ public class FileParser {
 		String[] includePaths = new String[0];
 		definedMacros.put("__cplusplus", "1");
 		definedMacros.put("DT_VOID", "");
+		definedMacros.putAll(macroRepo.getDefinedMacros());
 		IASTTranslationUnit tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
 				new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
 				EmptyCIndex.INSTANCE, 0, log);
@@ -94,7 +96,6 @@ public class FileParser {
 				fileEntity.addRelation(new Relation(fileEntity, includeFileEntity, RelationType.INCLUDE, fileEntity.getId(),
 						includePathset.get(includePath), -1));
 //					includeFilePathsArray.add(includeFileEntity.getQualifiedName());
-				definedMacros.putAll(includeFileEntity.getMacroRepo());
 				fileEntity.getMacroRepo().putAll(includeFileEntity.getMacroRepo());
 			}
 			isIncludePath = true;
@@ -107,7 +108,6 @@ public class FileParser {
 
 		if(isIncludePath) {
 			final String[] EMPTY_ARRAY_STRING = new String[0];
-			Map<String, String> macroMap = new HashMap<>();
 			// Returns an array of paths that are searched when processing an include directive.
 			String[] includePath = new String[includeFilePathsArray.size()];
 			String[] includeFiles = new String[includeFilePathsArray.size()];
@@ -118,7 +118,7 @@ public class FileParser {
 				includeFiles[i] = file.getName();
 			}
 			String[] macroFiles = EMPTY_ARRAY_STRING;
-			IScannerInfo scannerInfo = new ExtendedScannerInfo(macroMap, includePath, macroFiles, includeFiles);;
+			IScannerInfo scannerInfo = new ExtendedScannerInfo(definedMacros, includePath, macroFiles, includeFiles);
 			InternalFileContentProvider includeContentProvider = new InternalFileContentProvider() {
 				@Override
 				public InternalFileContent getContentForInclusion(String filePath, IMacroDictionary macroDictionary) {

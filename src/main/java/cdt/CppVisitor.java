@@ -14,6 +14,7 @@ import relation.Relation;
 import relation.RelationRepo;
 import relation.RelationType;
 import relation.ScopeRelation;
+import symtab.GlobalScope;
 import util.BuiltInDeal;
 
 import java.util.ArrayList;
@@ -102,7 +103,9 @@ public class CppVisitor extends ASTVisitor {
 		if(!namespaceDefinition.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
 			return super.visit(namespaceDefinition);
 		String namespaceName = namespaceDefinition.getName().toString();
-		if(namespaceName.equals("")) namespaceName = "[unnamed]";
+		if(namespaceName.equals("")){
+			namespaceName = "[unnamed]";
+		}
 		try{
 			context.foundNamespace(namespaceName,
 					namespaceDefinition.getFileLocation().getStartingLineNumber(),
@@ -110,7 +113,6 @@ public class CppVisitor extends ASTVisitor {
 		}catch(NullPointerException exception){
 
 		}
-
 		return super.visit(namespaceDefinition);
 	}
 
@@ -118,6 +120,10 @@ public class CppVisitor extends ASTVisitor {
 	public int leave(ICPPASTNamespaceDefinition namespaceDefinition) {
 		if(!namespaceDefinition.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
 			return super.leave(namespaceDefinition);
+		String namespaceName = namespaceDefinition.getName().toString();
+		if(namespaceName.equals("") && this.context.currentScope instanceof GlobalScope){
+			return super.leave(namespaceDefinition);
+		}
 		if(namespaceDefinition.getName().toString().length() == 0) return super.leave(namespaceDefinition);
 		context.exitLastedEntity();
 		context.popScope();
@@ -184,8 +190,10 @@ public class CppVisitor extends ASTVisitor {
 	 */
 	@Override
 	public int visit(IASTDeclaration declaration) {
-		if(!declaration.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
-			return super.visit(declaration);
+		if(declaration.getFileLocation() != null){
+			if(!declaration.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
+				return super.visit(declaration);
+		}
 		if (declaration instanceof ICPPASTUsingDeclaration) {
 			String ns = ((ICPPASTUsingDeclaration) declaration).getName().toString();
 			context.latestValidContainer().setUsing(ns, this.currentfile.getId(), declaration.getFileLocation().getStartingLineNumber(),
@@ -337,10 +345,6 @@ public class CppVisitor extends ASTVisitor {
 	 */
 	@Override
 	public int visit(IASTExpression expression) {
-		if(expression.getRawSignature().contains("g_f32_io_inte_buf")){
-			System.out.println(expression.getRawSignature());
-			System.out.println("TEST");
-		}
 		if(expression.getFileLocation()!=null)
 			if(!expression.getFileLocation().getFileName().equals(this.currentfile.getQualifiedName()))
 				return super.visit(expression);
@@ -403,11 +407,13 @@ public class CppVisitor extends ASTVisitor {
 								/**
 								 * 此处仅仅考虑的是声明类对象。不考虑是否为extern关系
 								 */
-								this.specifierEntity = context.foundFieldDefinition(name, context.getLocation(declarator),
-										typeName, getVisibility((IASTSimpleDeclaration) declSpec.getParent()),0);
-								if(declarator instanceof CPPASTDeclarator){
-									if(declarator.getPointerOperators().length > 0 ){
-										if(this.specifierEntity != null) this.specifierEntity.setPointer();
+								if(declSpec.getStorageClass() != IASTDeclSpecifier.sc_typedef){
+									this.specifierEntity = context.foundFieldDefinition(name, context.getLocation(declarator),
+											typeName, getVisibility((IASTSimpleDeclaration) declSpec.getParent()),0);
+									if(declarator instanceof CPPASTDeclarator){
+										if(declarator.getPointerOperators().length > 0 ){
+											if(this.specifierEntity != null) this.specifierEntity.setPointer();
+										}
 									}
 								}
 							}
@@ -469,11 +475,13 @@ public class CppVisitor extends ASTVisitor {
 						if(declarator.getName() != null){
 							String varName = this.resolveEntityName(declarator.getName());
 							String type = this.context.getType(declSpecifier);
-
-							entity = context.foundFieldDefinition(varName, context.getLocation(declarator), type, visibility, storageClass);
-							if(declarator.getInitializer() instanceof CPPASTEqualsInitializer){
-								entity.addRelation(new Relation(entity.getParent(), entity, RelationType.SET, currentfile.getId(), entity.getStartLine(), entity.getLocation().getStartOffset()));
+							if(storageClass != IASTDeclSpecifier.sc_typedef){
+								entity = context.foundFieldDefinition(varName, context.getLocation(declarator), type, visibility, storageClass);
+								if(declarator.getInitializer() instanceof CPPASTEqualsInitializer){
+									entity.addRelation(new Relation(entity.getParent(), entity, RelationType.SET, currentfile.getId(), entity.getStartLine(), entity.getLocation().getStartOffset()));
+								}
 							}
+
 						}
 					}else{
 						System.out.println( "INFO: Haven't deal with " + declarator.getClass().toString() + " in " + declSpec.getClass().toString());
@@ -642,7 +650,8 @@ public class CppVisitor extends ASTVisitor {
 			entity.setVisiblity(visibility);
 			entity.setStorageClass(storageClass);
 			if(entity instanceof VarEntity & simpleDeclaration.getParent() instanceof CPPASTTranslationUnit){
-				entity.setGlobal();
+				if(!entity.getQualifiedName().contains("::"))
+					entity.setGlobal();
 			}
 		}
 	}
@@ -670,7 +679,7 @@ public class CppVisitor extends ASTVisitor {
 						formatName = formatName + "::" + templateId.getTemplateName().toString();
 					}
 					else if(nameSpecifier instanceof IASTName) {
-						formatName = formatName + "::" + nameSpecifier.getRawSignature();
+						formatName = formatName + "::" + ((IASTName) nameSpecifier).getLastName().toString();
 					}
 
 				}
@@ -743,6 +752,8 @@ public class CppVisitor extends ASTVisitor {
 					CPPFunction cppFunction = (CPPFunction)binding;
 					ICPPFunctionType icppFunctionType = cppFunction.getType();
 					if(icppFunctionType instanceof CPPFunctionType){}
+				}else if(binding instanceof CPPVariable){
+
 				}
 			} catch (RuntimeException e){
 				return 0;

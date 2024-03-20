@@ -88,7 +88,7 @@ public class RelationType {
 public static String getRelationCategory(int typeID){
 	switch (typeID){
 		case DEFINE:
-			return "Contains";
+			return "Define";
 		case DECLARE:
 			return "Declares";
 		case RETURN:

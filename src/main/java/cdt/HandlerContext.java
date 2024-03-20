@@ -608,7 +608,6 @@ public class HandlerContext {
 
 		String resolve_name = this.resolveName(namespaceName);
 		int id = entityRepo.getNamespace(resolve_name);
-
 		if(id != -1){
 			nsEntity = (NamespaceEntity) entityRepo.getEntity(id);
 			symbol = (NamespaceScope) nsEntity.getScope();
@@ -618,14 +617,19 @@ public class HandlerContext {
 			nsEntity = new NamespaceEntity(namespaceName, resolveName(namespaceName), currentFileEntity, id, symbol);
 			entityRepo.add(nsEntity);
 		}
-		if(this.currentScope.getSymbolByKind(symbol.getName(), Configure.Namespace) == null){
-			this.currentScope.define(symbol, Configure.Namespace);
+		if(this.currentScope instanceof GlobalScope){
+			nsEntity.setGlobal();
 		}
-
+		if(namespaceName != "[unnamed]"){
+			if(this.currentScope.getSymbolByKind(symbol.getName(), Configure.Namespace) == null){
+				this.currentScope.define(symbol, Configure.Namespace);
+			}
+			entityStack.push(nsEntity);
+		}
 		this.latestValidContainer().addRelation(new Relation(this.latestValidContainer(), nsEntity, RelationType.DEFINE,
 				this.currentFileEntity.getId(), startLine,  -1));
 		nsEntity.addScale(endLine - startLine);
-		entityStack.push(nsEntity);
+
 		return nsEntity;
 	}
 
@@ -793,7 +797,7 @@ public class HandlerContext {
 		if(location == null) return null;
 		Integer id = entityRepo.generateId();
 		String qualifiedName = varName;
-		if(this.latestValidContainer() instanceof NamespaceEntity) qualifiedName = resolveName(varName);
+		qualifiedName = resolveName(varName);
 		Entity typeEntity = this.findTheTypedEntity(type);
 		if(typeEntity != null){
 			typeEntity = this.findTheTypedEntity(type);
@@ -1116,6 +1120,8 @@ public class HandlerContext {
 			if(macroExpansion.getMacroRecord().size() > 0) {
 				HashSet<IASTPreprocessorMacroDefinition> macroSet = macroExpansion.getMacroRecord();
 				for(IASTPreprocessorMacroDefinition record : macroSet) {
+					if(record.getFileLocation() == null)
+						continue;
 					record.getFileLocation().getNodeOffset();
 					String entityInformation = record.getFileLocation().getFileName() + record.getFileLocation().getNodeOffset();
 					int relationType = RelationType.MACRO_USE;
@@ -1209,6 +1215,16 @@ public class HandlerContext {
 							expression.getFileLocation().getStartingLineNumber(), ((CPPASTFunctionCallExpression) expression).getOffset());
 				}else if(fieldExpression instanceof CPPASTFieldReference){
 					String text = expression.getRawSignature();
+				}else if(fieldExpression instanceof CPPASTLiteralExpression){
+					CPPASTLiteralExpression cppastLiteralExpression = (CPPASTLiteralExpression)fieldExpression;
+					IASTNode originalnode = cppastLiteralExpression.getOriginalNode();
+					ICPPEvaluation icppEvaluation = cppastLiteralExpression.getEvaluation();
+					CPPASTFieldReference cppastFieldReference = (CPPASTFieldReference)functionNameExpression;
+					IBinding iBinding = ((CPPASTFieldReference) functionNameExpression).getFieldName().getBinding();
+					String entityInformation = getBinding(cppastFieldReference.getFieldName());
+					this.latestValidContainer().addBindingRelation(RelationType.CALL,
+							entityInformation, this.currentFileEntity.getId(), expression.getFileLocation().getStartingLineNumber(),
+							expression.getFileLocation().getNodeOffset());
 				}
 			}
 			else if(functionNameExpression instanceof CPPASTFunctionCallExpression){}

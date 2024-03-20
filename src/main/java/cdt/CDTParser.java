@@ -13,6 +13,7 @@ public class CDTParser {
 	RelationRepo relationrepo;
 	HashMap<String,Integer> fileList;
 	Set<String> Program_environment;
+	HashMap<String, String> map = new HashMap<>();
 	
 	public CDTParser(Set<String> Program_environment) {
 		this.entityrepo = new EntityRepo();
@@ -71,5 +72,12 @@ public class CDTParser {
 		cdt.parse();
 	}
 
+	public void printMap(){
+		for(String macroname: map.keySet()){
+			String expansion = map.get(macroname);
+			expansion = expansion.replace("\"", "\\\"");
+			System.out.println("definedMacros.put(\"" + macroname + "\", " + "\"" + expansion + "\");");
+		}
+	}
 }
 

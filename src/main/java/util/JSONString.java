@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import relation.Relation;
 import relation.RelationType;
 import symtab.FunctionSymbol;
+import symtab.GlobalScope;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -241,6 +242,20 @@ public class JSONString {
 			entitytemp.setParameterIndex(((ParameterEntity) entity).getIndex());
 		}
 		if(entity.getGlobal()) entitytemp.setIsGlobal(true);
+		else if(entity instanceof VarEntity && resolveStorage_class(entity.getStorgaeClass()) == "static"){
+			entitytemp.setIsGlobal(true);
+		}else if(entity.getParent() != null){
+			if(entity.getParent().getScope() != null &&
+					entity.getParent().getScope() instanceof GlobalScope &&
+					entity instanceof VarEntity){
+				entitytemp.setIsGlobal(true);
+			}
+//			else if(entity.getParent().getName() == "[unnamed]"){
+//				if(entity instanceof EnumeratorEntity) {
+//					entitytemp.setIsGlobal(true);
+//				}
+//			}
+		}
 		if(entity.getPointer() && entity instanceof VarEntity) entitytemp.setIsPointer(true);
 		if(entity instanceof FunctionEntity && ((FunctionEntity)entity).isTaskNode()) entitytemp.setIsTaskNode(true);
     	return entitytemp;
@@ -321,9 +336,6 @@ public class JSONString {
 				continue;
 			RelationTemp relationtemp = new RelationTemp(relation.getType(), relation.getFromEntity().getId(),
 					relation.getToEntity().getId());
-			if(relation.getFileID() == null){
-				System.out.println("TEST");
-			}
 			if(relation.getFileID() != -1){
 				relationtemp.setFile(relation.getFileID());
 			}
