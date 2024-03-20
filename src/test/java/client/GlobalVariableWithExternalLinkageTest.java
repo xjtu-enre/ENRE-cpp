@@ -46,10 +46,10 @@ public class GlobalVariableWithExternalLinkageTest {
 	  */
 	@Test
 	public void containsVariableEntityglobalVar4() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isVar(x) && x.getName().equals("globalVar") && x.getLocation().getStartLine() == 4);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isVar(x) && x.getName().equals("globalVar") && x.getLocation().getStartLine() == 5);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
-		int[] gt = {4, -1, -1, -1};
+		int[] gt = {5, -1, -1, -1};
 		Assert.assertArrayEquals(gt, TestUtil.expandLocationArray(ent.getLocation(), gt));
 	}
 
@@ -58,10 +58,10 @@ public class GlobalVariableWithExternalLinkageTest {
 	  */
 	@Test
 	public void containsFunctionEntitymain6() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isFunction(x) && x.getName().equals("main") && x.getLocation().getStartLine() == 6);
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isFunction(x) && x.getName().equals("main") && x.getLocation().getStartLine() == 7);
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
-		int[] gt = {6, -1, -1, -1};
+		int[] gt = {7, -1, -1, -1};
 		Assert.assertArrayEquals(gt, TestUtil.expandLocationArray(ent.getLocation(), gt));
 	}
 

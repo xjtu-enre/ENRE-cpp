@@ -27,7 +27,7 @@ public class JudgeCate {
         if(en.getId() == -1) {
             return false;
         }
-        return en instanceof DataAggregateEntity;
+        return en.getIsTemplate();
     }
     public boolean isBlock (Entity en){
         if(en.getId() == -1) {
