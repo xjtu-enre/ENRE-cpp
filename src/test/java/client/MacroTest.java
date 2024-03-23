@@ -42,7 +42,7 @@ public class MacroTest {
 	}
 
 	/**
-	  * contains Macro entity F  && x.getName().equals("F")
+	  * contains Macro entity F && x.getName().equals("F")
 	  */
 	@Test
 	public void containsMacroEntityF1() {

@@ -41,5 +41,17 @@ public class FunctionPointerTypedefTest {
 		judgeCate.clear();
 	}
 
+	/**
+	  * contains undefined entity t_somefunc  judgeCate.undefined(x) &&
+	  */
+	@Test
+	public void containsundefinedEntityt_somefunc1() {
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> x.getName().equals("t_somefunc") && x.getLocation().getStartLine() == 1);
+		Assert.assertEquals(1, filteredEntities.size());
+		Entity ent = filteredEntities.get(0);
+		int[] gt = {1, -1, -1, -1};
+		Assert.assertArrayEquals(gt, TestUtil.expandLocationArray(ent.getLocation(), gt));
+	}
+
 
 }

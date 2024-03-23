@@ -120,6 +120,8 @@ export default async function (opt: any) {
               break;
             case "enum":
               break;
+            case "function pointer":
+              break;
             case "enumerator":
               break;
             case "namespace alias":
@@ -141,7 +143,7 @@ export default async function (opt: any) {
             case "union":
               break;
             case "class":
-              console.log(ent.type)
+              //console.log(ent.type)
               if (ent.visibility) {
                 additionalAssertions.push(JUnitBuilder.buildAssertionStmt("assertEquals", "((ClassEntity)ent).getvisibility()", `"${ent.visibility}"`));
               }

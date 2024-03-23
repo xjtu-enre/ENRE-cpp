@@ -146,7 +146,12 @@ export class JUnitBuilder {
     if (name?.includes('"')) {
       entityName = name?.replaceAll('"', '\\"');
     }
-    let initializer = `TestUtil.filter(entities, (x) -> judgeCate.${entityCategoryMap.get(category)}(x)`;
+    let initializer = null;
+    if (name) {
+        if (!entityName?.includes("somefunc")) {
+            initializer = `TestUtil.filter(entities, (x) -> judgeCate.${entityCategoryMap.get(category)}(x)`;
+        }
+    }
     if (name) {
         if (entityName?.includes("filecpp")) {
             initializer += ` && x.getName().endsWith("cpp")`;

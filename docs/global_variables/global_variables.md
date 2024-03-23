@@ -66,7 +66,7 @@ namespace {
             -   name: ns::l
                 type: Variable
                 loc: 3:9:3:9
-            -   name: [unnamed]
+            -   name: unnamed
                 type: namespace
             -   name: m
                 type: Variable
