@@ -1,0 +1,3 @@
+namespace Tools {
+    void runTool() {}
+}

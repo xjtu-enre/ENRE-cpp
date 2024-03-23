@@ -1,0 +1,3 @@
+void outerFunction() {
+    class LocalClass {};
+}

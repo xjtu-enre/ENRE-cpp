@@ -1,0 +1,1 @@
+typedef struct{ double hi, lo; } range;

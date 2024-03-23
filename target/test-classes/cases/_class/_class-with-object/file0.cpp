@@ -1,0 +1,1 @@
+class objClass { /* empty */} obj;

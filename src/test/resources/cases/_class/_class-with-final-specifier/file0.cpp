@@ -1,0 +1,2 @@
+class Vector final {
+};
