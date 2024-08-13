@@ -25,11 +25,11 @@ class B : public A{
 ```yaml
 name: Override
 relation:
-    items:
-        -   type: Override
-            from: Function:'func'[@loc=5]
-            to: Function:'func'[@loc=2]
-            loc: file0:5:18
+  items:
+    -   type: Override
+        from: Function:'func'[@loc=5]
+        to: Function:'func'[@loc=2]
+        loc: file0:5:18
 ```
 
 ######  Virtual Function Override
@@ -45,11 +45,11 @@ class B : public A{
 ```yaml
 name: Virtual Function Override
 relation:
-    items:
-        -   type: Override
-            from: Function:'func'[@loc=5]
-            to: Function:'func'[@loc=2]
-            loc: file0:5:18
+  items:
+    -   type: Override
+        from: Function:'func'[@loc=5]
+        to: Function:'func'[@loc=2]
+        loc: file0:5:18
 ```
 
 
@@ -87,9 +87,9 @@ class DerivedClass: public BaseClass
 ```yaml
 name: Function Override with Override keyword
 relation:
-    items:
-        -   type: Override
-            from: Function:'BaseClass::funcA'[@loc=7]
-            to: Function:'DerivedClass::funcA'[@loc=3]
-            loc: file0:7:18
+  items:
+    -   type: Override
+        from: Function:'BaseClass::funcA'[@loc=7]
+        to: Function:'DerivedClass::funcA'[@loc=3]
+        loc: file0:7:18
 ```

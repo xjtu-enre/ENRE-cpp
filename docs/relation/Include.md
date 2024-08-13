@@ -19,7 +19,7 @@ __has_include ( string-literal )
 __has_include ( < h-pp-tokens > )	(5)	(since C++17)
 ```
 
-##### Examples 
+##### Examples
 ###### Include
 ```CPP
 //// file.CPP
@@ -37,16 +37,16 @@ int main(){}
 ```
 
 ```yaml
-name: Include 
+name: Include
 relation:
-    type: Include
-    items:
-        -   from: File:'file.CPP'
-            to: File:'file0.h'
-            loc: file0:1:11:1:17
-        -   from: File:'file.CPP'
-            to: File:'file1.h'
-            loc: file0:2:11:2:17
+  type: Includes
+  items:
+    -   from: File:'file.CPP'
+        to: File:'file0.h'
+        loc: file0:1:11:1:17
+    -   from: File:'file.CPP'
+        to: File:'file1.h'
+        loc: file0:2:11:2:17
 ```
 
 ###### Include occur in Function Body
@@ -64,10 +64,10 @@ int main(){}
 ```yaml
 name: Include occur in Function Body
 relation:
-    type: Include
-    extra: false
-    items:
-        -   from: Function:'main'
-            to: File:'file0.h'
-            loc: file0:2:15:2:21
+  type: Includes
+  extra: false
+  items:
+    -   from: Function:'main'
+        to: File:'file0.h'
+        loc: file0:2:15:2:21
 ```

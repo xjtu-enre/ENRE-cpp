@@ -30,10 +30,10 @@ namespace ns{}
 ```yaml
     name: Namespace
     entity:
-        items:
-            -   name: ns
-                loc: 1:11:1:12
-                type: Namespace
+      items:
+        -   name: ns
+            loc: 1:11:1:12
+            type: Namespace
 ```
 
 ###### Nested Namespace
@@ -50,16 +50,17 @@ namespace foo {
 ```yaml
     name: Nested Namespace
     entity:
-        items:
-            -   name: foo
-                loc: 1:11:1:13
-                type: Namespace
-            -   name: bar
-                loc: 2:15:2:17
-                type: Namespace
-            -   name: baz
-                loc: 3:20:3:22
-                type: Namespace
+      items:
+        -   name: foo::bar
+            loc: 2:15:2:17
+            type: Namespace
+        -   name: foo::bar::baz
+            loc: 3:20:3:22
+            type: Namespace
+        # Namespace but not Nested Namespace
+        -   name: foo
+            loc: 1:11:1:13
+            type: Namespace
 ```
 
 ###### Unnamed Namespace
@@ -88,11 +89,12 @@ namespace Test{
 ```yaml
     name: Inline Namespace
     entity:
-        items:
-            -   name: Test
-                loc: 1:11:1:14
-                type: Namespace
-            -   name: new_ns
-                loc: 2:22:2:27
-                type: Namespace
+      items:
+        -   name: Test::new_ns
+            loc: 2:22:2:27
+            type: Namespace
+        # Namespace but not Inline Namespace
+        -   name: Test
+            loc: 1:11:1:14
+            type: Namespace
 ```

@@ -1,6 +1,6 @@
 ## Relation: Using
 
-Descriptions: `Using Relation` introduces an unqualified name as a synonym for an entity declared elsewhere. It allows a single name from a specific namespace to be used without explicit qualification in the declaration region in which it appears. 
+Descriptions: `Using Relation` introduces an unqualified name as a synonym for an entity declared elsewhere. It allows a single name from a specific namespace to be used without explicit qualification in the declaration region in which it appears.
 ### Supported Patterns
 
 ```yaml
@@ -71,7 +71,7 @@ relation:
   type: Using
   items:
     -   from: Class:'Derived'
-        to: Function:'func'
+        to: Function:'Base::func'
         loc: file0:7:17:7:20
 ```
 
@@ -94,6 +94,6 @@ relation:
   type: Using
   items:
     -   from: Class:'Derived'
-        to: Variable:'value'
+        to: Variable:'Base::value'
         loc: file0:7:17:7:21
 ```

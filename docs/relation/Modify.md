@@ -27,7 +27,7 @@ relation:
     items:
         -   type: Modify
             from: Function:'func'
-            to: Variable:'i'
+            to: Variable:'func::i'
             loc: file0:3:5
 ```
 
@@ -45,7 +45,7 @@ relation:
     items:
         -   type: Modify
             from: Function:'func'
-            to: Variable:'i'
+            to: Variable:'func::i'
             loc: file0:3:6
 ```
 

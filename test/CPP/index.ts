@@ -188,25 +188,45 @@ export default async function (opt: any) {
           for (const [index, rel] of relation.items.entries()) {
             let additionalAssertions: Array<Statement> = [];
             switch (rel.type) {
-              case "Alias":
+              case "addr_parameter_use":
                 break;
-              case "Call":
+              case "alias":
                 break;
-              case "Define":
+              case "call":
                 break;
-              case "Except":
+              case "cast":
                 break;
-              case "Extend":
+              case "contains":
                 break;
-              case "Friend":
+              case "declares":
                 break;
-              case "Include":
+              case "define":
                 break;
-              case "Modify":
+              case "delete":
                 break;
-              case "Override":
+              case "embed":
                 break;
-              case "Parameter":
+              case "except":
+                break;
+              case "extend":
+                break;
+              case "extend_declare":
+                break;
+              case "flow_to":
+                break;
+              case "friend":
+                break;
+              case "include":
+                break;
+              case "macro_use":
+                break;
+              case "modify":
+                break;
+              case "override":
+                break;
+              case "parameter":
+                break;
+              case "parameter_use":
                 break;
               case "Set":
                 break;

@@ -41,5 +41,50 @@ public class DefineEnumeratorTest {
 		judgeCate.clear();
 	}
 
+	/**
+	  * contains Define relation described in index 0
+	  */
+//	@Test
+//	public void containsDefineRelationDescribedInIndex0() {
+//		List<Entity> fromEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnum(x) && x.getName().equals("weekday"));
+//		if (fromEntities.size() != 1) {
+//			throw new RuntimeException("Insufficient or wrong predicates to determine only one [from] entity");
+//		}
+//		List<Entity> toEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("Monday"));
+//		if (toEntities.size() != 1) {
+//			throw new RuntimeException("Insufficient or wrong predicates to determine only one [to] entity");
+//		}
+//	}
+//
+//	/**
+//	  * contains Define relation described in index 1
+//	  */
+//	@Test
+//	public void containsDefineRelationDescribedInIndex1() {
+//		List<Entity> fromEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnum(x) && x.getName().equals("weekday"));
+//		if (fromEntities.size() == 1) {
+//			throw new RuntimeException("Insufficient or wrong predicates to determine only one [from] entity");
+//		}
+//		List<Entity> toEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("Tuesday"));
+//		if (toEntities.size() != 1) {
+//			throw new RuntimeException("Insufficient or wrong predicates to determine only one [to] entity");
+//		}
+//	}
+//
+//	/**
+//	  * contains Define relation described in index 2
+//	  */
+//	@Test
+//	public void containsDefineRelationDescribedInIndex2() {
+//		List<Entity> fromEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnum(x) && x.getName().equals("weekday"));
+//		if (fromEntities.size() == 1) {
+//			throw new RuntimeException("Insufficient or wrong predicates to determine only one [from] entity");
+//		}
+//		List<Entity> toEntities = TestUtil.filter(entities, (x) -> judgeCate.isEnumerator(x) && x.getName().equals("Wednesday"));
+//		if (toEntities.size() != 1) {
+//			throw new RuntimeException("Insufficient or wrong predicates to determine only one [to] entity");
+//		}
+//	}
+
 
 }

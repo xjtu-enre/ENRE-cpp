@@ -42,11 +42,11 @@ public class UnnamedNamespaceTest {
 	}
 
 	/**
-	  * contains Namespace entity unnamed  && x.getLocation().getStartLine() == 1
+	  * contains Namespace entity unnamed
 	  */
 	@Test
 	public void containsNamespaceEntityunnamed1() {
-		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isNamespace(x) && x.getName().equals("[unnamed]") );
+		List<Entity> filteredEntities = TestUtil.filter(entities, (x) -> judgeCate.isNamespace(x) && x.getName().equals("[unnamed]"));
 		Assert.assertEquals(1, filteredEntities.size());
 		Entity ent = filteredEntities.get(0);
 		int[] gt = {1, -1, -1, -1};

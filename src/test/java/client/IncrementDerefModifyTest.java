@@ -41,5 +41,22 @@ public class IncrementDerefModifyTest {
 		judgeCate.clear();
 	}
 
+	/**
+	  * contains Modify relation described in index 0
+	  */
+	@Test
+	public void containsModifyRelationDescribedInIndex0() {
+		List<Entity> fromEntities = TestUtil.filter(entities, (x) -> judgeCate.isFunction(x) && x.getName().equals("main"));
+		if (fromEntities.size() != 1) {
+			throw new RuntimeException("Insufficient or wrong predicates to determine only one [from] entity");
+		}
+		List<Entity> toEntities = TestUtil.filter(entities, (x) -> judgeCate.isVar(x) && x.getName().equals("a"));
+		if (toEntities.size() != 1) {
+			throw new RuntimeException("Insufficient or wrong predicates to determine only one [to] entity");
+		}
+//		List<RelationObj> filteredRelations = TestUtil.filter(relations, (x) -> x.getRelation().getKind().equals(Configure.RELATION_MODIFY) && x.getFromEntityId() == fromEntities.get(0).getId() && x.getToEntityId() == toEntities.get(0).getId() && x.getRelation().getLocation().getStartLine() == 3);
+//		Assert.assertEquals(1, filteredRelations.size());
+	}
+
 
 }

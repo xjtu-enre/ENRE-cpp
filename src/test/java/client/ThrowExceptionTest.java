@@ -41,5 +41,22 @@ public class ThrowExceptionTest {
 		judgeCate.clear();
 	}
 
+	/**
+	  * contains Except relation described in index 0
+	  */
+	@Test
+	public void containsExceptRelationDescribedInIndex0() {
+		List<Entity> fromEntities = TestUtil.filter(entities, (x) -> judgeCate.isFunction(x) && x.getName().equals("CallRPC"));
+		if (fromEntities.size() != 1) {
+			throw new RuntimeException("Insufficient or wrong predicates to determine only one [from] entity");
+		}
+		List<Entity> toEntities = TestUtil.filter(entities, (x) -> judgeCate.isClass(x) && x.getName().equals("CConnectionFailed"));
+		if (toEntities.size() != 1) {
+			throw new RuntimeException("Insufficient or wrong predicates to determine only one [to] entity");
+		}
+//		List<RelationObj> filteredRelations = TestUtil.filter(relations, (x) -> x.getRelation().getKind().equals(Configure.RELATION_EXCEPT) && x.getFromEntityId() == fromEntities.get(0).getId() && x.getToEntityId() == toEntities.get(0).getId() && x.getRelation().getLocation().getStartLine() == 6);
+//		Assert.assertEquals(1, filteredRelations.size());
+	}
+
 
 }

@@ -2,6 +2,6 @@
 *.class
 *_node.json
 *_edge.json
-*_out.json
+test1_out.json
 .DS_Store
 tests

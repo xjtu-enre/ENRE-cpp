@@ -25,28 +25,26 @@ int globalVar;
 
 // In file2.cpp
 extern int globalVar;  // Extern declare relation
-
 ```
+
 
 ```yaml
 name: External Variable Declaration
 relation:
   type: Extern Declare
   items:
-    - from: Variable:'globalVar'
-      to: File:'file2.cpp'
-      loc: file2.cpp:2:1
+    - from: File:'file2.cpp'
+      to: Variable:'globalVar'
+      loc: file2.cpp:1:12
 ```
 
 ###### External Function Declaration
 
 ```CPP
-// In library.cpp
 void externalFunction() {
     // Function definition
 }
 
-// In main.cpp
 extern void externalFunction();  // Extern declare relation
 ```
 
@@ -55,7 +53,7 @@ name: External Function Declaration
 relation:
   type: Extern Declare
   items:
-    - from: Function:'externalFunction'
-      to: File:'main.cpp'
-      loc: main.cpp:2:1
+    - from: File:'file0'
+      to: Function:'externalFunction'
+      loc: file0:5:13
 ```

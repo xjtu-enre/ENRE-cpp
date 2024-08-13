@@ -34,22 +34,16 @@
 | [Override](relation/Override.md)                                           | Override relation indicates when a method in one class overrides a virtual method in a base class.          |
 | [Parameter](relation/Parameter.md)                                         | TBD.                                                                                                        |
 | [Set](relation/Set.md)                                                     | A Set relation indicates any explicit assignment of a variable.                                             |
-| [Use](relation/Use.md)                                                     | A Use relation indicates a reference in an active region of code to a known C/C++ variable.                 |
 | [Using](relation/Using.md)                                                 | TBD.                                                                                                        |
 | [Cast](relation/Cast.md)                                                   | TBD.                                                                                                        |
-| [Contains](relation/Contains.md)                                           | TBD.                                                                                                        |
 | [Declares](relation/Declares.md)                                           | TBD.                                                                                                        |
 | [Addr_Parameter_Use](relation/Addr_Parameter_Use.md)                       | TBD.                                                                                                        |
-| [Delete](relation/Delete.md)                                               | TBD.                                                                                                        |
-| [Embed](relation/Delete.md)                                                | TBD.                                                                                                        |
+| [Embed](relation/Embed.md)                                                | TBD.                                                                                                        |
 | [Flow_to](relation/Flow_to.md)                                             | TBD.                                                                                                        |
-| [Return](relation/Return.md)                                               | TBD.                                                                                                        |
-| [TypeUse](relation/TypeUse.md)                                             | TBD.                                                                                                        |
-| [Type](relation/Type.md)                                                   | TBD.                                                                                                        |
 | [Parameter_Use_Field_Reference](relation/Parameter_Use_Field_Reference.md) | TBD.                                                                                                        |
-| [Parameter_Use](relation/Parameter_Use)                                    | TBD.                                                                                                        |
-| [Macro_Use](relation/Macro_Use)                                            | TBD.                                                                                                        |
-| [Extern_Declare](relation/Extern_Declare)                                  | TBD.                                                                                                        |
+| [Parameter_Use](relation/Parameter_Use.md)                                    | TBD.                                                                                                        |
+| [Macro_Use](relation/Macro_Use.md)                                            | TBD.                                                                                                        |
+| [Extern_Declare](relation/Extern_Declare.md)                                  | TBD.                                                                                                        |
 
 
 ## Other information

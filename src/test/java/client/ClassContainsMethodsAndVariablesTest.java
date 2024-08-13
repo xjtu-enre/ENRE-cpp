@@ -41,5 +41,39 @@ public class ClassContainsMethodsAndVariablesTest {
 		judgeCate.clear();
 	}
 
+	/**
+	  * contains undefined relation described in index 0
+	  */
+	@Test
+	public void containsundefinedRelationDescribedInIndex0() {
+		List<Entity> fromEntities = TestUtil.filter(entities, (x) -> judgeCate.isClass(x) && x.getName().equals("Animal"));
+		if (fromEntities.size() != 1) {
+			throw new RuntimeException("Insufficient or wrong predicates to determine only one [from] entity");
+		}
+//		List<Entity> toEntities = TestUtil.filter(entities, (x) -> judgeCate.undefined(x) && x.getName().equals("speak"));
+//		if (toEntities.size() != 1) {
+//			throw new RuntimeException("Insufficient or wrong predicates to determine only one [to] entity");
+//		}
+//		List<RelationObj> filteredRelations = TestUtil.filter(relations, (x) -> x.getRelation().getKind().equals(Configure.undefined) && x.getFromEntityId() == fromEntities.get(0).getId() && x.getToEntityId() == toEntities.get(0).getId() && x.getRelation().getLocation().getStartLine() == 2);
+//		Assert.assertEquals(1, filteredRelations.size());
+	}
+
+	/**
+	  * contains undefined relation described in index 1
+	  */
+	@Test
+	public void containsundefinedRelationDescribedInIndex1() {
+		List<Entity> fromEntities = TestUtil.filter(entities, (x) -> judgeCate.isClass(x) && x.getName().equals("Animal"));
+		if (fromEntities.size() != 1) {
+			throw new RuntimeException("Insufficient or wrong predicates to determine only one [from] entity");
+		}
+		List<Entity> toEntities = TestUtil.filter(entities, (x) -> judgeCate.isVar(x) && x.getName().equals("age"));
+		if (toEntities.size() != 1) {
+			throw new RuntimeException("Insufficient or wrong predicates to determine only one [to] entity");
+		}
+//		List<RelationObj> filteredRelations = TestUtil.filter(relations, (x) -> x.getRelation().getKind().equals(Configure.undefined) && x.getFromEntityId() == fromEntities.get(0).getId() && x.getToEntityId() == toEntities.get(0).getId() && x.getRelation().getLocation().getStartLine() == 3);
+//		Assert.assertEquals(1, filteredRelations.size());
+	}
+
 
 }

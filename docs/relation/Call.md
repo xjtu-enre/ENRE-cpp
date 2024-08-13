@@ -2,7 +2,7 @@
 
 Descriptions: `Call Relation` is a kind of postfix-expression, formed by an expression that evaluates to a function or callable Variable followed by the function-call operator, ().
 
-### Supported Patterns 
+### Supported Patterns
 
 ```yaml
 name: Call
@@ -29,7 +29,7 @@ void epoll(){
 ```yaml
 name: Function Call
 relation:
-  type: Call
+  type: Calls
   items:
     -   from: Function:'epoll'
         to: Function:'run_benchmark'
@@ -59,13 +59,13 @@ void epoll(){
 ```yaml
 name: Cross-file Function Call
 relation:
-  type: Call
+  type: Calls
   items:
     -   from: Function:'epoll'
         to: Function:'run_benchmark'
         loc: file1:3:5
     -   from: Function:'epoll'
-        to: Function:'bark'
+        to: Function:'Dog::bark'
         loc: file1:5:9
 ```
 
@@ -92,36 +92,13 @@ int main()
 ```yaml
 name: Method Function Call
 relation:
-  type: Call
+  type: Calls
   items:
     -   from: Function:'main'
         to: Function:'setAge'
         loc: file0:14:12
 ```
 
-###### Deref Call
-If an Variable can deref as a function, there maybe a deref call.
-
-```CPP
-void run_benchmark(void (*setup)(void*), void* data) {
-    int i;
-    for (i = 0; i < count; i++) {
-        if (setup != NULL) {
-            setup(data);
-        }
-    }
-}
-```
-
-```yaml
-name: Deref Call
-relation:
-    type: Call
-    items:
-        -   from: Function:'run_benchmark'
-            to: Variable:'setup'
-            loc: file0:5:13
-```
 
 ###### Function Continuous Call
 ```CPP
@@ -139,16 +116,17 @@ void run_benchmark(){
 ```yaml
 name: Function Continuous Call
 relation:
-  items:
+    type: Calls
+    items:
     #-   from: Function:'funcB'
     -   from: Function:'run_benchmark'
         to: Function:'funcA'
         loc: file0:8:11
-        type: Call
+        type: Calls
     -   from: Function:'run_benchmark'
         to: Function:'funcB'
         loc: file0:8:5
-        type: Call
+
 ```
 
 
@@ -164,11 +142,12 @@ int func() {
 ```yaml
 name: Function Extern Call
 relation:
-  items:
+    type: Calls
+    items:
     -   from: Function:'func'
         to: Function:'func1'
         loc: file0:3:5
-        type: Call
+
 ```
 
 ###### Call Class Method Call
@@ -188,11 +167,12 @@ int main(){
 ```yaml
 name: Call Class Method Call
 relation:
+    type: Calls
     items:
       -   from: Function:'main'
-          to: Function:'func'
+          to: Function:'A::func'
           loc: file0:9:10
-          type: Call
+
 ```
 
 ###### Template Function Call Function
@@ -209,11 +189,12 @@ void func2(S &s){
 ```yaml
 name: Template Function Call Function
 relation:
+    type: Calls
     items:
       -   from: Template:'func2'
           to: Function:'func'
           loc: file0:6:5:6:8
-          type: Call
+
 ```
 
 ###### Template Call Template
@@ -231,11 +212,12 @@ void func2(S &s){
 ```yaml
 name: Template Call Template
 relation:
+    type: Calls
     items:
       -   from: Template:'func2'
           to: Template:'func'
           loc: file0:7:5:7:8
-          type: Call
+
 ```
 
 ###### Function Call Template
@@ -253,11 +235,12 @@ void func2(){
 ```yaml
 name: Function Call Template
 relation:
+    type: Calls
     items:
       -   from: Function:'func2'
           to: Template:'func'
           loc: file0:7:5:7:8
-          type: Call
+
 ```
 
 ###### Operator Function call
@@ -279,9 +262,10 @@ int main()
 ```yaml
 name: Operator Function call
 relation:
+    type: Calls
     items:
       -   from: Function:'main'
           to: Function:'operator ()'
           loc: file0:11:4
-          type: Call
+
 ```

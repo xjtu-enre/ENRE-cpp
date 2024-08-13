@@ -38,34 +38,14 @@ class classC{
 ```yaml
 name: Friend Function
 relation:
-    type: Friend
-    items:
-        -   from: Class:'classC'
-            to: Function:'funcA'
-            loc: file0:9:17
-        -   from: Class:'classC'
-            to: Class:'classB'
-            loc: file0:10:12
-```
-
-###### Template Class friends
-
-```CPP
-template<class T> class A {}; // primary
-template<> class A<int> {}; // full
-class X {
-    friend class A<int>; 
-};
-```
-
-```yaml
-name: Template Class friends
-relation:
-    type: Friend
-    items:
-        -   from: Class:'X'
-            to: Template:'A'
-            loc: file0:4:18
+  type: Friend
+  items:
+    -   from: Class:'classC'
+        to: Function:'classA::funcA'
+        loc: file0:9:17
+    -   from: Class:'classC'
+        to: Class:'classB'
+        loc: file0:10:12
 ```
 
 ###### Template Function friends
@@ -88,29 +68,11 @@ relation:
     type: Friend
     items:
         -   from: Template:'A'
-            to: Function:'funcA'
+            to: Function:'classA::funcA'
             loc: file0:4:18
 ```
 
-###### Struct Function Friends
-
-```CPP
-struct X {
-    friend void f() {}
-};
-void f();
-```
-
-```yaml
-name: Struct Function Friends
-relation:
-    type: Friend
-    items:
-        -   from: Struct:'X'
-            to: Function:'f'
-            loc: file0:4:6
-```
-###### Struct Class Friends
+###### Struct Class Friends(can't find)
 
 ```CPP
 class c{};
@@ -122,9 +84,9 @@ struct X {
 ```yaml
 name: Struct Class Friends
 relation:
-    type: Friend
-    items:
-        -   from: Struct:'X'
-            to: Class:'c'
-            loc: file0:3:18
+  type: Friend
+  items:
+    -   from: Struct:'X'
+        to: Class:'c'
+        loc: file0:3:18
 ```

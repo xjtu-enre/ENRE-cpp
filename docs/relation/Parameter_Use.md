@@ -1,6 +1,6 @@
-## Relation: Parameter Use
+## Relation: Parameter_Use
 
-Description:The `Parameter Use` Relation in C++ refers to the usage of function parameters within the body of the function. It involves the direct use of the parameter's value, without modifications or address referencing.
+Description:The `Parameter_Use` Relation in C++ refers to the usage of function parameters within the body of the function. It involves the direct use of the parameter's value, without modifications or address referencing.
 
 ### Supported Patterns
 
@@ -36,36 +36,10 @@ name: Direct Parameter Use
 relation:
   type: Parameter Use
   items:
-    - from: Function:'callDisplay'
-      to: Function:'display'
-      loc: file0:6:5
+    - from: Function:'display'
+      to: Variable:'callDisplay::n'
+      loc: file0:7:118
 
-```
-
-###### Member Function Parameter Use
-
-```CPP
-class Calculator {
-public:
-    void add(int a, int b) {
-        cout << "Sum: " << a + b;
-    }
-};
-
-void useCalculator() {
-    Calculator calc;
-    calc.add(10, 20);
-}
-```
-
-```yaml
-name: Member Function Parameter Use
-relation:
-  type: Parameter Use
-  items:
-    - from: Function:'useCalculator'
-      to: Function:'add'
-      loc: file0:9:5
 ```
 
 ###### Template Function Parameter Use
@@ -87,9 +61,9 @@ name: Template Function Parameter Use
 relation:
   type: Parameter Use
   items:
-    - from: Function:'templateFunc'
-      to: Template:'process'
-      loc: file0:7:5
+    - from: Function template:'process'
+      to: Variable:'templateFunc::val'
+      loc: file0:8:5
 ```
 
 ###### Parameter in Lambda Function
@@ -108,7 +82,7 @@ name: Parameter in Lambda Function
 relation:
   type: Parameter Use
   items:
-    - from: Function:'lambdaExample'
-      to: Variable:'lambda'
+    - from: Variable:'lambdaExample::lambda'
+      to: Variable:'lambdaExample::num'
       loc: file0:4:5
 ```

@@ -44,7 +44,7 @@ Configure {
     public void dealWithInputSrcPath() throws IOException{
         File folder = new File(this.inputSrcPath);
         if (!folder.exists()) {
-            File a = new File(System.getProperty("user.dir"));
+            File a = new File(System.getProperty("user.dir"));//"user.dir"：这是一个系统属性键，代表当前用户的工作目录。该目录是 JVM 启动时所在的目录，通常是从命令行启动程序时的当前目录。
             File parentFolder = new File(a.getParent());
             File b = new File(parentFolder, this.inputSrcPath);
             this.inputSrcPath = b.getCanonicalPath();

@@ -1,5 +1,5 @@
 ## Relation: Extend
-Descriptions: New classes can be derived from existing classes using a mechanism called `Inheritance/Extend Relation`. Classes that are used for derivation are called `base classes` of a particular derived class. 
+Descriptions: New classes can be derived from existing classes using a mechanism called `Inheritance/Extend Relation`. Classes that are used for derivation are called `base classes` of a particular derived class.
 
 ### Supported Patterns
 ```yaml
@@ -12,7 +12,7 @@ attr(optional) access-specifier(optional) virtual-specifier(optional) class-or-d
 
 ##### Examples
 
-###### Struct Extend 
+###### Struct Extend
 ```CPP
 struct Base {
     int a, b, c;
@@ -26,17 +26,17 @@ struct Derived2 : Derived {
 ```
 
 ```yaml
-name: Struct Extend 
+name: Struct Extend
 relation:
-    type: Extend
-    extra: false
-    items:
-        -   from: Struct:'Derived'
-            to: Struct:'Base'
-            loc: file0:4:19
-        -   from: Struct:'Derived2'
-            to: Struct:'Derived'
-            loc: file0:7:19
+  type: Extend
+  extra: false
+  items:
+    -   from: Struct:'Derived'
+        to: Struct:'Base'
+        loc: file0:4:19
+    -   from: Struct:'Derived2'
+        to: Struct:'Derived'
+        loc: file0:7:19
 ```
 
 
@@ -79,21 +79,3 @@ relation:
         loc: file0:3:8:3:14
 ```
 
-
-###### Template Class Extend
-
-```CPP
-template<class T>
-class Base<T>{};
-class Derived : public Base<std::string>{};
-```
-```yaml
-name: Template Class Extend
-relation:
-  type: Extend
-  extra: false
-  items:
-    -   from: Class:'Derived'
-        to: Template:'Base'
-        loc: file0:3:8:3:14
-```

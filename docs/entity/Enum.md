@@ -30,10 +30,10 @@ enum A : int;
 ```yaml
     name: Enum Declaration
     entity:
-        items:
-            -   name: A
-                loc: 1:6:1:6
-                type: Enum
+      items:
+        -   name: A
+            loc: 1:6:1:6
+            type: Enum
 ```
 
 ###### Enum
@@ -44,10 +44,10 @@ enum Color {};
 ```yaml
     name: Enum
     entity:
-        items:
-            -   name: Color
-                loc: 1:6:1:10
-                type: Enum
+      items:
+        -   name: Color
+            loc: 1:6:1:10
+            type: Enum
 ```
 
 ###### Enum Class
@@ -58,10 +58,10 @@ enum class Handle {};
 ```yaml
     name: Enum Class
     entity:
-        items:
-            -   name: Handle
-                loc: 1:12:1:17
-                type: Enum
+      items:
+        -   name: Handle
+            loc: 1:12:1:17
+            type: Enum
 ```
 
 ###### Enum Struct
@@ -72,10 +72,10 @@ enum struct Handle {};
 ```yaml
     name: Enum Struct
     entity:
-        items:
-            -   name: Handle
-                loc: 1:12:1:17
-                type: Enum
+      items:
+        -   name: Handle
+            loc: 1:12:1:17
+            type: Enum
 ```
 
 
@@ -90,10 +90,10 @@ typedef enum{
 ```yaml
     name: Typedef Enum
     entity:
-        items:
-            -   name: Weekday
-                loc: 4:3:4:9
-                type: Enum
+      items:
+        -   name: Weekday
+            loc: 4:3:4:9
+            type: Enum
 ```
 
 ###### Enums with no enumerators
@@ -107,11 +107,11 @@ E e2 = E{ 0 };
 ```yaml
     name: Enums with no enumerators
     entity:
-        items:
-            -   name: byte
-                loc: 1:12:1:15
-                type: Enum
-            -   name: E
-                loc: 2:12:2:12
-                type: Enum
+      items:
+        -   name: byte
+            loc: 1:12:1:15
+            type: Enum
+        -   name: E
+            loc: 2:12:2:12
+            type: Enum
 ```

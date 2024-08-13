@@ -18,79 +18,27 @@ MacroUseRelationDeclaration :
 
 ##### Examples
 
-###### Simple Macro Use
+###### Macro Use
 
 ```CPP
-#define MAX 100
-int main() {
-    int maxValue = MAX;  // Use of 'MAX' macro
+#define A2_LOG_WARN(msg) A2_LOG(Logger::A2_WARN, msg)
+
+WrDiskCacheEntry::~WrDiskCacheEntry()
+{
+  if (!set_.empty()) {
+    A2_LOG_WARN(fmt("WrDiskCacheEntry is not empty size=%lu",
+                    static_cast<unsigned long>(size_)));
+  }
+  deleteDataCells();
 }
 ```
 
 ```yaml
-name: Simple Macro Use
+name: Macro Use
 relation:
   type: Macro Use
   items:
-    - from: Macro:'MAX'
-      to: Function:'main'
-      loc: file0:3:17
-```
-
-###### Macro Function Use
-
-```CPP
-#define SQUARE(x) ((x) * (x))
-int main() {
-    int result = SQUARE(5);  // Use of 'SQUARE' macro
-}
-```
-
-```yaml
-name: Macro Function Use
-relation:
-  type: Macro Use
-  items:
-    - from: Macro:'SQUARE'
-      to: Function:'main'
-      loc: file0:3:17
-```
-
-###### Conditional Compilation Macro Use
-
-```CPP
-#define DEBUG
-#ifdef DEBUG
-void debugFunction() {
-    // Debugging code
-}
-#endif
-```
-
-```yaml
-name: Conditional Compilation Macro Use
-relation:
-  type: Macro Use
-  items:
-    - from: Macro:'DEBUG'
-      to: Function:'debugFunction'
-      loc: file0:3:1
-```
-
-###### Macro Use in Macro Definition
-
-
-```CPP
-#define BASE 10
-#define MULTIPLY_BASE(x) (BASE * (x))
-```
-
-```yaml
-name: Macro Use in Macro Definition
-relation:
-  type: Macro Use
-  items:
-    - from: Macro:'BASE'
-      to: Macro:'MULTIPLY_BASE'
-      loc: file0:2:1
+    - from: Function:'~WrDiskCacheEntry'
+      to: Macro:'A2_LOG_WARN'
+      loc: file0:6:5
 ```

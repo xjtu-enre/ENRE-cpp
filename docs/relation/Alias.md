@@ -1,5 +1,5 @@
 ## Alias
-Descriptions: `Alias Relation` means 
+Descriptions: `Alias Relation` means
 
 ### Supported Patterns
 ```yaml
@@ -29,11 +29,11 @@ namespace text = ns;
 ```yaml
 name: Namespace Alias
 relation:
-    type: Alias
-    items:
-        -   from: Alias:'text'
-            to: Namespace:'ns'
-            loc: file0:2:18:2:19
+  type: Alias
+  items:
+    -   from: Namespace Alias:'text'
+        to: Namespace:'ns'
+        loc: file0:2:18:2:19
 ```
 
 
@@ -54,17 +54,17 @@ namespace f = foo;
 ```yaml
 name: Using Alias
 relation:
-    type: alias
+    type: Alias
     items:
-      -   from: Alias:'fbz'
-          to: Namespace:'baz'
-          loc: file0:8:0:8:0
-      -   from: Alias:'fb'
-          to: Namespace:'bar'
-          loc: file0:10:0:10:0
-      -   from: Alias:'f'
+      -   from: Namespace Alias:'fbz'
+          to: Namespace:'foo::bar::baz'
+          loc: file0:8:114:8:144
+      -   from: Namespace Alias:'fb'
+          to: Namespace:'foo::bar'
+          loc: file0:9:146:9:170
+      -   from: Namespace Alias:'f'
           to: Namespace:'foo'
-          loc: file0:11:0:11:0
+          loc: file0:10:172:10:190
 ```
 
 ###### Template Alias
@@ -77,9 +77,9 @@ using Vec = vector;
 ```yaml
 name: template alias
 relation:
-    type: alias
+    type: Alias
     items:
       -   from: Alias:'Vec'
-          to: Variable:'vector'
-          loc: file0:3:0:3:0
+          to: Class:'vector'
+          loc: file0:3:36:3:55
 ```

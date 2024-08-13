@@ -35,60 +35,9 @@ name: Passing Object Address
 relation:
   type: Addr Parameter Use
   items:
-    - from: Function:'example'
-      to: Function:'modifyValue'
+    - from: Function:'modifyValue'
+      to: Variable:'example::value'
       loc: file0:7:5
-```
-
-###### Address of Class Member
-
-```CPP
-class MyClass {
-public:
-    int data;
-};
-
-void processData(int* dataPtr) {
-    // Process data
-}
-
-void classExample() {
-    MyClass obj;
-    processData(&obj.data);
-}
-```
-
-```yaml
-name: Address of Class Member
-relation:
-  type: Addr Parameter Use
-  items:
-    - from: Function:'classExample'
-      to: Function:'processData'
-      loc: file0:10:5
-```
-
-###### Array Element Address
-
-```CPP
-void processElement(int* elementPtr) {
-    // Processing logic
-}
-
-void arrayExample() {
-    int arr[5] = {1, 2, 3, 4, 5};
-    processElement(&arr[2]);
-}
-```
-
-```yaml
-name: Array Element Address
-relation:
-  type: Addr Parameter Use
-  items:
-    - from: Function:'arrayExample'
-      to: Function:'processElement'
-      loc: file0:6:5
 ```
 
 ###### Address in Template Function
@@ -111,7 +60,7 @@ name: Address in Template Function
 relation:
   type: Addr Parameter Use
   items:
-    - from: Function:'templateExample'
-      to: Template:'manipulate'
-      loc: file0:7:5
+    - from: Function:'manipulate'
+      to: Variable:'templateExample::num'
+      loc: file0:8:5
 ```

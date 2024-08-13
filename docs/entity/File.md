@@ -23,8 +23,8 @@ name: File
 ```yaml
     name: File
     entity:
-        items:
-            -   name: file.cpp
-                loc: -1:-1:-1:-1
-                type: File
+      items:
+        -   name: file.cpp
+            loc: -1:-1:-1:-1
+            type: File
 ```

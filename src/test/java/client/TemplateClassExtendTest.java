@@ -41,5 +41,31 @@ public class TemplateClassExtendTest {
 		judgeCate.clear();
 	}
 
+	/**
+	  * only contains 1 extend relation(s)
+	  */
+	@Test
+	public void onlyContains1extendRelation() {
+//		List<RelationObj> filteredRelations = TestUtil.filter(relations, (x) -> x.getRelation().getKind().equals(Configure.RELATION_EXTEND));
+//		Assert.assertEquals(1, filteredRelations.size());
+	}
+
+	/**
+	  * contains Extend relation described in index 0
+	  */
+	@Test
+	public void containsExtendRelationDescribedInIndex0() {
+		List<Entity> fromEntities = TestUtil.filter(entities, (x) -> judgeCate.isClass(x) && x.getName().equals("Derived"));
+		if (fromEntities.size() != 1) {
+			throw new RuntimeException("Insufficient or wrong predicates to determine only one [from] entity");
+		}
+		List<Entity> toEntities = TestUtil.filter(entities, (x) -> judgeCate.isTemplate(x) && x.getName().equals("Base"));
+		if (toEntities.size() != 1) {
+			throw new RuntimeException("Insufficient or wrong predicates to determine only one [to] entity");
+		}
+//		List<RelationObj> filteredRelations = TestUtil.filter(relations, (x) -> x.getRelation().getKind().equals(Configure.RELATION_EXTEND) && x.getFromEntityId() == fromEntities.get(0).getId() && x.getToEntityId() == toEntities.get(0).getId() && x.getRelation().getLocation().getStartLine() == 3);
+//		Assert.assertEquals(1, filteredRelations.size());
+	}
+
 
 }

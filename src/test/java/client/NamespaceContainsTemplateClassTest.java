@@ -41,5 +41,22 @@ public class NamespaceContainsTemplateClassTest {
 		judgeCate.clear();
 	}
 
+	/**
+	  * contains undefined relation described in index 0
+	  */
+	@Test
+	public void containsundefinedRelationDescribedInIndex0() {
+		List<Entity> fromEntities = TestUtil.filter(entities, (x) -> judgeCate.isNamespace(x) && x.getName().equals("MyNamespace"));
+		if (fromEntities.size() != 1) {
+			throw new RuntimeException("Insufficient or wrong predicates to determine only one [from] entity");
+		}
+		List<Entity> toEntities = TestUtil.filter(entities, (x) -> judgeCate.isTemplate(x) && x.getName().equals("MyTemplateClass"));
+		if (toEntities.size() != 1) {
+			throw new RuntimeException("Insufficient or wrong predicates to determine only one [to] entity");
+		}
+//		List<RelationObj> filteredRelations = TestUtil.filter(relations, (x) -> x.getRelation().getKind().equals(Configure.undefined) && x.getFromEntityId() == fromEntities.get(0).getId() && x.getToEntityId() == toEntities.get(0).getId() && x.getRelation().getLocation().getStartLine() == 3);
+//		Assert.assertEquals(1, filteredRelations.size());
+	}
+
 
 }

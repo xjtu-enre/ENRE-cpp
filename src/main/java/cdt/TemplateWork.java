@@ -31,8 +31,9 @@ public class TemplateWork {
         configure.dealWithInputSrcPath();
         String inputDir = configure.getInputSrcPath();
         String projectName = configure.getProjectName();
+        System.out.println(projectName);
         Set<String> Program_environment = configure.getProgram_environment();
-
+        System.out.println(Program_environment);
         long startTime = System.currentTimeMillis();
 
         Processor processor = new Processor(Program_environment);

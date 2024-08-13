@@ -37,10 +37,10 @@ using flags = base::flags::child;
 ```yaml
 name: Using Alias
 entity:
-    items:
-        -   name: flags
-            loc: 7:7:7:11
-            type: Alias
+  items:
+    -   name: flags
+        loc: 7:7:7:11
+        type: Alias
 ```
 
 ###### Template Alias
@@ -52,10 +52,10 @@ using Vec = vector<T, Alloc<T>>; // 类型标识为 vector<T, Alloc<T>>
 ```yaml
 name: template alias
 entity:
-    items:
-        -   name: Vec
-            loc: 2:7:2:9
-            type: Alias
+  items:
+    -   name: Vec
+        loc: 2:7:2:9
+        type: Alias
 ```
 
 
@@ -76,11 +76,11 @@ namespace f = foo;
 ```yaml
 name: Namespace Alias
 entity:
-    items:
-        -   name: fbz
-            loc: 8:11:8:13
-            type: Namespace Alias
-        -   name: f
-            loc: 9:11:9:11
-            type: Namespace Alias
+  items:
+    -   name: fbz
+        loc: 8:11:8:13
+        type: Namespace Alias
+    -   name: f
+        loc: 9:11:9:11
+        type: Namespace Alias
 ```

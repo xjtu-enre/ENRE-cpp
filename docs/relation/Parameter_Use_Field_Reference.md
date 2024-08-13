@@ -20,19 +20,55 @@ ParameterUseFieldReferenceDeclaration :
 ###### Direct Field Reference from Parameter
 
 ```CPP
-class Student {
+//// util_security.h
+#ifndef D_UTIL_SECURITY_H
+#define D_UTIL_SECURITY_H
+
+namespace aria2 {
+
+class HMAC {
 public:
-    int age;
+
+  HMAC(const std::string& algorithm, const char* secret, size_t length);
+
+  static std::unique_ptr<HMAC> create(const char* secret, size_t length)
+  {
+    return create("sha-1", secret, length);
+  }
+
 };
 
-void setAge(Student& student, int newAge) {
-    student.age = newAge;
-}
+} // namespace aria2
 
-void demo() {
-    Student s;
-    setAge(s, 20);
+#endif // D_UTIL_SECURITY_H
+```
+
+```CPP
+//// UtilSecurityTest.cc
+#include "util_security.h"
+namespace aria2 {
+
+class SecurityTest : public CppUnit::TestFixture {
+
+  CPPUNIT_TEST_SUITE(SecurityTest);
+
+private:
+public:
+  void testPBKDF2();
+};
+
+static struct pbkdf2 {
+  char pass[32];
+  size_t pass_len;
+} pbkdf2s[] = { };
+
+void SecurityTest::testPBKDF2()
+{
+  for (const auto& test : pbkdf2s) {
+    auto h = HMAC::create(test.pass, test.pass_len);
+  }
 }
+} // namespace aria2
 ```
 
 ```yaml
@@ -40,94 +76,10 @@ name: Direct Field Reference from Parameter
 relation:
   type: Parameter Use Field Reference
   items:
-    - from: Function:'setAge'
-      to: Field:'age'
-      loc: file0:5:5
-```
-
-###### Field Reference in Member Function
-
-```CPP
-class Car {
-public:
-    int speed;
-
-    void setSpeed(int s) {
-        speed = s;
-    }
-};
-
-void testCar() {
-    Car myCar;
-    myCar.setSpeed(60);
-}
-```
-
-```yaml
-name: Field Reference in Member Function
-relation:
-  type: Parameter Use Field Reference
-  items:
-    - from: Function:'setSpeed'
-      to: Field:'speed'
-      loc: file0:6:5
-```
-
-###### Template Class Field Reference
-
-```CPP
-template<typename T>
-class Box {
-public:
-    T content;
-};
-
-template<typename T>
-void fillBox(Box<T>& box, T item) {
-    box.content = item;
-}
-
-void useBox() {
-    Box<int> intBox;
-    fillBox(intBox, 100);
-}
-```
-
-```yaml
-name: Template Class Field Reference
-relation:
-  type: Parameter Use Field Reference
-  items:
-    - from: Template:'fillBox'
-      to: Field:'content'
-      loc: file0:8:5
-```
-
-###### Field Reference in Lambda Function
-
-
-```CPP
-class Device {
-public:
-    int batteryLevel;
-};
-
-void checkBattery(Device& device) {
-    auto batteryCheck = [&device]() {
-        if (device.batteryLevel < 20) {
-            cout << "Battery low";
-        }
-    };
-    batteryCheck();
-}
-```
-
-```yaml
-name: Field Reference in Lambda Function
-relation:
-  type: Parameter Use Field Reference
-  items:
-    - from: Function:'checkBattery'
-      to: Field:'batteryLevel'
-      loc: file0:5:9
+    - from: Function:'aria2::HMAAC::create'
+      to: Variable:'aria2::pbkdf2::pass'
+      loc: file1:22:27
+    - from: Function:'aria2::HMAAC::create'
+      to: Variable:'aria2::pbkdf2::pass_len'
+      loc: file1:22:38
 ```

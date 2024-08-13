@@ -31,7 +31,7 @@ relation:
     type: Define
     items:
         -   from: Class:'Units'
-            to: Variable:'x'
+            to: Variable:'Units::x'
             loc: file0:2:9
         -   from: File:'file0.CPP'
             to: Class:'Units'
@@ -40,32 +40,22 @@ relation:
             to: Function:'main'
             loc: file0:4:0
         -   from: Function:'main'
-            to: Variable:'unit'
+            to: Variable:'main::unit'
             loc: file0:5:5
 ```
 
-###### Define Enumerator
+###### Define Macro
 
 ```CPP
-enum weekday {
-    Monday = 1;
-    Tuesday = 2;
-    Wednesday = 3;
-};
+#define PI 3.14159
 ```
 
 ```yaml
-name: Define Enumerator
+name: Define Macro
 relation:
     type: Define
     items:
-        -   from: Enum:'weekday'
-            to: Enumerator:'Monday'
-            loc: file0:2:5
-        -   from: Enum:'weekday'
-            to: Enumerator:'Tuesday'
-            loc: file0:3:5
-        -   from: Enum:'weekday'
-            to: Enumerator:'Wednesday'
-            loc: file0:4:5
+        -   from: File:'file0.CPP'
+            to: Macro:'PI'
+            loc: file0:1:9
 ```

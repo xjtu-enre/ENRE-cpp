@@ -26,10 +26,10 @@ name: Macro
 ```yaml
     name: Macro
     entity:
-        items:
-            -   name: F
-                loc: 1:9
-                type: Macro
+      items:
+        -   name: F
+            loc: 1:9
+            type: Macro
 ```
 
 
@@ -41,10 +41,10 @@ name: Macro
 ```yaml
     name: NULL Macro
     entity:
-        items:
-            -   name: EMPTY
-                loc: 1:9:1:13
-                type: Macro
+      items:
+        -   name: EMPTY
+            loc: 1:9:1:13
+            type: Macro
 ```
 
 
@@ -59,11 +59,11 @@ name: Macro
 ```yaml
     name: Conditional Macro
     entity:
-        items:
-            -   name: EMPTY
-                loc: 1:9:1:13
-                type: Macro
-            -   name: FULL
-                loc: 3:9:3:12
-                type: Macro
+      items:
+        -   name: EMPTY
+            loc: 1:9:1:13
+            type: Macro
+        -   name: FULL
+            loc: 3:9:3:12
+            type: Macro
 ```

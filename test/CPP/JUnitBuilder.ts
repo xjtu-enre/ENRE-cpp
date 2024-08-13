@@ -146,7 +146,8 @@ export class JUnitBuilder {
     if (name?.includes('"')) {
       entityName = name?.replaceAll('"', '\\"');
     }
-    let initializer = null;
+    //let initializer = null;
+    let initializer: string = ''; // 使用空字符串代替 null
     if (name) {
         if (!entityName?.includes("somefunc")) {
             initializer = `TestUtil.filter(entities, (x) -> judgeCate.${entityCategoryMap.get(category)}(x)`;

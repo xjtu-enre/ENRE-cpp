@@ -24,7 +24,7 @@ noptr-declarator ( parameter-list ) cv(optional) ref(optional) except(optional) 
 
 ##### Examples
 
-###### Function 
+###### Function
 ```CPP
 void func(){ /* empty */ }
 ```
@@ -33,9 +33,9 @@ void func(){ /* empty */ }
 name: Function
 entity:
   items:
-      -   name: func
-          loc: 1:6:1:9
-          type: Function
+    -   name: func
+        loc: 1:6:1:9
+        type: Function
 ```
 
 ###### Function with Parameter
@@ -47,9 +47,9 @@ void func(int i){ /* empty */ }
 name: Function with Parameter
 entity:
   items:
-      -   name: func
-          loc: 1:6:1:9
-          type: Function
+    -   name: func
+        loc: 1:6:1:9
+        type: Function
 ```
 
 ###### Inline Function
@@ -61,9 +61,9 @@ inline void func(){ /* empty */ }
 name: Inline Function
 entity:
   items:
-      -   name: func
-          loc: 1:13:1:16
-          type: Function
+    -   name: func
+        loc: 1:13:1:16
+        type: Function
 ```
 
 ###### Struct Method
@@ -78,10 +78,10 @@ struct Linear {
 ```yaml
     name: Struct Method
     entity:
-        items:
-            -   name: func
-                loc: 2:9:9:12
-                type: Function
+      items:
+        -   name: Linear::func
+            loc: 2:9:9:12
+            type: Function
 ```
 
 ###### Functions with Variable Argument Lists
@@ -111,10 +111,10 @@ struct deletedFunction
 name: Deleted Functions
 entity:
   items:
-      -   name: deletedFunction
+      -   name: deletedFunction::deletedFunction
           loc: 4:3:4:17
           type: Function
-      -   name: deletedFunction
+      -   name: deletedFunction::deletedFunction
           loc: 3:3:3:17
           type: Function
 ```
@@ -131,7 +131,7 @@ public:
 name: Virtual Functions
 entity:
   items:
-      -   name: func
+      -   name: Account::func
           loc: 3:18:3:21
           type: Function
 ```
@@ -156,13 +156,13 @@ public:
 name: Constructors
 entity:
   items:
-      -   name: Box
+      -   name: Box::Box
           loc: 4:5:4:7
           type: Function
-      -   name: Box
+      -   name: Box::Box
           loc: 6:14:6:16
           type: Function
-      -   name: Box
+      -   name: Box::Box
           loc: 10:5:10:7
           type: Function
 ```
@@ -215,6 +215,11 @@ int overloadFunction(const int i);
             -   name: overloadFunction
                 type: Function
                 loc: 2:5:2:20
+    # Function but not Overload Function
+            -   name: overloadFunction
+                type: Function
+                loc: 3:5:3:20
+                
 ```
 
 ###### Overload Class Method
@@ -230,17 +235,17 @@ public:
 ```yaml
     name: Overload Class Method
     entity:
-        items:
-            -   name: foo::overloadFunction
-                type: Function
-                kind: Method
-                loc: 3:9:3:24
-            -   name: foo::overloadFunction
-                type: Function
-                kind: Method
-                loc: 4:9:4:24
-            -   name: foo::overloadFunction
-                type: Function
-                kind: Method
-                loc: 5:9:5:24
+      items:
+        -   name: foo::overloadFunction
+            type: Function
+            kind: Method
+            loc: 3:9:3:24
+        -   name: foo::overloadFunction
+            type: Function
+            kind: Method
+            loc: 4:9:4:24
+        -   name: foo::overloadFunction
+            type: Function
+            kind: Method
+            loc: 5:9:5:24
 ```

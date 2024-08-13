@@ -24,10 +24,10 @@ struct MyStruct {
 ```yaml
 name: Struct
 entity:
-    items:
-        -   name: MyStruct
-            loc: 1:8:1:15
-            type: Struct
+  items:
+    -   name: MyStruct
+        loc: 1:8:1:15
+        type: Struct
 ```
 
 ###### Anonymous Struct
@@ -39,10 +39,10 @@ struct{
 ```yaml
 name: Anonymous Struct
 entity:
-    items:
-        -   name: unnamed
-            loc: 1:0:1:0
-            type: Struct
+  items:
+    -   name: unnamed
+        loc: 1:0:1:0
+        type: Struct
 ```
 
 ###### Struct use macro
@@ -55,8 +55,8 @@ Mystruct cell{
 ```yaml
 name: Struct use macro
 entity:
-    items:
-        -   name: cell
-            loc: 2:10:2:13
-            type: Struct
+  items:
+    -   name: cell
+        loc: 2:10:2:13
+        type: Struct
 ```

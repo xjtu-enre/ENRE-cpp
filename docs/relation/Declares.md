@@ -17,101 +17,24 @@ DeclaresDeclaration :
 
 ##### Examples
 
-###### Function Declares Variables
+###### File Declares Function
 
 ```CPP
-void myFunction() {
-    int a;
-    double b;
+#include <iostream>
+
+void greet();
+
+void greet() {
+    std::cout << "Hello, World!" << std::endl;
 }
 ```
 
 ```yaml
-name: Function Declares Variables
+name: File Declares Function
 relation:
   type: Declares
   items:
-    -   from: Function:'myFunction'
-        to: Variable:'a'
-        loc: file0:2:9
-    -   from: Function:'myFunction'
-        to: Variable:'b'
-        loc: file0:3:13
-```
-
-###### Class Declares Members
-
-```CPP
-class MyClass {
-public:
-    int memberVar;
-    void memberFunc() {}
-};
-```
-
-```yaml
-name: Class Declares Members
-relation:
-  type: Declares
-  items:
-    -   from: Class:'MyClass'
-        to: Variable:'memberVar'
-        loc: file0:3:9
-    -   from: Class:'MyClass'
-        to: Method:'memberFunc'
-        loc: file0:4:10
-```
-
-###### Namespace Declares Function
-
-```CPP
-namespace MyNamespace {
-    void someFunction() {}
-}
-```
-
-```yaml
-name: Namespace Declares Function
-relation:
-  type: Declares
-  items:
-    -   from: Namespace:'MyNamespace'
-        to: Function:'someFunction'
-        loc: file0:2:10
-```
-
-###### Method Declares Local Class
-
-```CPP
-void outerFunction() {
-    class LocalClass {};
-}
-```
-
-```yaml
-name: Method Declares Local Class
-relation:
-  type: Declares
-  items:
-    -   from: Function:'outerFunction'
-        to: Class:'LocalClass'
-        loc: file0:2:11
-```
-
-###### Template Function Declares Variable
-```CPP
-template <typename T>
-void templateFunction() {
-    T var;
-}
-```
-
-```yaml
-name: Template Function Declares Variable
-relation:
-  type: Declares
-  items:
-    -   from: Template:'templateFunction'
-        to: Variable:'var'
-        loc: file0:3:7
+    -   from: File:'file0.cpp'
+        to: Function:'greet'
+        loc: file0:3:6
 ```

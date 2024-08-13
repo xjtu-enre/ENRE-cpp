@@ -33,10 +33,14 @@ int *p = &a;
 ```yaml
     name: Point Variable
     entity:
-        items:
-            -   name: p
-                type: Variable
-                loc: 2:6:2:6
+      items:
+        -   name: p
+            type: Variable
+            loc: 2:6:2:6
+        # Variable but not Point Variable
+        -   name: a
+            type: Variable
+            loc: 2:6:2:6
 ```
 
 ###### Allocate space for Pointer
@@ -133,11 +137,16 @@ name: Global Variable with External Linkage
 entity:
   items:
     - name: globalVar
-      loc: 4:1:4:16
+      loc: 2:12:2:20
       type: variable
       storage_class: external
+  # variable but not Global Variable with External Linkage
+    - name: globalVar
+      loc: 5:5:2:13
+      type: variable
+  # function but not Global Variable with External Linkage
     - name: main
-      loc: 6:1:10:2
+      loc: 7:1:10:2
       type: function
       visibility: public
 ```
@@ -162,14 +171,18 @@ int main() {
 name: Static Variable
 entity:
   items:
-    - name: increment
-      loc: 1:1:5:2
-      type: function
-      visibility: public
     - name: count
       loc: 2:12:2:16
       type: variable
       storage_class: static
+  # function or variable but not Static Variable
+    - name: main::i
+      loc: 8:14:8:15
+      type: variable
+    - name: increment
+      loc: 1:1:5:2
+      type: function
+      visibility: public
     - name: main
       loc: 7:1:11:2
       type: function
@@ -192,14 +205,15 @@ int main() {
 name: Auto Keyword
 entity:
   items:
-    - name: main
-      loc: 3:1:7:2
-      type: function
-      visibility: Public
     - name: x
       loc: 4:10:4:11
       type: variable
       storage_class: auto
+  # Function but not Auto Keyword
+    - name: main
+      loc: 3:1:7:2
+      type: function
+      visibility: Public
 ```
 
 ###### Register Keyword

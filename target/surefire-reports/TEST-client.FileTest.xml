@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite tests="1" failures="0" name="client.FileTest" time="0.004" errors="0" skipped="0">
+<testsuite tests="1" failures="0" name="client.FileTest" time="0.005" errors="0" skipped="0">
   <properties>
+    <property name="idea.version" value="2023.2.2"/>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="java.vm.version" value="17.0.8+9-LTS-211"/>
     <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home/lib"/>
-    <property name="maven.multiModuleProjectDirectory" value="/Users/nijiaxing/project/ENRE-cpp"/>
+    <property name="maven.multiModuleProjectDirectory" value="/Users/nijiaxing/project/Javaproject/ENRE-cpp"/>
     <property name="java.vm.vendor" value="Oracle Corporation"/>
     <property name="java.vendor.url" value="https://java.oracle.com/"/>
     <property name="guice.disable.misplaced.annotation.check" value="true"/>
@@ -14,7 +15,7 @@
     <property name="user.country" value="CN"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
-    <property name="user.dir" value="/Users/nijiaxing/project/ENRE-cpp"/>
+    <property name="user.dir" value="/Users/nijiaxing/project/Javaproject/ENRE-cpp"/>
     <property name="java.vm.compressedOopsMode" value="Zero based"/>
     <property name="java.runtime.version" value="17.0.8+9-LTS-211"/>
     <property name="os.arch" value="aarch64"/>
@@ -25,17 +26,18 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="https.proxyHost" value="127.0.0.1"/>
     <property name="os.name" value="Mac OS X"/>
+    <property name="maven.ext.class.path" value="/Applications/IntelliJ IDEA CE.app/Contents/plugins/maven/lib/maven-event-listener.jar"/>
     <property name="classworlds.conf" value="/Users/nijiaxing/environment/maven/apache-maven-3.5.4/bin/m2.conf"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
     <property name="http.proxyPort" value="7890"/>
     <property name="java.library.path" value="/Users/nijiaxing/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:."/>
+    <property name="jansi.passthrough" value="true"/>
     <property name="maven.conf" value="/Users/nijiaxing/environment/maven/apache-maven-3.5.4/conf"/>
     <property name="jdk.debug" value="release"/>
     <property name="java.class.version" value="61.0"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="os.version" value="14.2.1"/>
-    <property name="library.jansi.path" value="/Users/nijiaxing/environment/maven/apache-maven-3.5.4/lib/jansi-native"/>
     <property name="http.nonProxyHosts" value="192.168.0.0/16|*.192.168.0.0/16|10.0.0.0/8|*.10.0.0.0/8|172.16.0.0/12|*.172.16.0.0/12|127.0.0.1|localhost|*.localhost|local|*.local|timestamp.apple.com|*.timestamp.apple.com|sequoia.apple.com|*.sequoia.apple.com|seed-sequoia.siri.apple.com|*.seed-sequoia.siri.apple.com"/>
     <property name="user.home" value="/Users/nijiaxing"/>
     <property name="user.timezone" value="Asia/Shanghai"/>
@@ -46,7 +48,7 @@
     <property name="socksProxyHost" value="127.0.0.1"/>
     <property name="java.vm.specification.version" value="17"/>
     <property name="sun.arch.data.model" value="64"/>
-    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher clean test"/>
+    <property name="sun.java.command" value="org.codehaus.classworlds.Launcher -Didea.version=2023.2.2 org.apache.maven.plugins:maven-assembly-plugin:2.2-beta-5:assembly"/>
     <property name="java.home" value="/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home"/>
     <property name="user.language" value="zh"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
@@ -55,7 +57,6 @@
     <property name="native.encoding" value="UTF-8"/>
     <property name="http.proxyHost" value="127.0.0.1"/>
     <property name="java.vendor" value="Oracle Corporation"/>
-    <property name="sun.stderr.encoding" value="UTF-8"/>
     <property name="maven.home" value="/Users/nijiaxing/environment/maven/apache-maven-3.5.4"/>
     <property name="file.separator" value="/"/>
     <property name="java.version.date" value="2023-07-18"/>
@@ -63,9 +64,8 @@
     <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
     <property name="sun.cpu.endian" value="little"/>
     <property name="https.proxyPort" value="7890"/>
-    <property name="sun.stdout.encoding" value="UTF-8"/>
     <property name="socksNonProxyHosts" value="192.168.0.0/16|*.192.168.0.0/16|10.0.0.0/8|*.10.0.0.0/8|172.16.0.0/12|*.172.16.0.0/12|127.0.0.1|localhost|*.localhost|local|*.local|timestamp.apple.com|*.timestamp.apple.com|sequoia.apple.com|*.sequoia.apple.com|seed-sequoia.siri.apple.com|*.seed-sequoia.siri.apple.com"/>
     <property name="ftp.nonProxyHosts" value="192.168.0.0/16|*.192.168.0.0/16|10.0.0.0/8|*.10.0.0.0/8|172.16.0.0/12|*.172.16.0.0/12|127.0.0.1|localhost|*.localhost|local|*.local|timestamp.apple.com|*.timestamp.apple.com|sequoia.apple.com|*.sequoia.apple.com|seed-sequoia.siri.apple.com|*.seed-sequoia.siri.apple.com"/>
   </properties>
-  <testcase classname="client.FileTest" name="containsFileEntityfilecpp_1" time="0.004"/>
+  <testcase classname="client.FileTest" name="containsFileEntityfilecpp_1" time="0.005"/>
 </testsuite>

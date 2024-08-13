@@ -25,11 +25,11 @@ int func(int i){
 ```yaml
 name: Set
 relation:
-    items:
-        -   type: Set
-            loc: file0:3:5
-            from: Function:'func'
-            to: Variable:'j'
+  items:
+    -   type: Sets
+        loc: file0:3:5
+        from: Function:'func'
+        to: Variable:'j'
 ```
 
 ###### Deref Set
@@ -43,9 +43,9 @@ int func(int i){
 ```yaml
 name: Deref Set
 relation:
-    items:
-        -   type: Set
-            from: Function:'func'
-            to: Variable:'a'
-            loc: file0:3:6
+  items:
+    -   type: Sets
+        from: Function:'func'
+        to: Variable:'a'
+        loc: file0:3:6
 ```

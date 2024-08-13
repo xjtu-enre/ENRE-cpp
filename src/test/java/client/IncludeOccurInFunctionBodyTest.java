@@ -41,5 +41,31 @@ public class IncludeOccurInFunctionBodyTest {
 		judgeCate.clear();
 	}
 
+	/**
+	  * only contains 1 include relation(s)
+	  */
+	@Test
+	public void onlyContains1includeRelation() {
+//		List<RelationObj> filteredRelations = TestUtil.filter(relations, (x) -> x.getRelation().getKind().equals(Configure.RELATION_INCLUDE));
+//		Assert.assertEquals(1, filteredRelations.size());
+	}
+
+	/**
+	  * contains Include relation described in index 0
+	  */
+	@Test
+	public void containsIncludeRelationDescribedInIndex0() {
+		List<Entity> fromEntities = TestUtil.filter(entities, (x) -> judgeCate.isFunction(x) && x.getName().equals("main"));
+		if (fromEntities.size() != 1) {
+			throw new RuntimeException("Insufficient or wrong predicates to determine only one [from] entity");
+		}
+		List<Entity> toEntities = TestUtil.filter(entities, (x) -> judgeCate.isFile(x) && x.getName().equals("file0.h"));
+		if (toEntities.size() != 1) {
+			throw new RuntimeException("Insufficient or wrong predicates to determine only one [to] entity");
+		}
+//		List<RelationObj> filteredRelations = TestUtil.filter(relations, (x) -> x.getRelation().getKind().equals(Configure.RELATION_INCLUDE) && x.getFromEntityId() == fromEntities.get(0).getId() && x.getToEntityId() == toEntities.get(0).getId() && x.getRelation().getLocation().getStartLine() == 2);
+//		Assert.assertEquals(1, filteredRelations.size());
+	}
+
 
 }

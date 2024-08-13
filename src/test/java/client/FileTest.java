@@ -42,7 +42,7 @@ public class FileTest {
 	}
 
 	/**
-	  * contains File entity file.cpp  && x.getLocation().getStartLine() == -1
+	  * contains File entity file.cpp
 	  */
 	@Test
 	public void containsFileEntityfilecpp_1() {

@@ -26,10 +26,10 @@ union month
 ```yaml
 name: Union
 entity:
-    items:
-        -   name: month
-            loc: 1:7:1:11
-            type: Union
+  items:
+    -   name: month
+        loc: 1:7:1:11
+        type: Union
 ```
 
 ###### Anonymous Union
@@ -44,10 +44,10 @@ struct widget{
 ```yaml
 name: Anonymous Union
 entity:
-    items:
-        -   name: <Anonymous as="Union">
-            loc: 2:10:2:10
-            type: Union
+  items:
+    -   name: widget::[Union]
+        loc: 2:10:2:10
+        type: Union
 ```
 
 ###### Unrestricted unions
@@ -61,8 +61,8 @@ union U{
 ```yaml
 name: Unrestricted unions
 entity:
-    items:
-        -   name: U
-            loc: 2:7:2:8
-            type: Union
+  items:
+    -   name: U
+        loc: 2:7:2:8
+        type: Union
 ```

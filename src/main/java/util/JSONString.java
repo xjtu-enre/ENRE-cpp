@@ -124,11 +124,11 @@ public class JSONString {
 				resolvedName = resolvedName + " Template";
 		}
 
-    	
+
 		return resolvedName;
 	}
-	
-	
+
+
 	class EntityTemp {
 		private String qualifiedName;
 		private Integer id;
@@ -178,7 +178,7 @@ public class JSONString {
 		public void setIsPointer(boolean isPointer) {this.isPointer = isPointer; }
 		public void setIsTaskNode(boolean isTaskNode) {this.isTaskNode = isTaskNode; }
 	}
-	
+
 	public EntityTemp resolveEntity(Entity entity) {
 		String entityName = entity.getQualifiedName();
 		if(entityName == null) entityName = "";
@@ -187,11 +187,11 @@ public class JSONString {
 		}
     	entityName = entityName.replace("\\", "/");
     	entityName = entityName.replace("\"", "");
-    	
+
     	String entityType = this.resolveTypeName(entity);
 
     	Integer entityFile = null;
-    	
+
     	EntityTemp entitytemp;
 
 		if(entity instanceof NamespaceEntity){
@@ -202,7 +202,7 @@ public class JSONString {
 			entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile);
 		} else if(entity.getLocation() != null) {
     		entityFile = entity.getLocation().getFile();
-        	
+
     		if(entity.getLocation().getStartLine() != null) {
 				entitytemp = new EntityTemp(entityName, entity.getId(), entityType, entityFile);
 				entitytemp.setStartLine(entity.getLocation().getStartLine());
@@ -318,7 +318,10 @@ public class JSONString {
 		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
 		writer.setIndent("  ");
 //		writer.beginArray();
+
 		GsonBuilder builder = new GsonBuilder();
+		//避免字符串转义
+		builder.disableHtmlEscaping();
 		Gson gson = builder.create();
 		List<EntityTemp> entityTempList = new ArrayList<EntityTemp>();
 		Map<String, List<Integer>> overload = new HashMap<String, List<Integer>>();

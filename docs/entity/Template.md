@@ -26,11 +26,11 @@ class S{};
 ```yaml
     name: Class Template
     entity:
-        items:
-            -   name: S
-                loc: 2:7:2:7
-                kind: Class Template
-                type: Template
+      items:
+        -   name: S
+            loc: 2:7:2:7
+            kind: Class Template
+            type: Template
 ```
 
 ###### Struct Template
@@ -42,11 +42,11 @@ struct S{};
 ```yaml
     name: Struct Template
     entity:
-        items:
-            -   name: S
-                loc: 2:8:2:8
-                kind: Struct Template
-                type: Template
+      items:
+        -   name: S
+            loc: 2:8:2:8
+            kind: Struct Template
+            type: Template
 ```
 
 ###### Function Template
@@ -58,11 +58,11 @@ void func(T x);
 ```yaml
     name: Function Template
     entity:
-        items:
-            -   name: func
-                loc: 2:6:2:8
-                kind: Function Template
-                type: Template
+      items:
+        -   name: func
+            loc: 2:6:2:8
+            kind: Function Template
+            type: Template
 ```
 
 ###### Extern template
@@ -74,11 +74,16 @@ extern template class tuple<int>;
 ```yaml
     name: Extern template
     entity:
-        items:
-            -   name: tuple
-                loc: 1:23:1:27
-                kind: Class Template
-                type: Template
+      items:
+        -   name: tuple
+            loc: 2:23:2:27
+            kind: Class Template
+            type: Template
+        # template but not Extern template
+        -   name: tuple
+            loc: 1:28:1:33
+            kind: Class Template
+            type: Template
 ```
 
 ###### Templates as template parameters
@@ -95,7 +100,8 @@ class tuple
             -   name: Arr
                 loc: 1:56:1:58
                 kind: Class Template
-                type: Template
+                type: Template Parameters Variable
+    # Template but not Templates as template parameters
             -   name: tuple
                 loc: 2:7:2:11
                 kind: Class Template
@@ -129,15 +135,16 @@ class MyMap<string, V> { /* Empty */ };
 ```yaml
     name: Template specialization
     entity:
-        items:
-            -   name: MyMap
-                loc: 2:7:2:11
-                kind: Class Template
-                type: Template
-            -   name: MyMap
-                loc: 4:7:4:11
-                kind: Class Template
-                type: Template
+      items:
+        -   name: MyMap
+            loc: 4:7:4:11
+            kind: Class Template
+            type: Template
+        # Template but not Template specialization
+        -   name: MyMap
+            loc: 2:7:2:11
+            kind: Class Template
+            type: Template
 ```
 
 
@@ -151,9 +158,9 @@ template void f<int> (int);
 ```yaml
     name: Function Template Instantiation
     entity:
-        items:
-            -   name: f
-                loc: 0:24:0:24
-                kind: Function Template
-                type: Template
+      items:
+        -   name: f
+            loc: 0:24:0:24
+            kind: Function Template
+            type: Template
 ```

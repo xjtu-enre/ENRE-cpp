@@ -32,8 +32,8 @@ relation:
   type: Cast
   items:
     - from: Function:'main'
-      to: Variable:'f'
-      loc: file0:3:17
+      to: Variable:'main::f'
+      loc: file0:3:13
 ```
 
 ###### Dynamic Cast
@@ -54,33 +54,11 @@ relation:
   type: Cast
   items:
     - from: Function:'main'
-      to: Variable:'b'
-      loc: file0:6:23
-```
-
-###### Const Cast
-
-```CPP
-void modify(int* ptr) {}
-
-int main() {
-    const int val = 10;
-    modify(const_cast<int*>(&val));
-}
-```
-
-```yaml
-name: Const Cast
-relation:
-  type: Cast
-  items:
-    - from: Function:'main'
-      to: Variable:'val'
-      loc: file0:5:12
+      to: Variable:'main::b'
+      loc: file0:6:18
 ```
 
 ###### Reinterpret Cast
-
 
 ```CPP
 int main() {
@@ -95,7 +73,7 @@ relation:
   type: Cast
   items:
     - from: Function:'main'
-      to: Variable:'i'
+      to: Variable:'main::i'
       loc: file0:3:25
 ```
 
@@ -113,6 +91,6 @@ relation:
   type: Cast
   items:
     - from: Function:'main'
-      to: Variable:'d'
-      loc: file0:3:13
+      to: Variable:'main::d'
+      loc: file0:3:1
 ```
