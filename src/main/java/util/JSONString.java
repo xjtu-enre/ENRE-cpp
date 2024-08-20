@@ -320,7 +320,7 @@ public class JSONString {
 //		writer.beginArray();
 
 		GsonBuilder builder = new GsonBuilder();
-		//避免字符串转义
+		//避免字符串转义 issue list #10
 		builder.disableHtmlEscaping();
 		Gson gson = builder.create();
 		List<EntityTemp> entityTempList = new ArrayList<EntityTemp>();
