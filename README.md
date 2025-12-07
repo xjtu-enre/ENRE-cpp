@@ -10,9 +10,9 @@
 
 ## Supported Language
 
-|  Language  | Maximum Version |
-|:----------:|:---------------:|
-|    C++     |       14        |
+| Language | Maximum Version |
+| :------: | :-------------: |
+|   C++    |       14        |
 
 
 ## Getting Started
@@ -43,6 +43,8 @@ Usage: ENRE-CPP [-hv] [-d=<dirs>]... [-p=<program_environment>]... directory
                 projectName
       directory      The directory to be analyzed
       projectName    A short alias name of the anayzed source code project
+  -c, --cross_module=<crossModulePath>
+                     Analyze the usage of interfaces in cross-module files.
   -d, --dir=<dirs>   other directory need to analysis.
   -h, --help         display help for command
   -p, --program_environment=<program_environment>
@@ -63,7 +65,30 @@ To increase the memory heap, you can add -Xmx before -jar, like:
 java -jar -Xmx64g -Xms8g ENRE-CPP.jar  demo-projects/electron electron
 ```
 
+用ENRE-CPP分析跨模块文件的API使用情况，例如我们要分析commonlibrary库对于libuv库中uv.h的API的使用情况，我们可以按照如下目录示例：
+
+```
+- test
+  - commonlibrary
+     - c_utils
+     - ets_utils
+     - memory_utils
+     - rust
+     - utils_lite
+  - libuv_include
+      - uv.h
+```
+
+然后指令示例如下：
+
+```cmd
+java -jar ENRE-CPP.jar  demo-projects/test test -c=libuv_include
+```
+
+输出结果中output/test_out.json是ENRE1.0的内容，output/test-c_out.json是使用了-c命令的结果。
+
 ## Documentation
+
 Specifications on which kinds of entities and relations can be
 captured and any other details can be found in [documents](enre-ts/docs/README.md)
 

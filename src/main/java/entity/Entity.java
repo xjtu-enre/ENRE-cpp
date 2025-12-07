@@ -42,7 +42,6 @@ public abstract class Entity {
 	boolean isPointer = false;
 	boolean isTemplate = false;
 
-
 	public Entity(String name, String qualifiedName, Entity parent, Integer id) {
 		this.name = name;
 		this.qualifiedName = qualifiedName;
@@ -81,7 +80,6 @@ public abstract class Entity {
 
 	public void addChild(Entity child) {
 		children().add(child);
-		// visibleNames.put(child.getRawName().getName(), child);
 		visibleNames.put(child.getQualifiedName(), child);
 	}
 
@@ -118,18 +116,10 @@ public abstract class Entity {
 	}
 	public void setLocation(Location location) {this.location = location;}
 
-//	@Override
-//	public String toString() {
-//		if (parent == null)
-//			return "Entity [id=" + id + ", qualifiedName=" + qualifiedName + "]";
-//		return "Entity [id=" + id + ", Name=" + name + ", qualifiedName=" + qualifiedName + ",class="
-//				+ this.getClass().toString() + ",parent=" + parent.qualifiedName + "]" + ",startline="
-//				+ location.getStartLine(); // + ", rawName=" + rawName
-//	}
 
 	/**
 	 * Get ancestor of type.
-	 * 
+	 *
 	 * @return null (if not exist) or the type
 	 */
 	public Entity getAncestor() {
@@ -264,19 +254,19 @@ public abstract class Entity {
 		if (relations == null) return new ArrayList<>();
 		return relations;
 	}
-	
+
 	/*
 	 * add and get relation by binding or scope resolution
-	 * 
+	 *
 	 */
 	public void addBindingRelation(int retype,  String eninfor, Integer fileID, Integer line, Integer offset) {
 		this.RelationListByBinding.add(new BindingRelation(retype,  eninfor, fileID, line, offset));
 	}
-	
+
 	public List<BindingRelation> getRelationListByBinding(){
 		return this.RelationListByBinding;
 	}
-	
+
 	public void addScopeRelation(int retype, String entityName, Integer fileID, Integer line, Integer offset) {
 		this.RelationListByScope.add(new ScopeRelation(this, entityName, retype, fileID, line, offset));
 	}

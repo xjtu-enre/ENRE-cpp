@@ -24,6 +24,7 @@ public class TemplateWork {
             }
         } catch (CommandLine.ParameterException e) {
             commandLine.usage(System.out);
+            System.out.println("参数出错啦");
             System.exit(1);
         }
 

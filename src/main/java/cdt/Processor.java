@@ -92,10 +92,17 @@ public class Processor {
 	public void outputFile(String projectName) throws Exception {
 		EntityRepo entityrepo = cdtparser.getEntityRepo();
 		JSONString node_str = new JSONString();
-		FileOutputStream outputStream = new FileOutputStream(projectName + "_out.json");
+		// 指定输出文件夹
+		String outputFolder = "D:\\repo\\ENRE-cpp\\output"; // 替换为目标文件夹路径
+		// 确保文件夹存在，如果不存在就创建
+		File folder = new File(outputFolder);
+		if (!folder.exists()) {
+			folder.mkdirs();
+		}
+		// 输出到指定文件夹
+		FileOutputStream outputStream = new FileOutputStream(outputFolder + "/" + projectName + "_out.json");
 		node_str.writeJsonStream(outputStream, entityrepo.getEntities(),
 				this.relationcontext.getRelationRepo().getrelationrepo());
-
 	}
 
 	public Map<Integer, Entity> getEntities(){

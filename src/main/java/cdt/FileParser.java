@@ -57,6 +57,7 @@ public class FileParser {
 	 * @return: void
 	 * @throws:
 	 */
+	static int count = 1;	// 统计文件目录中的文件数量
 	public void parse( ) throws Exception {
 //		try{
 		if(exitFile(filepath)) {
@@ -64,7 +65,7 @@ public class FileParser {
 				return ;
 			}
 		}
-		System.out.println("Parse file path: " + this.filepath);
+		System.out.println("Parse file path: " + this.filepath + "  count:" + count++);
 		fileList.put(filepath,1);
 		final FileContent content = FileContent.createForExternalFileLocation(filepath);
 		if(content == null){
@@ -75,10 +76,57 @@ public class FileParser {
 		String[] includePaths = new String[0];
 		definedMacros.put("__cplusplus", "1");
 		definedMacros.put("DT_VOID", "");
+		definedMacros.put("JNIEXPORT", "");
+		definedMacros.put("JNICALL", "");
+		definedMacros.put("JNIEnv", "void*");
+		definedMacros.put("jobject", "void*");
+		definedMacros.put("jclass", "void*");
+		definedMacros.put("jstring", "void*");
+		definedMacros.put("jbyteArray", "void*");
+		definedMacros.put("jint", "int");
+		definedMacros.put("jlong", "long");
+		definedMacros.put("jboolean", "unsigned char");
 		definedMacros.putAll(macroRepo.getDefinedMacros());
-		IASTTranslationUnit tu = GPPLanguage.getDefault().getASTTranslationUnit(content,
-				new ScannerInfo(definedMacros), IncludeFileContentProvider.getEmptyFilesProvider(),
-				EmptyCIndex.INSTANCE, 0, log);
+//		int options = ILanguage.OPTION_PARSE_INACTIVE_CODE | ILanguage.OPTION_ADD_COMMENTS;
+		IASTTranslationUnit tu = GPPLanguage.getDefault().getASTTranslationUnit(
+				content,
+				new ScannerInfo(definedMacros),
+				IncludeFileContentProvider.getEmptyFilesProvider(),
+				EmptyCIndex.INSTANCE,
+				0,
+				log);
+		tu.accept(new ASTVisitor(true) {
+			{
+				shouldVisitDeclarations = true;
+				shouldVisitStatements = true;
+				shouldVisitExpressions = true;
+			}
+
+			@Override
+			public int visit(IASTDeclaration declaration) {
+				System.out.println("[Declaration] "
+						+ declaration.getClass().getSimpleName() + " → "
+						+ declaration.getRawSignature());
+				return PROCESS_CONTINUE;
+			}
+
+			@Override
+			public int visit(IASTStatement statement) {
+				System.out.println("[Statement] "
+						+ statement.getClass().getSimpleName() + " → "
+						+ statement.getRawSignature());
+				return PROCESS_CONTINUE;
+			}
+
+			@Override
+			public int visit(IASTExpression expression) {
+				System.out.println("[Expression] "
+						+ expression.getClass().getSimpleName() + " → "
+						+ expression.getRawSignature());
+				return PROCESS_CONTINUE;
+			}
+
+		});
 
 		CppVisitor visitor = new CppVisitor(entityrepo, relationrepo, filepath);
 		fileEntity = visitor.getfile();
