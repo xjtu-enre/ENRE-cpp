@@ -1,10 +1,11 @@
 package entity;
 
+import entity.JNITypeInfo;
 import symtab.BaseScope;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import static entity.JNITypeRegistry.isJNIType;
 
 public class FunctionEntity extends DataAggregateEntity{
 	List<ParameterEntity> parameter;
@@ -15,6 +16,7 @@ public class FunctionEntity extends DataAggregateEntity{
 	boolean hasBeenDefined = false;
 	boolean isPureVirtual = false;
 	boolean isTaskNode = false;
+	boolean isJNIFunction = false;
 	
 	
 	public FunctionEntity(String name, String qualifiedName, Entity parent, Integer id, BaseScope scope, Location location) {
@@ -56,6 +58,9 @@ public class FunctionEntity extends DataAggregateEntity{
 	}
 	public void setReturn(String returnType) {
 		this.returnType = returnType;
+		if(isJNIType(returnType)){
+			this.isJNIFunction = true;
+		}
 	}
 	public void setReturn(Entity returnType) {
 		this.returnEntity = returnType;
@@ -83,4 +88,5 @@ public class FunctionEntity extends DataAggregateEntity{
 	public boolean isPureVirtual() { return this.isPureVirtual; }
 
 	public boolean isTaskNode() {return this.isTaskNode; }
+	public boolean isJNIFunction() {return this.isJNIFunction; }
 }

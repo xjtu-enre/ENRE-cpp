@@ -7,136 +7,144 @@ import java.util.Map.Entry;
 
 public class EntityRepo {
 
-	public class EntityＭapIterator implements Iterator<Entity> {
+    public class EntityＭapIterator implements Iterator<Entity> {
 
-		private Iterator<Entry<Integer, Entity>> entryIterator;
+        private Iterator<Entry<Integer, Entity>> entryIterator;
 
-		public EntityＭapIterator(Set<Entry<Integer, Entity>> entries) {
-			this.entryIterator = entries.iterator();
-		}
+        public EntityＭapIterator(Set<Entry<Integer, Entity>> entries) {
+            this.entryIterator = entries.iterator();
+        }
 
-		@Override
-		public boolean hasNext() {
-			return entryIterator.hasNext();
-		}
+        @Override
+        public boolean hasNext() {
+            return entryIterator.hasNext();
+        }
 
-		@Override
-		public Entity next() {
-			return entryIterator.next().getValue();
-		}
+        @Override
+        public Entity next() {
+            return entryIterator.next().getValue();
+        }
 
-	}
+    }
 
-	private Map<String, Entity> allEntieisByName;
-	private Map<Integer, Entity> allEntitiesById;
-	private Map<String, Entity> allEntitiesByLocation;
-	private List<FileEntity> fileEntities;
-	private Map<String, Integer> namespaceEntities;
-	private int nextAvaliableIndex;
+    private Map<String, Entity> allEntieisByName;
+    private Map<Integer, Entity> allEntitiesById;
+    private Map<String, Entity> allEntitiesByLocation;
+    private List<FileEntity> fileEntities;
+    private Map<String, Integer> namespaceEntities;
+    private int nextAvaliableIndex;
 
-	/**
-	 * 初始化externVarList和externFuncList两个ArrayList，分别存储extern storage类型的VarEntity和FunctionEntity对象。
-	 */
-	ArrayList<VarEntity> externVarList = new ArrayList<>();
-	ArrayList<FunctionEntity> externFuncList = new ArrayList<>();
+    /**
+     * 初始化externVarList和externFuncList两个ArrayList，分别存储extern storage类型的VarEntity和FunctionEntity对象。
+     */
+    ArrayList<VarEntity> externVarList = new ArrayList<>();
+    ArrayList<FunctionEntity> externFuncList = new ArrayList<>();
 
 
-	/**
-	 * Generate a global unique ID for entity
-	 *
-	 * @return the unique id
-	 */
+    /**
+     * Generate a global unique ID for entity
+     *
+     * @return the unique id
+     */
 
-	public Integer generateId() {
-		return nextAvaliableIndex++;
-	}
+    public Integer generateId() {
+        return nextAvaliableIndex++;
+    }
 
-	public EntityRepo() {
-		allEntieisByName = new TreeMap<>();
-		allEntitiesById = new TreeMap<>();
-		allEntitiesByLocation = new TreeMap<>();
-		fileEntities = new ArrayList<FileEntity>();
-		namespaceEntities = new TreeMap<>();
-	}
+    public EntityRepo() {
+        allEntieisByName = new TreeMap<>();
+        allEntitiesById = new TreeMap<>();
+        allEntitiesByLocation = new TreeMap<>();
+        fileEntities = new ArrayList<FileEntity>();
+        namespaceEntities = new TreeMap<>();
+    }
 
-	public Entity getEntityByName(String entityQualifiedName) {
-		return allEntieisByName.get(entityQualifiedName);
-	}
+    public Entity getEntityByName(String entityQualifiedName) {
+        return allEntieisByName.get(entityQualifiedName);
+    }
 
-	public Entity getEntity(Integer entityId) {
-		return allEntitiesById.get(entityId);
-	}
+    public Entity getEntity(Integer entityId) {
+        return allEntitiesById.get(entityId);
+    }
 
-	public Entity getEntityByLocation(String information) {
-		return allEntitiesByLocation.get(information);
-	}
+    public Entity getEntityByLocation(String information) {
+        return allEntitiesByLocation.get(information);
+    }
 
-	/*
-	 * 仅用于声明和实现分离时，给定新的位置信息, locationInfo: file.getQualifiedName() + startOffset()
-	 */
-	public void addEntityByLocation(String locationInfo, Entity entity){
-		allEntitiesByLocation.put(locationInfo, entity);
-	}
+    /*
+     * 仅用于声明和实现分离时，给定新的位置信息, locationInfo: file.getQualifiedName() + startOffset()
+     */
+    public void addEntityByLocation(String locationInfo, Entity entity) {
+        allEntitiesByLocation.put(locationInfo, entity);
+    }
 
-	public void add(Entity entity) {
-		allEntitiesById.put(entity.getId(), entity);
-		if(entity.getLocation() == null) {
-			allEntitiesByLocation.put(entity.getQualifiedName(), entity);
-		}
-		else{
-			allEntitiesByLocation.put(allEntitiesById.get(entity.getLocation().getFile()).getQualifiedName()
-					+ entity.getLocation().getStartOffset(), entity);
-		}
-		String Qualifiedname = entity.getQualifiedName();
-		if (entity.getQualifiedName() != null && !(entity.getQualifiedName().isEmpty())) {
-			Qualifiedname = entity.getQualifiedName();
-		}
-		if (entity instanceof FileEntity) {
-			fileEntities.add((FileEntity) entity);
-		}
-		if (entity.getStorgaeClass() == IASTDeclSpecifier.sc_extern){
+    public void add(Entity entity) {
+        allEntitiesById.put(entity.getId(), entity);
 
-		}else if (allEntieisByName.containsKey(Qualifiedname)) {
-			Entity existedEntity = allEntieisByName.get(Qualifiedname);
-		} else {
-			allEntieisByName.put(Qualifiedname, entity);
-		}
-		if (entity.getParent() != null)
-			Entity.setParent(entity, entity.getParent());
-		if(entity instanceof NamespaceEntity) namespaceEntities.put(entity.getQualifiedName(), entity.getId());
-	}
+        if (entity.getLocation() == null) {
+            allEntitiesByLocation.put(entity.getQualifiedName(), entity);
+        } else {
+            allEntitiesByLocation.put(allEntitiesById.get(entity.getLocation().getFile()).getQualifiedName()
+                    + entity.getLocation().getStartOffset(), entity);
+        }
 
-	public Iterator<Entity> entityIterator() {
-		return new EntityＭapIterator(allEntitiesById.entrySet());
-	}
+        String Qualifiedname = entity.getQualifiedName();
+        if (entity.getQualifiedName() != null && !(entity.getQualifiedName().isEmpty())) {
+            Qualifiedname = entity.getQualifiedName();
+        }
 
-	public List<FileEntity> getFileEntities() {
-		return fileEntities;
-	}
+        if (entity instanceof FileEntity) {
+            fileEntities.add((FileEntity) entity);
+        }
 
-	public Map<Integer, Entity> getEntities() {
-		return allEntitiesById;
-	}
+        if (entity.getStorgaeClass() == IASTDeclSpecifier.sc_extern) {
+            // 处理extern类型的实体
+        } else if (allEntieisByName.containsKey(Qualifiedname)) {
+            Entity existedEntity = allEntieisByName.get(Qualifiedname);
+            // 如果实体已经存在，可以选择覆盖或者跳过
+        } else {
+            allEntieisByName.put(Qualifiedname, entity);
+        }
 
-	public Integer getNamespace(String name){
-		if(namespaceEntities.get(name) != null)
-			return namespaceEntities.get(name);
-		return -1;
-	}
+        if (entity.getParent() != null)
+            Entity.setParent(entity, entity.getParent());
 
-	public void externVarListAdd(VarEntity var) {
-		externVarList.add(var);
-	}
+        if (entity instanceof NamespaceEntity) {
+            namespaceEntities.put(entity.getQualifiedName(), entity.getId());
+        }
+    }
 
-	public ArrayList<VarEntity> getExternVarList() {
-		return externVarList;
-	}
+    public Iterator<Entity> entityIterator() {
+        return new EntityＭapIterator(allEntitiesById.entrySet());
+    }
 
-	public void externFuncListAdd(FunctionEntity func) {
-		externFuncList.add(func);
-	}
+    public List<FileEntity> getFileEntities() {
+        return fileEntities;
+    }
 
-	public ArrayList<FunctionEntity> getExternFuncList() {
-		return externFuncList;
-	}
+    public Map<Integer, Entity> getEntities() {
+        return allEntitiesById;
+    }
+
+    public Integer getNamespace(String name) {
+        if (namespaceEntities.get(name) != null)
+            return namespaceEntities.get(name);
+        return -1;
+    }
+
+    public void externVarListAdd(VarEntity var) {
+        externVarList.add(var);
+    }
+
+    public ArrayList<VarEntity> getExternVarList() {
+        return externVarList;
+    }
+
+    public void externFuncListAdd(FunctionEntity func) {
+        externFuncList.add(func);
+    }
+
+    public ArrayList<FunctionEntity> getExternFuncList() {
+        return externFuncList;
+    }
 }

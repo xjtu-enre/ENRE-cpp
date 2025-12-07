@@ -216,34 +216,48 @@ public class CppVisitor extends ASTVisitor {
 			cppastName.resolveBinding();
 			IBinding iBinding = cppastName.getBinding();
 			IASTDeclarator[] declarators = null;
-			if(iBinding instanceof  CPPFunction){
-				CPPFunction cppFunction = (CPPFunction)iBinding;
+
+			// 获取函数的所有声明
+			if (iBinding instanceof CPPFunction) {
+				CPPFunction cppFunction = (CPPFunction) iBinding;
 				cppFunction.isStatic();
 				declarators = cppFunction.getDeclarations();
 			}
-			if(declarators != null){
-				for(IASTDeclarator declarator1:declarators){
-					if(declarator1 == null)
-						continue;
+
+			// 遍历所有声明器，尝试获取已有的函数实体
+			if (declarators != null) {
+				for (IASTDeclarator declarator1 : declarators) {
+					if (declarator1 == null) continue;
 					String name = declarator1.getFileLocation().getFileName() +
 							declarator1.getFileLocation().getNodeOffset();
 					Entity entityByLocation = this.entityrepo.getEntityByLocation(name);
-					if(entityByLocation instanceof FunctionEntity)
+					if (entityByLocation instanceof FunctionEntity)
 						functionEntity = (FunctionEntity) entityByLocation;
 				}
 			}
-			if(functionEntity != null){
-				Location location = context.getLocation(functionDefinition.getDeclarator());
-				this.entityrepo.addEntityByLocation(this.entityrepo.getEntity(location.getFile()).getQualifiedName() + location.getStartOffset(),
-						functionEntity);
-				functionEntity.setLocation(context.getLocation(functionDefinition.getDeclarator()));
+
+			// 如果已存在函数实体，更新其信息
+			if (functionEntity != null) {
+				// 计算整个函数作用域的结束行
+				int scopeEndLine = getScopeEndLine(functionDefinition);
+				Location location = context.getLocation(functionDefinition);
+				location.setEndLine(scopeEndLine);
+
+				// 更新函数实体的位置信息
+				this.entityrepo.addEntityByLocation(
+						this.entityrepo.getEntity(location.getFile()).getQualifiedName() + location.getStartOffset(),
+						functionEntity
+				);
+				functionEntity.setLocation(location);
 				context.entityStack.push(functionEntity);
-			}
-			else{
+			} else {
+				// 如果不存在函数实体，创建新的函数实体
 				String rawName = declarator.getName().toString();
 				IASTDeclSpecifier declSpeci = functionDefinition.getDeclSpecifier();
 				String returnType = context.getType(declSpeci);
-				List<ParameterEntity> parameterLists = new ArrayList<ParameterEntity>();
+				List<ParameterEntity> parameterLists = new ArrayList<>();
+
+				// 提取参数信息
 				for (IASTNode node : declarator.getChildren()) {
 					if (node instanceof IASTParameterDeclaration) {
 						ParameterEntity parameter = context.foundParameterDeclaration(((IASTParameterDeclaration) node));
@@ -253,16 +267,26 @@ public class CppVisitor extends ASTVisitor {
 						}
 					}
 				}
-				functionEntity = context.foundFunctionDefine(rawName, returnType, context.getLocation(functionDefinition.getDeclarator()), parameterLists, true);
-			}
-			int visibility = this.getVisibility(functionDefinition);
-			if(functionEntity != null) functionEntity.setVisiblity(visibility);
-			if(declaration != null){
+
+				// 计算整个函数作用域的结束行
+				int scopeEndLine = getScopeEndLine(functionDefinition);
+				Location location = context.getLocation(functionDefinition);
+				location.setEndLine(scopeEndLine);
+
+				// 创建函数实体
+				functionEntity = context.foundFunctionDefine(
+						rawName, returnType, location, parameterLists, true
+				);
+
+				// 设置函数的可见性
+				int visibility = this.getVisibility(functionDefinition);
+				if (functionEntity != null) functionEntity.setVisiblity(visibility);
 				if (declaration.getParent() instanceof CPPASTTemplateDeclaration) {
-					if(functionEntity != null) functionEntity.setTemplate(true);
+					if (functionEntity != null) functionEntity.setTemplate(true);
 				}
 			}
 		}
+
 		else if (declaration instanceof ICPPASTAliasDeclaration) {
 			ICPPASTAliasDeclaration aliasDeclaration = (ICPPASTAliasDeclaration) declaration;
 			String alias = aliasDeclaration.getAlias().toString();
@@ -331,6 +355,7 @@ public class CppVisitor extends ASTVisitor {
 			}
 		} else if (declaration instanceof IASTFunctionDefinition) {
 			// function definition
+
 			context.exitLastedEntity();
 			context.popScope();
 		}
@@ -761,5 +786,22 @@ public class CppVisitor extends ASTVisitor {
 		}
 		return 0;
 	}
+
+	/**
+	 * 获取节点的作用域结束行
+	 *
+	 * @param node AST节点
+	 * @return 整个作用域的结束行
+	 */
+	private int getScopeEndLine(IASTNode node) {
+		int maxEndLine = node.getFileLocation().getEndingLineNumber();
+		for (IASTNode child : node.getChildren()) {
+			if (child.getFileLocation() != null) {
+				maxEndLine = Math.max(maxEndLine, getScopeEndLine(child));
+			}
+		}
+		return maxEndLine;
+	}
+
 
 }

@@ -1,7 +1,9 @@
 package cdt;
 import entity.*;
 import entity.FieldEntity;
+import org.eclipse.cdt.core.IBinaryParser;
 import org.eclipse.cdt.core.dom.ast.cpp.*;
+import org.eclipse.cdt.core.model.IDeclaration;
 import org.eclipse.cdt.internal.core.dom.parser.ProblemBinding;
 import org.eclipse.cdt.internal.core.dom.parser.ProblemType;
 import relation.*;
@@ -1048,10 +1050,13 @@ public class HandlerContext {
 	public Location getLocation(IASTNode node) {
 		if (node.getFileLocation() == null)
 			return null;
+
+
 		return new Location(node.getFileLocation().getNodeLength(), node.getFileLocation().getStartingLineNumber(),
 				node.getFileLocation().getEndingLineNumber(), node.getFileLocation().getNodeOffset(),
 				currentFileEntity.getId());
 	}
+
 
 
 	/**
@@ -1629,6 +1634,5 @@ public class HandlerContext {
 //			}
 //		}
 	}
-
 
 }

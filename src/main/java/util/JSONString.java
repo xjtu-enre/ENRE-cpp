@@ -149,6 +149,7 @@ public class JSONString {
 		private Boolean isGlobal;
 		private Boolean isPointer;
 		private Boolean isTaskNode;
+		private Boolean isJNIFunction;
 
 		public EntityTemp(String name, Integer key, String category, Integer entityFile){
 			this.qualifiedName = name;
@@ -170,6 +171,7 @@ public class JSONString {
 		public void setReturnType(String returnType){
 			this.returnType = returnType;
 		}
+		public void setIsJNIFunction(boolean isJNIFunction) { this.isJNIFunction = isJNIFunction;}
 		public void setTypedefType(String typedefType){
 			this.typedefType = typedefType;
 		}
@@ -236,7 +238,9 @@ public class JSONString {
 		if(entity instanceof FunctionEntity){
 			if(((FunctionEntity) entity).getReturnType() != null){
 				entitytemp.setReturnType(((FunctionEntity) entity).getReturnType());
+				entitytemp.setIsJNIFunction(((FunctionEntity) entity).isJNIFunction());
 			}
+
 		}
 		if(entity instanceof ParameterEntity){
 			entitytemp.setParameterIndex(((ParameterEntity) entity).getIndex());

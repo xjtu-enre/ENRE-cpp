@@ -3,21 +3,22 @@ import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@CommandLine.Command(name = "ENRE-CPP", mixinStandardHelpOptions = true, version = "1.0.2")
-
-public class
-Configure {
+@CommandLine.Command(name = "ENRE-CPP", mixinStandardHelpOptions = true, version = "2.0" +
+        "")
+public class Configure {
 
     private static Configure configure = new Configure();
+
     public Configure() {}
+
     @CommandLine.Parameters(index = "0", arity = "1", description = "The directory to be analyzed", paramLabel = "directory")
     private String inputSrcPath;
-    @CommandLine.Parameters(index = "1", arity = "1", description = "A short alias name of the anayzed source code project", paramLabel = "projectName")
+
+    @CommandLine.Parameters(index = "1", arity = "1", description = "A short alias name of the analyzed source code project", paramLabel = "projectName")
     private String projectName;
 
     @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true, description = "display help for command")
@@ -26,29 +27,31 @@ Configure {
     public static Configure getConfigureInstance() {
         return configure;
     }
-    @CommandLine.Option(names = { "-v", "--version" }, versionHelp = true,
+
+    @CommandLine.Option(names = {"-v", "--version"}, versionHelp = true,
             description = "print version information and exit")
     boolean versionRequested;
 
-    @CommandLine.Option(names = { "-p", "--program_environment" },
+    @CommandLine.Option(names = {"-p", "--program_environment"},
             description = "the program environment.")
     private Set<String> program_environment = new HashSet<>();
+
     @CommandLine.Option(names = {"-d", "--dir"},
             description = "other directory need to analysis.")
     private List<String> dirs;
 
+    @CommandLine.Option(names = {"-c", "--cross_module"},
+            description = "Analyze the usage of interfaces in cross-module files.")
+    private String crossModulePath;
 
-//    @CommandLine.Parameters(index = "3", arity = "1", description = "The output path", paramLabel = "outputPath")
-//    private String usageSrcPath;
-
-    public void dealWithInputSrcPath() throws IOException{
+    public void dealWithInputSrcPath() throws IOException {
         File folder = new File(this.inputSrcPath);
         if (!folder.exists()) {
-            File a = new File(System.getProperty("user.dir"));//"user.dir"：这是一个系统属性键，代表当前用户的工作目录。该目录是 JVM 启动时所在的目录，通常是从命令行启动程序时的当前目录。
+            File a = new File(System.getProperty("user.dir"));
             File parentFolder = new File(a.getParent());
             File b = new File(parentFolder, this.inputSrcPath);
             this.inputSrcPath = b.getCanonicalPath();
-        }else{
+        } else {
             this.inputSrcPath = folder.getCanonicalPath();
         }
     }
@@ -56,8 +59,22 @@ Configure {
     public String getInputSrcPath() {
         return this.inputSrcPath;
     }
-    public Set<String> getProgram_environment() { return this.program_environment; }
-    public List<String> getOtherDirs() { return this.dirs; }
+
+    public String getProjectName() {
+        return this.projectName;
+    }
+
+    public String getCrossModulePath() {
+        return this.crossModulePath;
+    }
+
+    public Set<String> getProgram_environment() {
+        return this.program_environment;
+    }
+
+    public List<String> getOtherDirs() {
+        return this.dirs;
+    }
 
     public static final String CPP = "cpp";
     private String curr_pro_suffix = ".cpp";
@@ -71,7 +88,6 @@ Configure {
     public static final String CPP_LANG = "cpp";
     public static final String EXTERNAL_DATA_SOURCE = "datasource";
 
-
     private String schemaVersion = "1.0";
 
     private List<String> includePath;
@@ -79,12 +95,9 @@ Configure {
     public void setInputSrcPath(String inputSrcPath) {
         this.inputSrcPath = inputSrcPath;
     }
+
     public void setIncludePath(List<String> includePath) {
         this.includePath = includePath;
-    }
-
-    public String getProjectName() {
-        return this.projectName;
     }
 
     public static final int ENTITY_KIND_NUM = 16;
@@ -102,9 +115,7 @@ Configure {
     public static final int Variable = 12;
     public static final int Label = 13;
     public static final int Virtual = 14;
-    public static final int Default= 14;
-
-
+    public static final int Default = 14;
 
     public static final int NOTFOUNDENTITY = -1;
     public static final int FOUNDENTITY = 0;
